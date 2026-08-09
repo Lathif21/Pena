@@ -1,0 +1,149 @@
+<script lang="ts">
+  import { enhance } from '$app/forms'
+  import { listTentor, type Tentor } from '$features/account/data/tentor'
+  import { listKelas, type Kelas } from '$features/master-data/data/kelas'
+  import { listMapel, type Mapel } from '$features/master-data/data/mapel'
+
+  interface Props {
+    tahun_ajaran_id: string
+    editingAssignment?: { id: string; tentor_id: string; kelas_id: string; mapel_id: string }
+    onclose?: () => void
+  }
+
+  let { tahun_ajaran_id, editingAssignment, onclose }: Props = $props()
+
+  let tentor_id = $state(editingAssignment?.tentor_id || '')
+  let kelas_id = $state(editingAssignment?.kelas_id || '')
+  let mapel_id = $state(editingAssignment?.mapel_id || '')
+
+  let tentor_list: Tentor[] = []
+  let kelas_list: Kelas[] = []
+  let mapel_list: Mapel[] = []
+
+  let loading = $state(false)
+  let loadingData = $state(true)
+  let error = $state('')
+
+  async function loadData() {
+    loadingData = true
+    error = ''
+    try {
+      ;[tentor_list, kelas_list, mapel_list] = await Promise.all([
+        listTentor(),
+        listKelas(),
+        listMapel()
+      ])
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Failed to load data'
+      console.error('Error loading assignment data:', err)
+    } finally {
+      loadingData = false
+    }
+  }
+
+  loadData()
+</script>
+
+<div class="rounded-md border border-gray-200 bg-white p-6">
+  <h3 class="text-lg font-medium text-gray-900 mb-4">
+    {editingAssignment ? 'Edit Assignment Tentor' : 'Tambah Assignment Tentor'}
+  </h3>
+
+  {#if error}
+    <div class="mb-4 rounded-md bg-red-50 p-4">
+      <p class="text-sm font-medium text-red-800">{error}</p>
+    </div>
+  {/if}
+
+  {#if loadingData}
+    <p class="text-gray-600">Loading...</p>
+  {:else}
+    <form method="POST" action={editingAssignment ? '?/update' : '?/create'} use:enhance={({ formData }) => {
+      if (editingAssignment) {
+        formData.set('assignment_id', editingAssignment.id)
+      }
+      formData.set('tahun_ajaran_id', tahun_ajaran_id)
+      loading = true
+      return async ({ result }) => {
+        loading = false
+        if (result.type === 'success') {
+          onclose?.()
+        } else if (result.type === 'failure') {
+          error = result.data?.error || (editingAssignment ? 'Gagal memperbarui assignment' : 'Gagal membuat assignment')
+        }
+      }
+    }} class="space-y-4">
+      <div>
+        <label for="tentor" class="block text-sm font-medium text-gray-700">
+          Tentor
+        </label>
+        <select
+          id="tentor"
+          name="tentor_id"
+          required
+          bind:value={tentor_id}
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">Pilih Tentor</option>
+          {#each tentor_list as t (t.id)}
+            <option value={t.id}>{t.nama_lengkap}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div>
+        <label for="kelas" class="block text-sm font-medium text-gray-700">
+          Kelas
+        </label>
+        <select
+          id="kelas"
+          name="kelas_id"
+          required
+          bind:value={kelas_id}
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">Pilih Kelas</option>
+          {#each kelas_list as k (k.id)}
+            <option value={k.id}>{k.nama}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div>
+        <label for="mapel" class="block text-sm font-medium text-gray-700">
+          Mata Pelajaran
+        </label>
+        <select
+          id="mapel"
+          name="mapel_id"
+          required
+          bind:value={mapel_id}
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+        >
+          <option value="">Pilih Mapel</option>
+          {#each mapel_list as m (m.id)}
+            <option value={m.id}>{m.nama}</option>
+          {/each}
+        </select>
+      </div>
+
+      <div class="flex space-x-3">
+        <button
+          type="submit"
+          disabled={loading}
+          class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? (editingAssignment ? 'Updating...' : 'Creating...') : 'Simpan'}
+        </button>
+        <button
+          type="button"
+          onclick={() => onclose?.()}
+          class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+        >
+          Batal
+        </button>
+      </div>
+    </form>
+  {/if}
+</div>
+
