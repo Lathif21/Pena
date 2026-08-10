@@ -1,22 +1,6 @@
-import type { Cookies } from '@sveltejs/kit'
-import { createSupabaseServerClient } from '$lib/supabase/server'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 
-/** A role claim from the client is not authorization — re-check it server-side. */
-export async function isKepalaGuru(cookies: Cookies) {
-  const supabase = createSupabaseServerClient(cookies)
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return false
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .is('deleted_at', null)
-    .single()
-
-  return profile?.role === 'kepala_guru'
-}
+export { isKepalaGuru } from '$lib/supabase/guard.server'
 
 export interface NewAccount {
   role: 'tentor' | 'siswa' | 'wali_murid'

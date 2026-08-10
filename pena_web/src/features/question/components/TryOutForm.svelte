@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SvelteSet } from 'svelte/reactivity'
   import { createTryOut, publishTryOut } from '../data/try-out'
 
   interface Kelas {
@@ -29,7 +30,9 @@
   let tipeTest = $state<'biasa' | 'pre_test' | 'post_test'>(initial?.tipe_test || 'biasa')
   let waktuBuka = $state(initial?.waktu_buka || '')
   let durasiMenit = $state(initial?.durasi_menit || 60)
-  let selectedKelas = $state<Set<string>>(new Set(initial?.kelasIds || []))
+  // SvelteSet, not Set: $state does not make built-in collections reactive, so
+  // mutating a plain Set never re-renders (the submit button stayed disabled).
+  let selectedKelas = new SvelteSet<string>(initial?.kelasIds || [])
   let loading = $state(false)
   let error = $state('')
 
@@ -39,7 +42,6 @@
     } else {
       selectedKelas.add(kelasId)
     }
-    selectedKelas = selectedKelas
   }
 
   async function handleSubmit(e: SubmitEvent) {

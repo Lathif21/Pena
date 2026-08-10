@@ -1,11 +1,14 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
+  import { SvelteMap } from 'svelte/reactivity'
   import { startAttempt, saveJawaban, submitAttempt } from '$features/question/data/attempt'
 
   let { data } = $props()
 
   let attemptId = $state(data.attempt?.id || '')
-  let jawaban = $state<Map<string, string>>(new Map())
+  // SvelteMap, not Map: $state does not make built-in collections reactive, so
+  // mutating a plain Map never re-renders the answer count or the selected radio.
+  let jawaban = new SvelteMap<string, string>()
   let submitted = $state(!!data.attempt?.submitted_at)
   let nilai = $state(data.attempt?.nilai || 0)
   let loading = $state(false)
@@ -17,7 +20,7 @@
     loading = true; error = ''
     try {
       const attempt = await startAttempt(data.siswaDetailId, data.subMateri.id, false, data.user.tahun_ajaran_id)
-      attemptId = attempt.id; jawaban = new Map(); submitted = false; nilai = 0
+      attemptId = attempt.id; jawaban.clear(); submitted = false; nilai = 0
     } catch (err) {
       error = err instanceof Error ? err.message : 'Gagal memulai latihan'
     } finally {
@@ -26,7 +29,7 @@
   }
 
   async function handleSelectJawaban(soalId: string, pilihanId: string) {
-    jawaban.set(soalId, pilihanId); jawaban = jawaban
+    jawaban.set(soalId, pilihanId)
     if (!attemptId) return
     try {
       await saveJawaban(attemptId, soalId, pilihanId)
@@ -51,7 +54,7 @@
   }
 
   function handleRetry() {
-    attemptId = ''; jawaban = new Map(); submitted = false; nilai = 0; startLatihan()
+    attemptId = ''; jawaban.clear(); submitted = false; nilai = 0; startLatihan()
   }
 </script>
 

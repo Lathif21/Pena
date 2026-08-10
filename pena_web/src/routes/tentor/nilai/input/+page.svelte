@@ -1,5 +1,6 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
+  import { SvelteMap } from 'svelte/reactivity'
   import { listSiswaByTentor, createNilaiManual } from '$features/grading/data/nilai-manual'
 
   let { data } = $props()
@@ -9,7 +10,8 @@
   let judul = $state('')
   let tanggal = $state(new Date().toISOString().split('T')[0])
   let siswaList = $state<any[]>([])
-  let nilaiInput = $state<Map<string, { nilai: number | null; catatan: string }>>(new Map())
+  // SvelteMap, not Map: a plain Map in $state is not reactive when mutated.
+  let nilaiInput = new SvelteMap<string, { nilai: number | null; catatan: string }>()
   let loading = $state(false)
   let submitting = $state(false)
   let error = $state('')
@@ -20,7 +22,7 @@
     loading = true; error = ''
     try {
       siswaList = await listSiswaByTentor(data.tentorId, selectedMapelId, data.user.tahun_ajaran_id)
-      nilaiInput = new Map()
+      nilaiInput.clear()
     } catch (err) {
       error = err instanceof Error ? err.message : 'Gagal mengambil daftar siswa'
       siswaList = []
@@ -30,7 +32,7 @@
   }
 
   function updateSiswaInput(siswaDetailId: string, nilai: number | null, catatan: string) {
-    nilaiInput.set(siswaDetailId, { nilai, catatan }); nilaiInput = nilaiInput
+    nilaiInput.set(siswaDetailId, { nilai, catatan })
   }
 
   async function handleSubmit(e: SubmitEvent) {

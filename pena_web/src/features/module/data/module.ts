@@ -1,3 +1,4 @@
+import { deserialize } from '$app/forms'
 import { supabase } from '$lib/supabase/client'
 
 export interface Module {
@@ -45,26 +46,29 @@ export async function uploadModule(subMateriId: string, file: File) {
   return (await res.json()) as Module
 }
 
-export async function publishModule(id: string) {
-  const { data: current, error: fetchError } = await supabase
-    .from('module')
-    .select('status, published_at')
-    .eq('id', id)
-    .single()
+/**
+ * Publish state changes go through the page's form actions, which re-check the
+ * kepala_guru role server-side. Doing it from the browser would be unauthorized —
+ * there is no RLS on `module`.
+ */
+async function callAction(action: 'publish' | 'unpublish') {
+  const res = await fetch(`?/${action}`, {
+    method: 'POST',
+    headers: { 'x-sveltekit-action': 'true' },
+    body: new FormData()
+  })
 
-  if (fetchError) throw fetchError
-  if (current?.status === 'published') throw new Error('Module sudah dipublish')
+  const result = deserialize(await res.text())
+  if (result.type === 'failure') {
+    throw new Error((result.data?.error as string) ?? 'Gagal mengubah status modul')
+  }
+  if (result.type === 'error') throw new Error(result.error.message)
+}
 
-  const { data, error } = await supabase
-    .from('module')
-    .update({
-      status: 'published',
-      published_at: new Date().toISOString()
-    })
-    .eq('id', id)
-    .select()
-    .single()
+export function publishModule() {
+  return callAction('publish')
+}
 
-  if (error) throw error
-  return data as Module
+export function unpublishModule() {
+  return callAction('unpublish')
 }

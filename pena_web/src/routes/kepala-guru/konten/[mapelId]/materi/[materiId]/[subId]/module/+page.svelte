@@ -3,6 +3,7 @@
     getModuleBySubMateri,
     uploadModule,
     publishModule,
+    unpublishModule,
     getModuleUrl,
     type Module
   } from '$features/module/data/module'
@@ -67,15 +68,36 @@
 
   async function handlePublish() {
     if (!modul) return
-    if (!confirm('Publish modul ini? Setelah dipublish, modul tidak bisa diubah atau dihapus.')) return
+    if (!confirm('Publish modul ini? Modul akan langsung terlihat oleh siswa.')) return
 
     busy = true
     error = ''
     try {
-      await publishModule(modul.id)
+      await publishModule()
       await load()
     } catch (err) {
       error = err instanceof Error ? err.message : 'Gagal publish modul'
+    } finally {
+      busy = false
+    }
+  }
+
+  async function handleUnpublish() {
+    if (!modul) return
+    if (
+      !confirm(
+        'Batalkan publish? Modul kembali jadi draft dan langsung hilang dari halaman siswa sampai dipublish lagi.'
+      )
+    )
+      return
+
+    busy = true
+    error = ''
+    try {
+      await unpublishModule()
+      await load()
+    } catch (err) {
+      error = err instanceof Error ? err.message : 'Gagal membatalkan publish'
     } finally {
       busy = false
     }
@@ -133,9 +155,16 @@
           <div class="flex items-center gap-3">
             {#if modul?.status === 'published'}
               <p class="text-sm text-gray-500">
-                Terkunci — dipublish
+                Dipublish
                 {modul.published_at ? new Date(modul.published_at).toLocaleDateString('id-ID') : ''}
               </p>
+              <button
+                onclick={handleUnpublish}
+                disabled={busy}
+                class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                {busy ? 'Memproses...' : 'Batalkan Publish'}
+              </button>
             {:else}
               <input
                 bind:this={fileInput}
