@@ -3,7 +3,7 @@
     getModuleBySubMateri,
     uploadModule,
     publishModule,
-    getSignedUrl,
+    getModuleUrl,
     type Module
   } from '$features/module/data/module'
 
@@ -21,7 +21,14 @@
     error = ''
     try {
       modul = await getModuleBySubMateri(data.subMateri.id)
-      signedUrl = modul?.storage_path ? await getSignedUrl(modul.storage_path) : ''
+      signedUrl = modul?.storage_path ? getModuleUrl(modul.storage_path) : ''
+
+      // A row can outlive its file (manual cleanup, failed deploy). Check rather than
+      // letting the iframe render a raw 404.
+      if (signedUrl) {
+        const head = await fetch(signedUrl, { method: 'HEAD' }).catch(() => null)
+        if (!head?.ok) signedUrl = ''
+      }
     } catch (err) {
       error = err instanceof Error ? err.message : 'Gagal memuat modul'
     } finally {
@@ -166,6 +173,13 @@
       {:else if !modul}
         <div class="rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center">
           <p class="text-sm text-gray-500">Belum ada PDF. Upload file untuk mulai.</p>
+        </div>
+      {:else}
+        <div class="rounded-2xl border-2 border-dashed border-amber-200 bg-amber-50 p-8 text-center">
+          <p class="text-sm font-medium text-amber-800">File PDF tidak ditemukan di storage</p>
+          <p class="mt-1 text-xs text-amber-700">
+            Data modul ada, tapi filenya hilang. Upload ulang PDF untuk sub materi ini.
+          </p>
         </div>
       {/if}
     {/if}

@@ -70,7 +70,9 @@ Query pattern: join from `sub_materi` to `module` and check `status = 'published
 ## Module (PDF)
 
 - Exactly one PDF per `sub_materi`. If `kepala_guru` uploads a second PDF, it replaces the first — but only while `status = 'draft'`.
-- Stored in Supabase Storage, bucket `modul-pdf`, path: `/{sub_materi_id}/{filename}`
+- **Stored on the server filesystem, not Supabase Storage** — object storage was dropped on cost grounds. Files live in `pena_web/static/uploads/pdfs/`, and `module.storage_path` holds the path relative to `static/` (e.g. `uploads/pdfs/{sub_materi_id}-{timestamp}.pdf`).
+- SvelteKit serves `static/` at the web root, so the public URL is simply `/{storage_path}`. There is no signing step — never call `supabase.storage` for modules.
+- Uploads go through `POST /api/modul/[subId]`, which checks the session and `kepala_guru` role, rejects a non-uuid `subId` (the id becomes part of the filename), enforces PDF type and the size cap, and refuses to overwrite a `published` module.
 - Max file size: 20MB (internal product, keep it simple — no video, no transcoding)
 - Accepted type: `.pdf` only
 
@@ -116,8 +118,7 @@ create index idx_sub_materi_materi on sub_materi(materi_id);
 create table module (
   id uuid primary key default gen_random_uuid(),
   sub_materi_id uuid not null references sub_materi(id) unique,
-  file_path text not null,
-  file_size integer not null,
+  storage_path text not null,  -- relative to static/, e.g. uploads/pdfs/<subId>-<ts>.pdf
   status text not null default 'draft' check (status in ('draft', 'published')),
   published_at timestamptz,
   created_at timestamptz not null default now(),
