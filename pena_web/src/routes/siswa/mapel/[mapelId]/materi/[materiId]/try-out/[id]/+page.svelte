@@ -2,7 +2,7 @@
   import { goto } from '$app/navigation'
   import { startTryOut as apiStartTryOut, saveJawaban, submitAttempt } from '$features/question/data/attempt'
   import { onMount } from 'svelte'
-  import { SvelteMap } from 'svelte/reactivity'
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity'
 
   let { data } = $props()
 
@@ -14,6 +14,8 @@
   let nilai = $state(data.attempt?.nilai || 0)
   let loading = $state(false)
   let error = $state('')
+  // Soal whose answer never reached the server — marked in the UI.
+  let gagalSimpan = new SvelteSet<string>()
   let timeRemaining = $state(data.tryOut.durasi_menit * 60)
   let timerColor = $state('text-gray-600')
 
@@ -66,7 +68,11 @@
     if (!attemptId) return
     try {
       await saveJawaban(attemptId, soalId, pilihanId)
+      gagalSimpan.delete(soalId)
     } catch (err) {
+      // A silently dropped answer is graded as blank, so it has to be visible.
+      gagalSimpan.add(soalId)
+      error = 'Sebagian jawaban gagal tersimpan. Periksa koneksi lalu pilih ulang jawaban tersebut.'
       console.error('Error saving jawaban:', err)
     }
   }
@@ -185,6 +191,9 @@
                         class:border-gray-200={pilihan.id !== kunci && pilihan.id !== dijawab}
                       >
                         <span class="flex-1 text-gray-900">{pilihan.teks}</span>
+                  {#if gagalSimpan.has(soal.id) && jawaban.get(soal.id) === pilihan.id}
+                    <span class="text-xs font-medium text-danger">belum tersimpan</span>
+                  {/if}
                         {#if pilihan.id === kunci}
                           <span class="text-xs font-medium text-emerald-700">Jawaban benar</span>
                         {:else if pilihan.id === dijawab}

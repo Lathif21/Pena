@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
   import { page } from '$app/state'
-  import { SvelteMap } from 'svelte/reactivity'
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity'
   import { startLatihan as apiStartLatihan, saveJawaban, submitAttempt } from '$features/question/data/attempt'
 
   let { data } = $props()
@@ -17,6 +17,8 @@
   let nilai = $state(data.attempt?.nilai || 0)
   let loading = $state(false)
   let error = $state('')
+  // Soal whose answer never reached the server — marked in the UI.
+  let gagalSimpan = new SvelteSet<string>()
   let message = $state('')
 
   async function startLatihan() {
@@ -37,9 +39,13 @@
     if (!attemptId) return
     try {
       await saveJawaban(attemptId, soalId, pilihanId)
+      gagalSimpan.delete(soalId)
       message = 'Jawaban disimpan'
       setTimeout(() => (message = ''), 2000)
     } catch (err) {
+      // A silently dropped answer is graded as blank, so it has to be visible.
+      gagalSimpan.add(soalId)
+      error = 'Sebagian jawaban gagal tersimpan. Periksa koneksi lalu pilih ulang jawaban tersebut.'
       console.error('Error saving jawaban:', err)
     }
   }
@@ -124,6 +130,9 @@
                 <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 cursor-pointer hover:bg-gray-50 transition-colors" class:ring-2={jawaban.get(soal.id) === pilihan.id} class:ring-primary={jawaban.get(soal.id) === pilihan.id}>
                   <input type="radio" name="soal-{soal.id}" value={pilihan.id} checked={jawaban.get(soal.id) === pilihan.id} onchange={() => handleSelectJawaban(soal.id, pilihan.id)} class="h-4 w-4" />
                   <span class="flex-1 text-gray-900">{pilihan.teks}</span>
+                  {#if gagalSimpan.has(soal.id) && jawaban.get(soal.id) === pilihan.id}
+                    <span class="text-xs font-medium text-danger">belum tersimpan</span>
+                  {/if}
                 </label>
               {/each}
             </div>

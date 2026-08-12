@@ -55,23 +55,21 @@ export async function PATCH({ request, cookies, params }) {
   if (!soalId) throw svelteError(400, 'soalId wajib diisi')
 
   // The soal must belong to this attempt's parent, and the pilihan to that soal.
-  const parent = attempt.try_out_id
-    ? await supabaseAdmin
-        .from('try_out')
-        .select('materi_id')
-        .eq('id', attempt.try_out_id)
-        .single()
-        .then((r) => ({ column: 'materi_id', value: r.data?.materi_id }))
-    : { column: 'sub_materi_id', value: attempt.sub_materi_id }
+  // Soal hang off try_out_id (not materi_id) since the soal-per-try-out migration.
+  const parentColumn = attempt.try_out_id ? 'try_out_id' : 'sub_materi_id'
+  const parentId = attempt.try_out_id ?? attempt.sub_materi_id
 
-  const { data: soal } = await supabaseAdmin
+  const { data: soal, error: soalError } = await supabaseAdmin
     .from('soal')
     .select('id')
     .eq('id', soalId)
-    .eq(parent.column, parent.value)
+    .eq(parentColumn, parentId)
     .is('deleted_at', null)
     .maybeSingle()
 
+  // Surface a real query failure as a 500 — treating it as "not part of this quiz"
+  // is how a dropped column silently turned into every answer being discarded.
+  if (soalError) throw svelteError(500, soalError.message)
   if (!soal) throw svelteError(400, 'Soal bukan bagian dari kuis ini')
 
   if (pilihanId) {
