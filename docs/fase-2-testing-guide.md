@@ -1,644 +1,265 @@
 # Fase 2 — Testing Guide
 
-Panduan testing untuk fitur **Soal & Penilaian** (Try Out, Latihan Soal, Auto-Grade, Nilai Manual).
+Validasi end-to-end untuk soal, latihan, try out, auto-grading, dan nilai manual.
+Semua langkah lewat UI browser kecuali disebutkan lain.
 
-**Prerequisites:**
-- Fase 1 selesai — materi, sub materi, modul PDF berjalan
-- 4 migrations sudah ter-push: `soal`, `try_out`, `attempt`, `nilai_manual`
-- API functions sudah di-create di `src/features/question/data/` dan `src/features/grading/data/`
+Prasyarat: `cd pena_web && npm run dev` → http://localhost:5173
 
 ---
 
-## Test Data Setup
+## Akun Uji
 
-Sebelum mulai testing, setup data di Supabase console:
+Buat lewat **Akun** di dashboard KG kalau belum ada. Password semua: `TestPass123`.
 
-### 1. Pastikan Materi & Sub Materi Ada
+| Peran | Email | Catatan |
+|---|---|---|
+| Kepala Guru | `kg@test.com` | Sudah ada |
+| Tentor | `gondol@test.com` | |
+| Siswa A | `siswa_coba@test.com` | Harus terdaftar di kelas target try out |
+| Siswa B | `siswa_lain@test.com` | Kelas **berbeda** — untuk uji targeting |
 
-Buka Supabase Console → SQL Editor:
+Siapkan juga: 1 mapel, minimal 1 kelas terhubung ke mapel itu (Master Data → Mata Pelajaran → centang kelas), 1 materi, 1 sub materi.
 
-```sql
--- Lihat materi yang ada
-select id, nama, mapel_id from materi where deleted_at is null limit 5;
-
--- Lihat sub_materi
-select id, nama, materi_id from sub_materi where deleted_at is null limit 5;
-```
-
-Catat:
-- **materi_id** untuk testing try out
-- **sub_materi_id** untuk testing latihan soal
-
-### 2. Pastikan Ada Siswa & Kelas
-
-```sql
--- Lihat kelas
-select id, nama, tingkat from kelas where deleted_at is null;
-
--- Lihat siswa_detail
-select id, nama_lengkap, paket from siswa_detail where deleted_at is null limit 5;
-
--- Lihat siswa di kelas (untuk try out)
-select sd.id, sd.nama_lengkap, sk.kelas_id from siswa_detail sd
-left join siswa_kelas sk on sk.siswa_detail_id = sd.id
-where sd.deleted_at is null limit 5;
-```
-
-Catat:
-- **kelas_id** untuk try out target
-- **siswa_detail_id** untuk attempt testing
-- **tahun_ajaran_id** (aktif)
+> Siswa yang tidak punya kelas tidak melihat mapel apa pun. Kalau daftar mapel siswa kosong, cek `siswa_kelas` dan relasi `mapel_kelas` dulu.
 
 ---
 
-## TC-1: Create Latihan Soal (Practice Quiz)
+## Bagian 1 — Builder Soal (KG)
 
-**Tujuan:** Test membuat soal per sub materi dengan multiple choice options.
+Path: **Konten → [mapel] → [materi] → [sub materi] → Soal** (latihan), atau **→ Try Out** (try out).
 
-### Step 1: Buka Supabase Console → SQL Editor
-
-Copy **sub_materi_id** dari langkah setup.
-
-### Step 2: Insert Soal Pertama
-
-```sql
-insert into soal (sub_materi_id, pertanyaan, nomor_urut)
-values (
-  'YOUR_SUB_MATERI_ID',
-  'Berapa hasil dari 2 + 2?',
-  1
-);
-```
-
-**Expected:** Soal ter-insert dengan ID.
-
-Catat **soal_id** dari hasil query.
-
-### Step 3: Insert Pilihan Jawaban
-
-```sql
-insert into pilihan_jawaban (soal_id, teks, is_benar, nomor_urut)
-values
-  ('YOUR_SOAL_ID', '3', false, 1),
-  ('YOUR_SOAL_ID', '4', true, 2),
-  ('YOUR_SOAL_ID', '5', false, 3);
-```
-
-**Expected:** 3 pilihan ter-insert, tepat 1 `is_benar = true`.
-
-### Step 4: Verify Constraint
-
-Coba insert soal tanpa sub_materi_id dan materi_id:
-
-```sql
-insert into soal (pertanyaan, nomor_urut)
-values ('Soal tanpa induk', 1);
-```
-
-**Expected:** Error — `check (num_nonnulls(sub_materi_id, materi_id) = 1)` ditolak.
-
-✅ **PASS** jika constraint bekerja.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 1.1 | Buat soal dengan 3 pilihan, 1 benar | Tersimpan |
+| 1.2 | Buat soal dengan 4 dan 5 pilihan | Tersimpan — jumlah pilihan bebas per soal |
+| 1.3 | Simpan soal tanpa menandai jawaban benar | Ditolak: *"Harus tepat 1 jawaban benar"* |
+| 1.4 | Tandai 2 jawaban benar | Ditolak: *"Harus tepat 1 jawaban benar"* |
+| 1.5 | Simpan soal dengan 1 pilihan saja | Ditolak: *"Minimal 2 pilihan jawaban"* |
+| 1.6 | Kosongkan teks salah satu pilihan | Ditolak: *"Semua pilihan harus diisi"* |
 
 ---
 
-## TC-2: Create Try Out (Exam)
+## Bagian 2 — Penjadwalan Try Out (KG)
 
-**Tujuan:** Test membuat try out dengan penjadwalan dan target kelas.
+Path: **Konten → [mapel] → [materi] → Kelola Try Out**
 
-### Step 1: Prepare Data
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 2.1 | Isi judul, tipe **Biasa**, waktu buka, durasi, centang minimal 1 kelas | Tombol **Buat Try Out** aktif dan tersimpan |
+| 2.2 | Jangan centang kelas apa pun | Tombol tetap **disabled** — try out tanpa kelas tidak bisa dikerjakan siapa pun |
+| 2.3 | Buat try out tipe **Pre-Test** | Tersimpan |
+| 2.4 | Buat pre-test **kedua** di mapel yang sama (materi mana pun) | Ditolak: *"Sudah ada pre-test untuk mapel ini"* |
+| 2.5 | Publish try out yang belum punya soal | Ditolak: *"Try out harus memiliki minimal 1 soal"* |
+| 2.6 | Publish try out yang sudah ada soal + kelas | Status jadi **Published** |
 
-Dari setup, catat:
-- **materi_id**
-- **kelas_id** (minimal 1)
-- **tahun_ajaran_id**
+> Daftar kelas di form hanya berisi kelas yang terhubung ke mapel ini lewat `mapel_kelas` — bukan semua kelas.
 
-### Step 2: Insert Try Out
+### 2b. Edit Try Out
 
-```sql
-insert into try_out (
-  materi_id,
-  judul,
-  tipe_test,
-  waktu_buka,
-  durasi_menit,
-  status,
-  tahun_ajaran_id
-)
-values (
-  'YOUR_MATERI_ID',
-  'Try Out Matematika Bab 1',
-  'biasa',
-  '2026-08-10 09:00:00+07',
-  60,
-  'draft',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
+Judul, tipe test, waktu buka, durasi, dan target kelas bisa diubah lewat tombol **Edit Jadwal** di panel detail — selama try out masih **Draft**.
 
-**Expected:** Try out ter-insert dengan status `draft`. Catat **try_out_id**.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 2.7 | Pilih try out draft → **Edit Jadwal** | Form terisi nilai yang sekarang, termasuk centang kelas dan waktu buka |
+| 2.8 | Ubah judul, waktu, durasi, dan centang kelas lain → **Simpan Perubahan** | Semua tersimpan; panel detail langsung memperlihatkan nilai baru |
+| 2.9 | Kosongkan judul | Ditolak: *"Judul wajib diisi"* |
+| 2.10 | Durasi `0` | Ditolak: *"Durasi minimal 1 menit"* |
+| 2.11 | Hilangkan semua centang kelas | Tombol simpan **disabled**; lewat API ditolak *"Pilih minimal satu kelas"* |
+| 2.12 | Ubah tipe jadi **Pre-Test** padahal mapel sudah punya pre-test lain | Ditolak: *"Sudah ada pre-test untuk mapel ini"* |
+| 2.13 | Publish, lalu coba **Edit Jadwal** | Tombol hilang; lewat API ditolak *"Batalkan publish try out dulu sebelum mengubah jadwal"* |
+| 2.14 | Setelah jendela waktu lewat | Ditolak permanen: *"Try out sudah selesai — tidak bisa diubah lagi"* |
 
-### Step 3: Assign Kelas
+> Cek juga: waktu buka yang tampil di form harus sama dengan yang tersimpan (bukan geser beberapa jam). `datetime-local` memakai waktu lokal, database memakai UTC — konversinya ada di `TryOutForm`.
 
-```sql
-insert into try_out_kelas (try_out_id, kelas_id)
-values
-  ('YOUR_TRY_OUT_ID', 'KELAS_ID_1'),
-  ('YOUR_TRY_OUT_ID', 'KELAS_ID_2');
-```
+### 2c. Hapus Try Out
 
-**Expected:** 2 kelas ter-assign.
+Tombol **Hapus** ada di panel detail try out yang berstatus Draft.
 
-### Step 4: Insert Soal Try Out
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 2.15 | Hapus try out draft yang belum pernah dikerjakan | Terhapus; soal di dalamnya ikut terhapus; pilihan pindah ke try out lain yang tersisa |
+| 2.16 | Cek database | `deleted_at` terisi — baris tidak benar-benar dihapus (soft delete) |
+| 2.17 | Hapus try out yang masih **published** | Ditolak: *"Batalkan publish try out dulu sebelum menghapus"* |
+| 2.18 | Hapus try out yang jendelanya sudah lewat | Ditolak: *"Try out sudah selesai — tidak bisa dihapus"* |
+| 2.19 | Batalkan publish try out yang sudah dikerjakan siswa, lalu hapus | Ditolak: *"Sudah ada siswa yang mengerjakan — try out tidak bisa dihapus"* |
+| 2.20 | Login tentor/siswa, panggil endpoint hapus langsung | **403** |
 
-```sql
-insert into soal (materi_id, pertanyaan, nomor_urut)
-values
-  ('YOUR_MATERI_ID', 'Soal try out nomor 1?', 1),
-  ('YOUR_MATERI_ID', 'Soal try out nomor 2?', 2);
-```
+### 2d. Revisi Soal Setelah Publish
 
-**Expected:** 2 soal ter-insert. Assign pilihan jawaban seperti TC-1.
+Aturannya: **selama try out masih dipublish, soal terkunci.** Untuk memperbaiki soal, batalkan publish dulu. Setelah jendela waktu lewat, semuanya terkunci permanen.
 
-### Step 5: Publish Try Out
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 2.7 | Try out **published**, jendela belum lewat — coba tambah/edit/hapus soal | Ditolak: *"Batalkan publish try out dulu sebelum mengubah soal"*; tombol Tambah/Edit/Hapus tidak muncul |
+| 2.8 | Klik **Batalkan Publish** | Status kembali **Draft**, try out hilang dari halaman siswa |
+| 2.9 | Tambah dan edit soal | Sekarang boleh |
+| 2.10 | Publish lagi | Kembali **Published**, soal terkunci lagi |
+| 2.11 | Tunggu sampai jendela waktu lewat (atau mundurkan `waktu_buka` di DB) | Tombol **Batalkan Publish** hilang, diganti *"Terkunci — waktu sudah lewat"* |
+| 2.12 | Coba unpublish setelah lewat | Ditolak: *"Waktu try out sudah lewat — tidak bisa dibatalkan lagi"* |
+| 2.13 | Coba tambah/edit/hapus soal setelah lewat | Ditolak: *"Try out sudah selesai — soal tidak bisa diubah lagi"* |
 
-```sql
-update try_out
-set status = 'published', published_at = now()
-where id = 'YOUR_TRY_OUT_ID';
-```
-
-**Expected:** Status berubah ke `published`, `published_at` ter-set.
-
-✅ **PASS** jika try out published dan visible.
+> Latihan (soal di sub materi) tidak pernah terkunci — boleh diubah kapan saja.
 
 ---
 
-## TC-3: Student Take Latihan (Unlimited Attempts)
+## Bagian 3 — Latihan (Siswa)
 
-**Tujuan:** Test siswa mengerjakan latihan, bisa diulang berkali-kali.
+Path: **Mapel → [mapel] → [materi] → [sub materi] → Latihan**
 
-### Step 1: Create Attempt
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 3.1 | Kerjakan latihan sampai submit | Nilai langsung muncul |
+| 3.2 | Klik **Ulangi**, kerjakan lagi | Boleh — latihan tidak dibatasi jumlah percobaan |
+| 3.3 | Ulangi 3× | Ketiganya tersimpan sebagai attempt terpisah |
+| 3.4 | Pilih jawaban satu per satu | Counter *"x dari y terjawab"* ikut naik tiap klik |
 
-```sql
-insert into attempt (siswa_detail_id, sub_materi_id, tahun_ajaran_id)
-values ('YOUR_SISWA_DETAIL_ID', 'YOUR_SUB_MATERI_ID', 'YOUR_TAHUN_AJARAN_ID')
-returning id;
-```
-
-**Expected:** Attempt ter-create dengan `is_active = true`, `submitted_at = null`.
-
-Catat **attempt_id**.
-
-### Step 2: Save Answers (Incremental)
-
-Siswa menjawab soal satu per satu. Setiap pilihan disimpan langsung:
-
-```sql
-insert into jawaban_siswa (attempt_id, soal_id, pilihan_jawaban_id)
-values ('YOUR_ATTEMPT_ID', 'SOAL_ID_1', 'PILIHAN_BENAR_ID')
-on conflict (attempt_id, soal_id) do update set
-  pilihan_jawaban_id = excluded.pilihan_jawaban_id;
-```
-
-**Expected:** Jawaban tersimpan. Jika siswa ganti jawaban, `on conflict` update record lama.
-
-### Step 3: Submit Attempt
-
-```sql
--- Hitung jumlah soal
-select count(*) as total_soal from soal
-where sub_materi_id = 'YOUR_SUB_MATERI_ID' and deleted_at is null;
-
--- Hitung jawaban benar
-select count(*) as benar from jawaban_siswa js
-join pilihan_jawaban pj on pj.id = js.pilihan_jawaban_id
-where js.attempt_id = 'YOUR_ATTEMPT_ID'
-and pj.is_benar = true;
-```
-
-Manual calculation:
-- Nilai = CEIL((benar / total) × 100)
-- Contoh: 2 benar dari 3 soal = CEIL((2/3) × 100) = 67
-
-```sql
-update attempt
-set submitted_at = now(), nilai = 67
-where id = 'YOUR_ATTEMPT_ID';
-```
-
-**Expected:** `submitted_at` ter-set, `nilai` = 67.
-
-### Step 4: Retry Latihan
-
-Buat attempt baru untuk siswa yang sama, sub materi yang sama:
-
-```sql
-insert into attempt (siswa_detail_id, sub_materi_id, tahun_ajaran_id)
-values ('YOUR_SISWA_DETAIL_ID', 'YOUR_SUB_MATERI_ID', 'YOUR_TAHUN_AJARAN_ID')
-returning id;
-```
-
-**Expected:** Attempt baru ter-create. Siswa bisa submit lagi dengan nilai berbeda.
-
-✅ **PASS** jika siswa bisa retry latihan berkali-kali.
+> Latihan tidak pernah masuk KPI dan tidak muncul di grafik wali. Itu memang disengaja.
 
 ---
 
-## TC-4: Student Take Try Out (Single Attempt, Timed)
+## Bagian 4 — Try Out (Siswa) — bagian paling penting
 
-**Tujuan:** Test siswa mengerjakan try out — hanya 1 kali, dalam jendela waktu, auto-submit saat waktu habis.
+Path: **Mapel → [mapel] → [materi] → [try out]**
 
-### Step 1: Set Try Out Time Window
+### 4a. Jendela waktu
 
-Update try out buat jendela waktu mundur (5 menit dari sekarang):
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 4.1 | Buka try out yang `waktu_buka`-nya masih di masa depan | Halaman error **403 "Try out belum dibuka"** |
+| 4.2 | **Cek Network tab** di 4.1 | Payload **tidak** berisi soal sama sekali — bukan disembunyikan pakai CSS |
+| 4.3 | Buka try out yang jendelanya sudah lewat | **403 "Try out sudah ditutup"** |
+| 4.4 | Buka try out yang sedang berjalan | Halaman intro + tombol **Mulai Try Out** |
 
-```sql
-update try_out
-set waktu_buka = now() - interval '1 minute',
-    durasi_menit = 5
-where id = 'YOUR_TRY_OUT_ID';
-```
+### 4b. Pengerjaan
 
-**Expected:** Try out dalam jendela waktu sekarang.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 4.5 | Mulai, jawab beberapa soal | Tiap pilihan langsung tersimpan (auto-save), counter naik |
+| 4.6 | **Refresh browser** di tengah pengerjaan | Attempt yang sama dilanjutkan — bukan attempt baru, jawaban sebelumnya masih ada |
+| 4.7 | Submit | Nilai muncul + **Review Jawaban** di bawahnya |
+| 4.8 | Cek review | Tiap soal diberi label Benar / Salah / Tidak dijawab, jawaban benar ditandai hijau, jawaban siswa yang salah ditandai merah |
+| 4.9 | Buka lagi try out yang sama | Ditolak: *"Sudah pernah mengerjakan try out ini"* |
 
-### Step 2: Create Attempt
+### 4c. Skor
 
-```sql
-insert into attempt (siswa_detail_id, try_out_id, tahun_ajaran_id)
-values ('YOUR_SISWA_DETAIL_ID', 'YOUR_TRY_OUT_ID', 'YOUR_TAHUN_AJARAN_ID')
-returning id, started_at;
-```
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 4.10 | Benar 2 dari 3 soal | Nilai **67** — dibulatkan ke atas, bukan 66 |
+| 4.11 | Benar 0 soal | Nilai **0** |
+| 4.12 | Benar semua | Nilai **100** |
 
-**Expected:** Attempt ter-create, `started_at = now()`.
+### 4d. Abandonment
 
-Catat **attempt_id** dan **started_at**.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 4.13 | Mulai try out berdurasi pendek (mis. 2 menit), jawab 1 soal, **tutup browser** | — |
+| 4.14 | Tunggu sampai lewat durasi, buka lagi halaman try out | Attempt sudah **auto-submit** dan dinilai dari jawaban yang sempat tersimpan |
+| 4.15 | Siswa yang **tidak pernah** mengerjakan sampai jendela tutup | Nilainya **0**, bukan kosong |
 
-### Step 3: Try Outside Time Window
+### 4e. Targeting
 
-Attempt lagi untuk siswa yang sama, try out yang sama:
-
-```sql
-insert into attempt (siswa_detail_id, try_out_id, tahun_ajaran_id)
-values ('YOUR_SISWA_DETAIL_ID', 'YOUR_TRY_OUT_ID', 'YOUR_TAHUN_AJARAN_ID');
-```
-
-**Expected:** Error — sudah ada attempt aktif. Tolak.
-
-### Step 4: Save Answers (Try Out)
-
-Sama seperti TC-3, save jawaban incremental:
-
-```sql
-insert into jawaban_siswa (attempt_id, soal_id, pilihan_jawaban_id)
-values ('YOUR_ATTEMPT_ID', 'SOAL_ID_1', 'PILIHAN_ID');
-```
-
-**Expected:** Jawaban tersimpan.
-
-### Step 5: Auto-Submit Saat Waktu Habis (Simulation)
-
-Simulasi: waktu sudah habis (started_at + durasi > sekarang):
-
-```sql
--- Setelah 5 menit berlalu (simulasi dengan update try out durasi jadi 0)
-update try_out set durasi_menit = 0 where id = 'YOUR_TRY_OUT_ID';
-
--- Hitung nilai seperti TC-3
--- Update attempt dengan submitted_at dan nilai
-update attempt
-set submitted_at = now(), nilai = 50
-where id = 'YOUR_ATTEMPT_ID'
-and submitted_at is null;
-```
-
-**Expected:** Attempt auto-submitted, nilai ter-set.
-
-### Step 6: Verify No Double Attempt
-
-Coba submit lagi:
-
-```sql
-select * from attempt where siswa_detail_id = 'YOUR_SISWA_DETAIL_ID'
-and try_out_id = 'YOUR_TRY_OUT_ID' and is_active = true;
-```
-
-**Expected:** Hanya ada 1 attempt aktif (is_active = true).
-
-✅ **PASS** jika siswa tidak bisa attempt 2x.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 4.16 | Login sebagai **Siswa B** (kelas berbeda), buka try out itu | Ditolak: *"Try out ini bukan untuk kelas Anda"* |
 
 ---
 
-## TC-5: Auto-Grade Score (CEIL)
+## Bagian 5 — Nilai Manual (Tentor)
 
-**Tujuan:** Verify nilai dibulatkan ke atas.
+Path: **Tentor → Nilai → Input Nilai**
 
-### Cases:
-
-```
-Benar | Total | Rumus                  | Harapan
-------|-------|------------------------|----------
-1     | 3     | (1/3) × 100 = 33.33    | 34
-2     | 3     | (2/3) × 100 = 66.67    | 67
-1     | 2     | (1/2) × 100 = 50       | 50
-3     | 5     | (3/5) × 100 = 60       | 60
-```
-
-Untuk setiap case, insert soal, jawaban, submit, verify nilai.
-
-✅ **PASS** jika nilai selalu dibulatkan ke atas (67, bukan 66).
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 5.1 | Pilih mapel, tipe test, judul, tanggal; isi nilai untuk siswa yang diajar | Tersimpan |
+| 5.2 | Isi nilai `150` | Ditolak: *"Nilai harus bilangan bulat 0-100"* |
+| 5.3 | Cek daftar siswa di dropdown | Hanya siswa yang tentor ini ajar (lewat `tentor_kelas_mapel` atau `tentor_siswa_privat`) |
+| 5.4 | **Tentor → Nilai** | Nilai e-learning dan nilai manual tampil berdampingan |
 
 ---
 
-## TC-6: Pre-Test Validation (One Per Mapel Per Year)
+## Bagian 6 — Reset Attempt (KG)
 
-**Tujuan:** Ensure hanya 1 pre_test per mapel per tahun ajaran.
+Path: **Kepala Guru → Monitoring → Attempt**
 
-### Step 1: Create Pre-Test 1
-
-```sql
-insert into try_out (materi_id, judul, tipe_test, waktu_buka, durasi_menit, status, tahun_ajaran_id)
-values (
-  'YOUR_MATERI_ID',
-  'Pre-Test Matematika',
-  'pre_test',
-  now(),
-  60,
-  'draft',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
-
-**Expected:** Pre-test ter-create.
-
-### Step 2: Try Create Pre-Test 2 (Same Mapel, Same Year)
-
-```sql
--- Ambil materi_id yang sama, materi tersebut punya mapel_id yang sama
-insert into try_out (materi_id, judul, tipe_test, waktu_buka, durasi_menit, status, tahun_ajaran_id)
-values (
-  'MATERI_ID_SAME_MAPEL',
-  'Pre-Test Matematika 2',
-  'pre_test',
-  now(),
-  60,
-  'draft',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
-
-**Expected di API:** Error — "Sudah ada pre_test untuk mapel ini".
-
-Manual SQL check (untuk verify di console):
-
-```sql
-select count(*) from try_out
-where tipe_test = 'pre_test' and tahun_ajaran_id = 'YOUR_TAHUN_AJARAN_ID'
-group by mapel_id having count(*) > 1;
-```
-
-**Expected:** No rows — tidak ada mapel dengan > 1 pre_test.
-
-✅ **PASS** jika validation bekerja.
+| # | Langkah | Hasil yang benar |
+|---|---|---|
+| 6.1 | Reset attempt seorang siswa | Muncul attempt baru; siswa bisa mengerjakan ulang |
+| 6.2 | Cek riwayat | Attempt lama masih ada dengan `is_active = false` — tidak dihapus |
+| 6.3 | Reset attempt yang sama dua kali | Ditolak: *"Attempt ini sudah di-reset sebelumnya"* |
+| 6.4 | Login **tentor**, coba akses menu reset | Tidak tersedia; kalau endpoint dipanggil langsung → **403** |
 
 ---
 
-## TC-7: Manual Grade (Tentor Input)
+## Bagian 7 — Uji Keamanan (wajib, tidak bisa lewat UI)
 
-**Tujuan:** Tentor input nilai untuk siswa yang dia ajar (dari paper exam).
+Fase 2 tidak punya RLS, jadi otorisasi sepenuhnya ada di endpoint server. Ini yang membuktikannya. Jalankan di terminal saat dev server hidup.
 
-### Step 1: Verify Tentor-Siswa Relationship
+Login dulu dan simpan cookie:
 
-```sql
--- Tentor mengajar siswa via kelas
-select tkm.tentor_id, sk.siswa_detail_id, tkm.mapel_id
-from tentor_kelas_mapel tkm
-join siswa_kelas sk on sk.kelas_id = tkm.kelas_id
-where tkm.deleted_at is null and sk.deleted_at is null
-limit 1;
+```bash
+login() {
+  curl -s -c "$1.txt" -X POST http://localhost:5173/auth/login \
+    -H "x-sveltekit-action: true" \
+    -H "Content-Type: application/x-www-form-urlencoded" \
+    --data-urlencode "email=$2" --data-urlencode "password=TestPass123" > /dev/null
+}
+login kg kg@test.com
+login siswa siswa_coba@test.com
+login tentor gondol@test.com
 ```
 
-Catat: **tentor_id**, **siswa_detail_id**, **mapel_id**.
+| # | Perintah | Harus gagal dengan |
+|---|---|---|
+| 7.1 | `curl -s -b siswa.txt -X POST localhost:5173/api/soal -H 'Content-Type: application/json' -d '{}'` | `403 Tidak diizinkan` |
+| 7.2 | `curl -s -b tentor.txt -X POST localhost:5173/api/try-out -H 'Content-Type: application/json' -d '{}'` | `403 Tidak diizinkan` |
+| 7.3 | `curl -s -b tentor.txt -X POST localhost:5173/api/attempt/<ATTEMPT_ID>/reset` | `403 Hanya kepala guru yang bisa reset attempt` |
+| 7.4 | `curl -s -b siswa.txt -X POST localhost:5173/api/attempt/<ATTEMPT_ID>/reset` | `403 Hanya kepala guru...` |
+| 7.5 | Siswa B submit attempt milik Siswa A | `403 Bukan attempt Anda` |
+| 7.6 | Simpan jawaban setelah submit | `409 Attempt sudah disubmit` |
+| 7.7 | Simpan jawaban setelah waktu habis | `409 Waktu sudah habis` + attempt langsung dinilai |
+| 7.8 | Tentor input nilai untuk siswa yang tidak diajar | `403 Anda tidak mengajar siswa ini` |
 
-### Step 2: Insert Manual Grade
+**7.9 — Nilai tidak bisa dipalsukan.** Buka DevTools saat mengerjakan try out dan coba kirim nilai sendiri:
 
-```sql
-insert into nilai_manual (
-  siswa_detail_id,
-  mapel_id,
-  tipe_test,
-  judul,
-  tanggal,
-  nilai,
-  catatan,
-  tentor_id,
-  tahun_ajaran_id
-)
-values (
-  'YOUR_SISWA_DETAIL_ID',
-  'YOUR_MAPEL_ID',
-  'try_out',
-  'Ulangan Harian Bab 1',
-  '2026-08-10',
-  85,
-  'Bagus, tapi kurang cermat',
-  'YOUR_TENTOR_ID',
-  'YOUR_TAHUN_AJARAN_ID'
-);
+```js
+await fetch('/api/attempt/<ATTEMPT_ID>', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ nilai: 100 })
+})
 ```
 
-**Expected:** Nilai manual ter-insert.
+Nilai yang tersimpan harus tetap hasil hitungan server, **bukan 100**. Endpoint submit tidak menerima `nilai` dari klien sama sekali.
 
-### Step 3: Try Insert Manual Grade for Non-Taught Student
-
-Coba tentor input nilai untuk siswa yang tidak dia ajar:
-
-```sql
--- Cari tentor lain atau siswa tidak di kelas tentor
-insert into nilai_manual (
-  siswa_detail_id,
-  mapel_id,
-  tipe_test,
-  judul,
-  tanggal,
-  nilai,
-  tentor_id,
-  tahun_ajaran_id
-)
-values (
-  'SISWA_TIDAK_DIAJAR',
-  'YOUR_MAPEL_ID',
-  'try_out',
-  'Ulangan',
-  '2026-08-10',
-  80,
-  'YOUR_TENTOR_ID',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
-
-**Expected di API:** Error — "Tentor tidak mengajar siswa ini".
-
-✅ **PASS** jika validation bekerja.
+**7.10 — Kunci jawaban tidak bocor.** Saat try out sedang dikerjakan, cek response `/siswa/.../try-out/[id]` di Network tab: tidak boleh ada field `is_benar` di mana pun. Kunci baru dikirim setelah `submitted_at` terisi.
 
 ---
 
-## TC-8: Reset Attempt (KG Only)
+## Ringkasan Cakupan
 
-**Tujuan:** KG bisa reset attempt try out — buat attempt baru, mark lama jadi `is_active = false`.
+Checklist Langkah 17 di `fase-2-execution.md` dipetakan ke:
 
-### Step 1: Get Active Attempt
-
-```sql
-select id from attempt
-where siswa_detail_id = 'YOUR_SISWA_DETAIL_ID'
-and try_out_id = 'YOUR_TRY_OUT_ID'
-and is_active = true
-limit 1;
-```
-
-Catat **old_attempt_id**.
-
-### Step 2: Reset (KG Action)
-
-Manual SQL simulation (API akan handle logic):
-
-```sql
--- Mark lama inactive
-update attempt set is_active = false where id = 'OLD_ATTEMPT_ID';
-
--- Buat attempt baru
-insert into attempt (siswa_detail_id, try_out_id, tahun_ajaran_id)
-values ('YOUR_SISWA_DETAIL_ID', 'YOUR_TRY_OUT_ID', 'YOUR_TAHUN_AJARAN_ID')
-returning id;
-```
-
-**Expected:** Attempt lama `is_active = false`, attempt baru `is_active = true`, `submitted_at = null`.
-
-### Step 3: Verify History
-
-```sql
-select id, is_active, submitted_at, nilai from attempt
-where siswa_detail_id = 'YOUR_SISWA_DETAIL_ID'
-and try_out_id = 'YOUR_TRY_OUT_ID'
-order by created_at desc;
-```
-
-**Expected:** 2 rows — 1 old (is_active=false, nilai=lama), 1 new (is_active=true, nilai=null).
-
-✅ **PASS** jika history tersimpan.
+| Item checklist | Bagian |
+|---|---|
+| Soal dengan jumlah pilihan berbeda | 1.1–1.2 |
+| Tolak 0 atau >1 jawaban benar | 1.3–1.4 |
+| Buat try out + jadwal + kelas | 2.1–2.2 |
+| Tolak pre_test kedua | 2.4 |
+| Soal tidak terlihat sebelum waktu buka | 4.1–4.2, 7.10 |
+| Latihan bisa diulang | 3.2–3.3 |
+| Timer + auto-save | 4.5–4.6 |
+| Tutup browser → auto-submit | 4.13–4.14 |
+| Try out tidak bisa dua kali | 4.9 |
+| Tidak mengerjakan → nilai 0 | 4.15 |
+| Pembulatan ke atas | 4.10 |
+| Review setelah submit | 4.7–4.8 |
+| Nilai manual hanya siswa yang diajar | 5.3, 7.8 |
+| KG reset, attempt lama tersimpan | 6.1–6.2 |
+| Tentor tidak bisa reset | 6.4, 7.3 |
 
 ---
 
-## TC-9: Student Can't See Try Out Before Open Time
+## Catatan Untuk Fase Berikutnya
 
-**Tujuan:** Soal try out tidak dikirim ke klien sebelum waktu buka.
-
-### Step 1: Create Future Try Out
-
-```sql
-insert into try_out (
-  materi_id,
-  judul,
-  tipe_test,
-  waktu_buka,
-  durasi_menit,
-  status,
-  tahun_ajaran_id
-)
-values (
-  'YOUR_MATERI_ID',
-  'Try Out Besok',
-  'biasa',
-  '2026-08-11 09:00:00+07',
-  60,
-  'published',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
-
-**Expected di server:** Soal try out tidak dikembalikan ke siswa sebelum waktu_buka.
-
-(Ini diverifikasi saat UI page di-build — server-side check di `+page.server.ts`).
-
-✅ **PASS** jika soal hidden dari siswa.
-
----
-
-## TC-10: Non-Attempted Try Out = Score 0
-
-**Tujuan:** Siswa yang tidak attempt try out sebelum tutup jadwal dapat nilai 0, bukan null.
-
-### Step 1: Create Try Out
-
-Buat try out dengan waktu sudah lewat:
-
-```sql
-insert into try_out (
-  materi_id,
-  judul,
-  tipe_test,
-  waktu_buka,
-  durasi_menit,
-  status,
-  tahun_ajaran_id
-)
-values (
-  'YOUR_MATERI_ID',
-  'Try Out Kemarin',
-  'biasa',
-  now() - interval '2 hours',
-  60,
-  'published',
-  'YOUR_TAHUN_AJARAN_ID'
-);
-```
-
-### Step 2: No Attempt Created
-
-Don't create attempt untuk siswa tertentu.
-
-### Step 3: Query Grade Report
-
-```sql
-select sd.nama_lengkap, a.nilai, a.submitted_at
-from siswa_detail sd
-left join attempt a on a.siswa_detail_id = sd.id and a.try_out_id = 'YOUR_TRY_OUT_ID'
-where sd.kelas_id = 'YOUR_KELAS_ID';
-```
-
-**Expected di UI/report:** Siswa tanpa attempt tampil dengan nilai **0** (atau manual insert nilai 0 sebagai fallback).
-
-(Logika ini di-implement di grading layer nanti.)
-
-✅ **PASS** jika report menunjukkan 0, bukan null.
-
----
-
-## Summary Checklist
-
-- [ ] TC-1: Latihan soal dengan pilihan jawaban PASS
-- [ ] TC-2: Try out creation, kelas assignment, publish PASS
-- [ ] TC-3: Siswa retry latihan unlimited PASS
-- [ ] TC-4: Try out single attempt, timed window PASS
-- [ ] TC-5: Score rounding (CEIL) PASS
-- [ ] TC-6: Pre-test validation (1 per mapel) PASS
-- [ ] TC-7: Manual grade with authorization PASS
-- [ ] TC-8: Reset attempt history PASS
-- [ ] TC-9: Try out hidden before open time PASS
-- [ ] TC-10: Non-attempted = 0 score PASS
-
----
-
-## Notes untuk Phase 2 UI Implementation
-
-Setelah semua TC PASS di Supabase console, baru mulai build UI pages (Langkah 10-16):
-
-1. **Langkah 10:** Builder soal latihan (`(kepala-guru)/konten/.../sub-materi/[id]/soal/`)
-2. **Langkah 11:** Builder try out (`(kepala-guru)/konten/.../materi/[id]/try-out/`)
-3. **Langkah 12:** Siswa kerjakan latihan (`(siswa)/mapel/.../latihan/`)
-4. **Langkah 13:** Siswa kerjakan try out (`(siswa)/mapel/.../try-out/[id]/`)
-5. **Langkah 14:** Tentor input nilai manual (`(tentor)/nilai/input/`)
-6. **Langkah 15:** Tentor lihat nilai (`(tentor)/nilai/`)
-7. **Langkah 16:** KG reset attempt (`(kepala-guru)/monitoring/attempt/`)
-
-Setelah UI siap, test manual di browser untuk memastikan flow end-to-end berjalan.
+- **Belum ada RLS di database.** Semua otorisasi ada di endpoint `/api/*`. Siapa pun yang punya anon key masih bisa menulis langsung ke tabel lewat PostgREST, melewati aplikasi. Sebelum dipakai produksi, tambahkan RLS policy per tabel.
+- **Auto-submit berjalan saat halaman try out dibuka**, bukan lewat scheduled job. Attempt yang ditinggalkan baru tertutup saat ada yang membuka halaman try out itu. Cukup untuk skala ~50 siswa; kalau perlu pasti, jadwalkan cron yang memanggil `autoSubmitExpired`.

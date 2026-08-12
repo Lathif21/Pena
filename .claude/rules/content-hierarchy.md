@@ -59,7 +59,8 @@ Rules:
 
 - Only `kepala_guru` can transition `draft` → `published`
 - **Module:** publishing is reversible. `kepala_guru` can press "Batalkan Publish" to send it back to `draft`, replace the PDF, and publish again. While in draft it is hidden from students. A module is a reference document, not an assessment — nobody is "mid-attempt" in a PDF, so correcting a typo beats leaving a wrong file live.
-- **Try out / latihan:** still **locked** once published — no edit, no delete, no un-publish. Questions changing under a student who is mid-attempt would corrupt their result. If a mistake is found, create a corrected replacement and leave the old one published.
+- **Try out:** reversible **until its window closes**. While published, its soal are frozen (no add, edit, or delete) — a question changing under a student mid-attempt would corrupt their result. To revise, KG presses "Batalkan Publish", edits the soal, then publishes again. Once `waktu_buka + durasi_menit` has passed the lock is **permanent**: unpublish, add, edit, and delete are all refused, because the results are real by then.
+- **Latihan:** never locked. Retries are unlimited, so there is nothing to corrupt.
 - Unpublish only flips `status` and clears `published_at`. The PDF on disk is kept; a replacement upload overwrites `storage_path` and deletes the previous file.
 - Publish and unpublish run as form actions on the module page and re-check the `kepala_guru` role server-side. Never change publish state from the browser — there is no RLS on `module`.
 

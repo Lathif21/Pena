@@ -63,6 +63,7 @@
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Nama</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Email</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">NIS</th>
+            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Kelas</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Paket</th>
             <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Aksi</th>
           </tr>
@@ -73,6 +74,15 @@
               <td class="px-6 py-4 text-sm text-gray-900">{item.nama_lengkap}</td>
               <td class="px-6 py-4 text-sm text-gray-900">{item.email}</td>
               <td class="px-6 py-4 text-sm text-gray-900">{item.nis}</td>
+              <td class="px-6 py-4 text-sm">
+                {#if item.kelas_nama}
+                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                    {item.kelas_nama}
+                  </span>
+                {:else}
+                  <span class="text-xs text-gray-400">Belum ada kelas</span>
+                {/if}
+              </td>
               <td class="px-6 py-4 text-sm">
                 <span
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"

@@ -66,10 +66,26 @@ export async function load({ cookies, params, parent }) {
     kelasPerTryOut.get(tk.try_out_id)?.push(tk.kelas_id)
   })
 
-  const tryOut = (tryOutData || []).map(t => ({
-    ...t,
-    kelasIds: kelasPerTryOut.get(t.id) || []
-  }))
+  const now = Date.now()
+  const tryOut = (tryOutData || []).map(t => {
+    const tutup = new Date(t.waktu_buka).getTime() + t.durasi_menit * 60000
+    return {
+      ...t,
+      kelasIds: kelasPerTryOut.get(t.id) || [],
+      // Expired means the window has closed: results are real, so it can no longer
+      // be unpublished and its soal are frozen.
+      expired: now > tutup,
+      waktuTutup: tutup,
+      // Soal belong to one try out now, so the lock is per try out — publishing one
+      // no longer freezes its siblings on the same materi. Mirrors tryOutSoalLock.
+      soalLock:
+        t.status !== 'published'
+          ? { locked: false, reason: '' }
+          : now > tutup
+            ? { locked: true, reason: 'Try out sudah selesai — soal tidak bisa diubah lagi' }
+            : { locked: true, reason: 'Batalkan publish try out dulu sebelum mengubah soal' }
+    }
+  })
 
   return {
     ...parentData,

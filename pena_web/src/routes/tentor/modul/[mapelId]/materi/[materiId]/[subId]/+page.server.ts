@@ -1,5 +1,6 @@
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
+import { getModuleUrl } from '$features/module/data/module-url'
 
 export async function load({ cookies, params, parent }) {
   const parentData = await parent()
@@ -25,13 +26,12 @@ export async function load({ cookies, params, parent }) {
 
   if (!modul) throw svelteError(404, 'Modul belum tersedia')
 
-  const { data: signed } = await supabase.storage
-    .from('modul-pdf')
-    .createSignedUrl(modul.storage_path, 3600)
+  // PDF ada di filesystem (static/uploads/pdfs), bukan di Supabase Storage.
+  const fileUrl = getModuleUrl(modul.storage_path)
 
   return {
     ...parentData,
     subMateri,
-    signedUrl: signed?.signedUrl ?? ''
+    signedUrl: fileUrl
   }
 }

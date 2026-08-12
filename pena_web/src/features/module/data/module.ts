@@ -1,6 +1,8 @@
 import { deserialize } from '$app/forms'
 import { supabase } from '$lib/supabase/client'
 
+export { getModuleUrl } from './module-url'
+
 export interface Module {
   id: string
   sub_materi_id: string
@@ -22,14 +24,6 @@ export async function getModuleBySubMateri(subMateriId: string) {
 
   if (error) throw error
   return data as Module | null
-}
-
-/**
- * PDFs live on the server filesystem under static/, which SvelteKit serves at the
- * web root — so the public URL is just the stored path. No signing, no bucket.
- */
-export function getModuleUrl(storagePath: string) {
-  return `/${storagePath.replace(/^\/+/, '')}`
 }
 
 /** Uploads via the server endpoint, which writes the file into static/uploads/pdfs. */

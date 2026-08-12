@@ -89,6 +89,7 @@ export async function listSiswaByTentor(tentor_id: string, mapel_id: string, tah
   return siswaList
 }
 
+/** Goes through /api/nilai-manual, which verifies the tentor teaches this student. */
 export async function createNilaiManual(
   siswaDetailId: string,
   mapelId: string,
@@ -96,76 +97,20 @@ export async function createNilaiManual(
   judul: string,
   tanggal: string,
   nilai: number,
-  catatan: string | null,
-  tentorId: string,
-  tahunAjaranId: string
+  catatan: string | null
 ) {
-  // Validasi tentor mengajar siswa tersebut
-  const { data: tkm } = await supabase
-    .from('tentor_kelas_mapel')
-    .select('kelas_id')
-    .eq('tentor_id', tentorId)
-    .eq('mapel_id', mapelId)
-    .is('deleted_at', null)
+  const res = await fetch('/api/nilai-manual', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ siswaDetailId, mapelId, tipeTest, judul, tanggal, nilai, catatan })
+  })
 
-  const { data: tsp } = await supabase
-    .from('tentor_siswa_privat')
-    .select('id')
-    .eq('tentor_id', tentorId)
-    .eq('mapel_id', mapelId)
-    .eq('siswa_detail_id', siswaDetailId)
-    .is('deleted_at', null)
-
-  let canGrade = false
-
-  // Check privat
-  if (tsp && tsp.length > 0) {
-    canGrade = true
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.message ?? 'Gagal menyimpan nilai')
   }
 
-  // Check kelas
-  if (!canGrade && tkm && tkm.length > 0) {
-    const kelasIds = tkm.map(k => k.kelas_id)
-
-    const { data: sk } = await supabase
-      .from('siswa_kelas')
-      .select('id')
-      .eq('siswa_detail_id', siswaDetailId)
-      .in('kelas_id', kelasIds)
-      .is('deleted_at', null)
-
-    if (sk && sk.length > 0) {
-      canGrade = true
-    }
-  }
-
-  if (!canGrade) {
-    throw new Error('Tentor tidak mengajar siswa ini')
-  }
-
-  if (nilai < 0 || nilai > 100) {
-    throw new Error('Nilai harus antara 0-100')
-  }
-
-  const { data, error } = await supabase
-    .from('nilai_manual')
-    .insert([{
-      siswa_detail_id: siswaDetailId,
-      mapel_id: mapelId,
-      materi_id: null,
-      tipe_test: tipeTest,
-      judul,
-      tanggal,
-      nilai,
-      catatan,
-      tentor_id: tentorId,
-      tahun_ajaran_id: tahunAjaranId
-    }])
-    .select()
-    .single()
-
-  if (error) throw error
-  return data
+  return res.json()
 }
 
 export async function listNilaiManual(siswaDetailId: string, mapelId: string): Promise<NilaiManual[]> {

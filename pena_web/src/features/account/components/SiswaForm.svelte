@@ -6,7 +6,15 @@
   import { listTahunAjaran, type TahunAjaran } from '$features/master-data/data/tahun-ajaran'
 
   interface Props {
-    editingSiswa?: { id: string; nama_lengkap: string; email: string; nis: string; paket: 'regular' | 'privat' }
+    editingSiswa?: {
+      id: string
+      nama_lengkap: string
+      email: string
+      nis: string
+      paket: 'regular' | 'privat'
+      kelas_id?: string
+      tentor_mapel?: Array<{ tentor_id: string; mapel_id: string }>
+    }
     onclose?: () => void
   }
 
@@ -16,8 +24,10 @@
   let password = $state('')
   let nis = $state(editingSiswa?.nis || '')
   let paket = $state<'regular' | 'privat'>(editingSiswa?.paket || 'regular')
-  let kelas_id = $state('')
-  let selectedTentorMapel = $state<Array<{ tentor_id: string; mapel_id: string }>>([])
+  let kelas_id = $state(editingSiswa?.kelas_id || '')
+  let selectedTentorMapel = $state<Array<{ tentor_id: string; mapel_id: string }>>(
+    editingSiswa?.tentor_mapel ? [...editingSiswa.tentor_mapel] : []
+  )
 
   let kelas_list = $state<Kelas[]>([])
   let mapel_list = $state<Mapel[]>([])
@@ -153,6 +163,71 @@
         </div>
       </div>
 
+      <!-- Kelas is editable when creating a regular siswa and whenever editing, so KG
+           can move a student between kelas without recreating the account. -->
+      {#if editingSiswa || paket === 'regular'}
+        <div>
+          <label for="kelas" class="block text-sm font-medium text-gray-700">
+            Kelas
+            {#if editingSiswa && paket === 'privat'}
+              <span class="font-normal text-gray-500">(opsional untuk privat)</span>
+            {/if}
+          </label>
+          <select
+            id="kelas"
+            name="kelas_id"
+            required={paket === 'regular'}
+            bind:value={kelas_id}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2"
+          >
+            <option value="">{paket === 'regular' ? 'Pilih Kelas' : 'Tanpa kelas'}</option>
+            {#each kelas_list as k (k.id)}
+              <option value={k.id}>{k.nama}</option>
+            {/each}
+          </select>
+          {#if editingSiswa}
+            <p class="mt-1 text-xs text-gray-500">
+              Memindahkan kelas menutup pendaftaran lama, tidak menghapusnya.
+            </p>
+          {/if}
+        </div>
+      {/if}
+
+      {#if paket === 'privat'}
+        <div class="space-y-2">
+          <div class="block text-sm font-medium text-gray-700">
+            Tentor & Mata Pelajaran
+          </div>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            {#each tentor_list as t (t.id)}
+              <div class="flex items-center space-x-4 border-b pb-2">
+                <span class="text-sm text-gray-700 flex-1">{t.nama_lengkap}</span>
+                <select
+                  class="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  value={selectedTentorMapel.find((tm) => tm.tentor_id === t.id)?.mapel_id ?? ''}
+                  onchange={(e) => {
+                    const mapel_id = (e.target as HTMLSelectElement).value
+                    if (mapel_id) {
+                      selectedTentorMapel = [
+                        ...selectedTentorMapel.filter((tm) => tm.tentor_id !== t.id),
+                        { tentor_id: t.id, mapel_id }
+                      ]
+                    } else {
+                      selectedTentorMapel = selectedTentorMapel.filter((tm) => tm.tentor_id !== t.id)
+                    }
+                  }}
+                >
+                  <option value="">Pilih Mapel</option>
+                  {#each mapel_list as m (m.id)}
+                    <option value={m.id}>{m.nama}</option>
+                  {/each}
+                </select>
+              </div>
+            {/each}
+          </div>
+        </div>
+      {/if}
+
       {#if !editingSiswa}
         <div>
           <label for="paket" class="block text-sm font-medium text-gray-700">
@@ -169,59 +244,6 @@
           </select>
         </div>
 
-        {#if paket === 'regular'}
-          <div>
-            <label for="kelas" class="block text-sm font-medium text-gray-700">
-              Kelas
-            </label>
-            <select
-              id="kelas"
-              name="kelas_id"
-              required
-              bind:value={kelas_id}
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2"
-            >
-              <option value="">Pilih Kelas</option>
-              {#each kelas_list as k (k.id)}
-                <option value={k.id}>{k.nama}</option>
-              {/each}
-            </select>
-          </div>
-        {/if}
-
-        {#if paket === 'privat'}
-          <div class="space-y-2">
-            <div class="block text-sm font-medium text-gray-700">
-              Tentor & Mata Pelajaran
-            </div>
-            <div class="space-y-2 max-h-48 overflow-y-auto">
-              {#each tentor_list as t (t.id)}
-                <div class="flex items-center space-x-4 border-b pb-2">
-                  <span class="text-sm text-gray-700 flex-1">{t.nama_lengkap}</span>
-                  <select
-                    class="rounded-md border border-gray-300 px-2 py-1 text-sm"
-                    onchange={(e) => {
-                      const mapel_id = (e.target as HTMLSelectElement).value
-                      if (mapel_id) {
-                        selectedTentorMapel = [
-                          ...selectedTentorMapel.filter((tm) => tm.tentor_id !== t.id),
-                          { tentor_id: t.id, mapel_id }
-                        ]
-                      } else {
-                        selectedTentorMapel = selectedTentorMapel.filter((tm) => tm.tentor_id !== t.id)
-                      }
-                    }}
-                  >
-                    <option value="">Pilih Mapel</option>
-                    {#each mapel_list as m (m.id)}
-                      <option value={m.id}>{m.nama}</option>
-                    {/each}
-                  </select>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
 
         <div>
           <label for="tahun" class="block text-sm font-medium text-gray-700">

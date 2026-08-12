@@ -46,7 +46,7 @@
       let successCount = 0
       for (const [siswaDetailId, input] of nilaiInput.entries()) {
         if (input.nilai !== null && input.nilai >= 0 && input.nilai <= 100) {
-          await createNilaiManual(siswaDetailId, selectedMapelId, tipeTest, judul, tanggal, input.nilai, input.catatan || null, data.tentorId, data.user.tahun_ajaran_id)
+          await createNilaiManual(siswaDetailId, selectedMapelId, tipeTest, judul, tanggal, input.nilai, input.catatan || null)
           successCount++
         }
       }

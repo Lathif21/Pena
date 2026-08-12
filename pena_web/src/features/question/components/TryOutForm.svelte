@@ -1,6 +1,6 @@
 <script lang="ts">
   import { SvelteSet } from 'svelte/reactivity'
-  import { createTryOut, publishTryOut } from '../data/try-out'
+  import { createTryOut, updateTryOut } from '../data/try-out'
 
   interface Kelas {
     id: string
@@ -10,7 +10,6 @@
   interface Props {
     materiId: string
     kelasOptions: Kelas[]
-    tahunAjaranId: string
     initial?: {
       id: string
       judul: string
@@ -24,11 +23,23 @@
     onCancel?: () => void
   }
 
-  let { materiId, kelasOptions, tahunAjaranId, initial = null, onSuccess, onCancel }: Props = $props()
+  let { materiId, kelasOptions, initial = null, onSuccess, onCancel }: Props = $props()
+
+  /**
+   * <input type="datetime-local"> speaks "YYYY-MM-DDTHH:mm" in local time, but the
+   * database stores timestamptz. Without these two conversions an existing schedule
+   * loads blank, and a saved one is read back as if it were UTC.
+   */
+  function toLocalInput(iso: string) {
+    if (!iso) return ''
+    const d = new Date(iso)
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  }
 
   let judul = $state(initial?.judul || '')
   let tipeTest = $state<'biasa' | 'pre_test' | 'post_test'>(initial?.tipe_test || 'biasa')
-  let waktuBuka = $state(initial?.waktu_buka || '')
+  let waktuBuka = $state(toLocalInput(initial?.waktu_buka ?? ''))
   let durasiMenit = $state(initial?.durasi_menit || 60)
   // SvelteSet, not Set: $state does not make built-in collections reactive, so
   // mutating a plain Set never re-renders (the submit button stayed disabled).
@@ -60,16 +71,23 @@
         throw new Error('Durasi minimal 1 menit')
       }
 
-      if (!initial) {
-        await createTryOut(
-          materiId,
+      if (selectedKelas.size === 0) {
+        throw new Error('Pilih minimal 1 kelas')
+      }
+
+      const waktuBukaIso = new Date(waktuBuka).toISOString()
+
+      if (initial) {
+        await updateTryOut(
+          initial.id,
           judul,
           tipeTest,
-          waktuBuka,
+          waktuBukaIso,
           durasiMenit,
-          Array.from(selectedKelas),
-          tahunAjaranId
+          Array.from(selectedKelas)
         )
+      } else {
+        await createTryOut(materiId, judul, tipeTest, waktuBukaIso, durasiMenit, Array.from(selectedKelas))
       }
 
       onSuccess?.()
@@ -80,20 +98,6 @@
     }
   }
 
-  async function handlePublish() {
-    if (!initial?.id) return
-    loading = true
-    error = ''
-
-    try {
-      await publishTryOut(initial.id)
-      onSuccess?.()
-    } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal publish try out'
-    } finally {
-      loading = false
-    }
-  }
 </script>
 
 <div class="rounded-lg border border-gray-200 bg-white p-6">
@@ -193,28 +197,13 @@
     </div>
 
     <div class="flex gap-3 border-t border-gray-200 pt-4">
-      {#if !initial}
-        <button
-          type="submit"
-          disabled={loading || selectedKelas.size === 0}
-          class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary-hover disabled:opacity-50"
-        >
-          {loading ? 'Membuat...' : 'Buat Try Out'}
-        </button>
-      {:else if initial.status === 'draft'}
-        <button
-          type="button"
-          onclick={handlePublish}
-          disabled={loading}
-          class="rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 disabled:opacity-50"
-        >
-          {loading ? 'Publishing...' : '✓ Publish Try Out'}
-        </button>
-      {:else}
-        <span class="rounded-md bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700">
-          ✓ Published
-        </span>
-      {/if}
+      <button
+        type="submit"
+        disabled={loading || selectedKelas.size === 0}
+        class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary-hover disabled:opacity-50"
+      >
+        {loading ? 'Menyimpan...' : initial ? 'Simpan Perubahan' : 'Buat Try Out'}
+      </button>
 
       <button
         type="button"

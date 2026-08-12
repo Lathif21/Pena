@@ -48,7 +48,7 @@ Mata Pelajaran (mapel)
 Latihan is for practice only: it never counts toward KPI and never appears in the wali progress chart. Only try outs tagged `pre_test` or `post_test` feed KPI.
 ```
 
-All content items have `draft` / `published` status. Only `kepala_guru` publishes. A published **module** can be pulled back to draft ("Batalkan Publish") and revised. A published **try out / latihan** stays locked — students may be mid-attempt.
+All content items have `draft` / `published` status. Only `kepala_guru` publishes. A published **module** can be pulled back to draft ("Batalkan Publish") and revised. A published **try out** can too, but only until its window closes — after `waktu_buka + durasi_menit` it is locked permanently, soal included.
 
 ## Student Packages
 

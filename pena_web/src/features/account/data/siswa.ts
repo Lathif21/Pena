@@ -7,6 +7,9 @@ export interface Siswa {
   email: string
   nis: string
   paket: 'regular' | 'privat'
+  /** Active enrolment, empty when the student is not in any kelas. */
+  kelas_id?: string
+  kelas_nama?: string
   created_at: string
   deleted_at: string | null
 }

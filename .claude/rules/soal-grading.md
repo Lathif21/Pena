@@ -14,7 +14,7 @@ paths:
 
 | | Latihan Soal | Try Out |
 |---|---|---|
-| Position | Per `sub_materi` | Per `materi` |
+| Position | Per `sub_materi` | Per `try_out` (which sits on a `materi`) |
 | Time limit | None | Yes, set by KG |
 | Attempts | **Unlimited** | **Single** |
 | Schedule | Available anytime once published | Only within scheduled window |
@@ -42,9 +42,13 @@ Auto-graded immediately on submit. Student sees the score right away.
 
 ## Try Out Behavior
 
-**Scheduling.** KG sets: open datetime, duration (minutes), target kelas (with per-kelas filter). Try out is invisible to students outside this window.
+**Scheduling.** KG sets: open datetime, duration (minutes), target kelas (with per-kelas filter).
 
-**Question visibility.** Questions must not be fetched to the client before the start time. Enforce server-side — a client-side "hide until start" is not sufficient, since the payload would already be in the browser.
+**Listing vs. contents.** A published try out targeting the student's kelas is **listed on the materi in every state** — students need to know an exam is coming. The card shows `belum_buka` (with the open datetime), `terbuka`, `selesai` (with the score), or `terlewat`. Only `terbuka` and `selesai` are clickable.
+
+What stays hidden outside the window is the **soal**, not the try out's existence.
+
+**Question visibility.** Questions must not be fetched to the client before the start time. Enforce server-side — a client-side "hide until start" is not sufficient, since the payload would already be in the browser. The try out loader returns early with `soal: []` when the window has not opened, so the questions are never queried, and `is_benar` is never sent until the student has submitted.
 
 **Timer.** Server-authoritative. The client countdown is display only; the server records `started_at` and rejects submissions past `started_at + duration`.
 
@@ -104,12 +108,13 @@ Latihan needs no reset mechanism — students can simply retry.
 create table soal (
   id uuid primary key default gen_random_uuid(),
   sub_materi_id uuid references sub_materi(id),   -- set for latihan
-  materi_id uuid references materi(id),           -- set for try out
+  try_out_id uuid references try_out(id),         -- set for try out
   pertanyaan text not null,
   nomor_urut integer not null,
   created_at timestamptz not null default now(),
   deleted_at timestamptz,
-  check (num_nonnulls(sub_materi_id, materi_id) = 1)  -- exactly one parent
+  constraint soal_satu_induk
+    check (num_nonnulls(sub_materi_id, try_out_id) = 1)  -- exactly one parent
 );
 
 create table pilihan_jawaban (
@@ -165,6 +170,15 @@ create table jawaban_siswa (
   unique (attempt_id, soal_id)
 );
 ```
+
+## Soal Ownership
+
+Try out soal hang off **`try_out_id`, not `materi_id`**. Two try outs on the same materi
+therefore have independent question sets — adding a soal to one never touches the other.
+This matters for pre_test/post_test on the same materi, which must be able to differ.
+
+A published try out locks **only its own** soal (no add, edit, or delete); a draft
+sibling on the same materi stays editable. See the lock rules under Content Hierarchy.
 
 ## Review After Submission
 

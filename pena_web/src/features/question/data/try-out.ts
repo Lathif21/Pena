@@ -11,92 +11,61 @@ export interface TryOut {
   published_at: string | null
 }
 
-export async function createTryOut(
+/** Mutations go through /api/try-out — kepala guru is verified server-side. */
+async function call<T>(url: string, init: RequestInit): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    headers: { 'Content-Type': 'application/json', ...(init.headers ?? {}) }
+  })
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.message ?? 'Gagal memproses try out')
+  }
+
+  return res.json() as Promise<T>
+}
+
+export function createTryOut(
   materiId: string,
   judul: string,
   tipeTest: 'biasa' | 'pre_test' | 'post_test',
   waktuBuka: string,
   durasiMenit: number,
-  kelasIds: string[],
-  tahunAjaranId: string
+  kelasIds: string[]
 ) {
-  // Validasi pre_test: check belum ada pre_test lain untuk mapel yang sama
-  if (tipeTest === 'pre_test') {
-    const { data: materi } = await supabase
-      .from('materi')
-      .select('mapel_id')
-      .eq('id', materiId)
-      .single()
-
-    if (materi) {
-      const { data: existing } = await supabase
-        .from('try_out')
-        .select('id')
-        .eq('materi_id', materi.mapel_id)
-        .eq('tipe_test', 'pre_test')
-        .eq('tahun_ajaran_id', tahunAjaranId)
-        .is('deleted_at', null)
-
-      if (existing && existing.length > 0) {
-        throw new Error('Sudah ada pre_test untuk mapel ini')
-      }
-    }
-  }
-
-  const { data: tryOut, error: tryOutError } = await supabase
-    .from('try_out')
-    .insert([{
-      materi_id: materiId,
-      judul,
-      tipe_test: tipeTest,
-      waktu_buka: waktuBuka,
-      durasi_menit: durasiMenit,
-      tahun_ajaran_id: tahunAjaranId,
-      status: 'draft'
-    }])
-    .select()
-    .single()
-
-  if (tryOutError) throw tryOutError
-
-  if (kelasIds.length > 0) {
-    const tryOutKelasData = kelasIds.map(kelasId => ({
-      try_out_id: tryOut.id,
-      kelas_id: kelasId
-    }))
-
-    const { error: kelasError } = await supabase
-      .from('try_out_kelas')
-      .insert(tryOutKelasData)
-
-    if (kelasError) throw kelasError
-  }
-
-  return tryOut
+  return call<TryOut>('/api/try-out', {
+    method: 'POST',
+    body: JSON.stringify({ materiId, judul, tipeTest, waktuBuka, durasiMenit, kelasIds })
+  })
 }
 
-export async function publishTryOut(tryOutId: string) {
-  // Check if there are any soal
-  const { data: soal, error: soalError } = await supabase
-    .from('soal')
-    .select('id')
-    .eq('materi_id', (await supabase.from('try_out').select('materi_id').eq('id', tryOutId).single()).data.materi_id)
-    .is('deleted_at', null)
+export function updateTryOut(
+  tryOutId: string,
+  judul: string,
+  tipeTest: 'biasa' | 'pre_test' | 'post_test',
+  waktuBuka: string,
+  durasiMenit: number,
+  kelasIds: string[]
+) {
+  return call<{ updated: true }>(`/api/try-out/${tryOutId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ judul, tipeTest, waktuBuka, durasiMenit, kelasIds })
+  })
+}
 
-  if (soalError) throw soalError
-  if (!soal || soal.length === 0) {
-    throw new Error('Try out harus memiliki minimal 1 soal')
-  }
+export function publishTryOut(tryOutId: string) {
+  return call<{ published: true }>(`/api/try-out/${tryOutId}/publish`, { method: 'POST' })
+}
 
-  const { error } = await supabase
-    .from('try_out')
-    .update({
-      status: 'published',
-      published_at: new Date().toISOString()
-    })
-    .eq('id', tryOutId)
+/** Back to draft so the soal can be revised. Refused once the window has closed. */
+export function unpublishTryOut(tryOutId: string) {
+  return call<{ unpublished: true }>(`/api/try-out/${tryOutId}/unpublish`, { method: 'POST' })
+}
 
-  if (error) throw error
+/** Soft delete, together with the try out's soal. Draft and un-attempted only. */
+export function deleteTryOut(tryOutId: string) {
+  return call<{ deleted: true }>(`/api/try-out/${tryOutId}/delete`, { method: 'POST' })
 }
 
 export async function getTryOut(tryOutId: string): Promise<TryOut | null> {

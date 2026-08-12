@@ -1,9 +1,13 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
+  import { page } from '$app/state'
   import { SvelteMap } from 'svelte/reactivity'
-  import { startAttempt, saveJawaban, submitAttempt } from '$features/question/data/attempt'
+  import { startLatihan as apiStartLatihan, saveJawaban, submitAttempt } from '$features/question/data/attempt'
 
   let { data } = $props()
+
+  // /siswa is not a route — the sub materi page is the real parent of a latihan.
+  const kembaliUrl = `/siswa/mapel/${page.params.mapelId}/materi/${page.params.materiId}/${page.params.subId}`
 
   let attemptId = $state(data.attempt?.id || '')
   // SvelteMap, not Map: $state does not make built-in collections reactive, so
@@ -19,7 +23,7 @@
     if (!data.siswaDetailId) { error = 'Siswa tidak ditemukan'; return }
     loading = true; error = ''
     try {
-      const attempt = await startAttempt(data.siswaDetailId, data.subMateri.id, false, data.user.tahun_ajaran_id)
+      const attempt = await apiStartLatihan(data.subMateri.id)
       attemptId = attempt.id; jawaban.clear(); submitted = false; nilai = 0
     } catch (err) {
       error = err instanceof Error ? err.message : 'Gagal memulai latihan'
@@ -62,7 +66,7 @@
   <div class="mx-auto max-w-4xl px-4 py-8">
     <div class="mb-8 flex items-center justify-between">
       <div>
-        <button onclick={() => goto('/siswa')} class="mb-4 text-sm font-medium text-primary hover:underline">← Kembali</button>
+        <button onclick={() => goto(kembaliUrl)} class="mb-4 text-sm font-medium text-primary hover:underline">← Kembali</button>
         <h1 class="text-2xl font-bold text-gray-900">Latihan: {data.subMateri.nama}</h1>
       </div>
     </div>
@@ -89,7 +93,7 @@
           </div>
           <div class="flex gap-3 justify-center">
             <button onclick={handleRetry} class="rounded-lg bg-emerald-600 px-6 py-3 text-white hover:bg-emerald-700">🔄 Ulangi Latihan</button>
-            <button onclick={() => goto('/siswa')} class="rounded-lg border border-emerald-600 px-6 py-3 text-emerald-700 hover:bg-emerald-50">Kembali</button>
+            <button onclick={() => goto(kembaliUrl)} class="rounded-lg border border-emerald-600 px-6 py-3 text-emerald-700 hover:bg-emerald-50">Kembali</button>
           </div>
         </div>
       </div>
@@ -131,7 +135,7 @@
         <button onclick={handleSubmit} disabled={loading || jawaban.size < data.soal.length} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50">
           {loading ? 'Mengirim...' : 'Selesai & Kirim'}
         </button>
-        <button onclick={() => goto('/siswa')} class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">Batal</button>
+        <button onclick={() => goto(kembaliUrl)} class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">Batal</button>
       </div>
     {/if}
   </div>

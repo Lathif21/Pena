@@ -14,10 +14,12 @@
     onSelect?: (soalId: string) => void
     onEdit?: (soal: Soal) => void
     onDelete?: (soalId: string) => void
+    /** Hides edit/delete while the parent try out is published or expired. */
+    locked?: boolean
     loading?: boolean
   }
 
-  let { soalList = [], selectedSoalId, onSelect, onEdit, onDelete, loading = false }: Props = $props()
+  let { soalList = [], selectedSoalId, onSelect, onEdit, onDelete, locked = false, loading = false }: Props = $props()
   let deleting = $state<string | null>(null)
 
   async function handleDelete(soal: Soal) {
@@ -59,7 +61,7 @@
           </span>
         </button>
 
-        {#if selectedSoalId === soal.id}
+        {#if selectedSoalId === soal.id && !locked}
           <div class="flex gap-1 py-2">
             <button
               onclick={() => onEdit?.(soal)}

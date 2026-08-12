@@ -23,7 +23,7 @@
 
     resetting = attempt.id; error = ''; message = ''
     try {
-      await resetAttempt(attempt.id, attempt.siswa_detail_id, attempt.try_out_id, true, data.user.tahun_ajaran_id)
+      await resetAttempt(attempt.id)
       message = `Reset berhasil untuk ${attempt.siswa_detail.nama_lengkap}`
       setTimeout(() => { window.location.reload() }, 1500)
     } catch (err) {
