@@ -67,8 +67,23 @@ export async function nextNomorUrut(parentColumn: 'try_out_id' | 'sub_materi_id'
   return ((data ?? [])[0]?.nomor_urut ?? 0) + 1
 }
 
+/**
+ * Swaps a soal's answer choices for a new set.
+ *
+ * Soft delete, not hard: `jawaban_siswa.pilihan_jawaban_id` has a foreign key onto
+ * `pilihan_jawaban`, so once any student has answered, a hard delete is rejected.
+ * The previous version ignored that failure and inserted anyway, leaving the old
+ * choices in place alongside the new ones — the source of duplicated options.
+ * Soft-deleting also keeps the choice a student actually picked readable.
+ */
 export async function replacePilihan(soalId: string, pilihan: PilihanInput[]) {
-  await supabaseAdmin.from('pilihan_jawaban').delete().eq('soal_id', soalId)
+  const { error: clearError } = await supabaseAdmin
+    .from('pilihan_jawaban')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('soal_id', soalId)
+    .is('deleted_at', null)
+
+  if (clearError) throw new Error(clearError.message)
 
   const { error } = await supabaseAdmin.from('pilihan_jawaban').insert(
     pilihan.map((p, i) => ({
