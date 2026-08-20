@@ -45,7 +45,7 @@ export async function getPresensiBySesi(sesiId: string): Promise<Record<string, 
     .eq('sesi_id', sesiId)
 
   if (error) throw error
-  return Object.fromEntries((data ?? []).map((p) => [p.siswa_detail_id, p.is_hadir]))
+  return Object.fromEntries((data ?? []).map((p: any) => [p.siswa_detail_id, p.is_hadir]))
 }
 
 export async function savePresensi(sesiId: string, entries: EntryPresensi[]) {

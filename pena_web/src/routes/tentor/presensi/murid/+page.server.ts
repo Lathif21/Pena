@@ -17,7 +17,11 @@ export async function load({ cookies, parent }) {
 
   // Tanpa presensi diri belum ada sesi, dan presensi murid memang diblokir
   // sampai itu terjadi — halaman tetap dibuka, tapi isinya arahan, bukan tabel.
-  if (!sesi) return { ...parentData, sesiAktif: null, siswa: [], tersimpan: {} }
+  // Bentuk `tersimpan` harus sama di kedua cabang return, kalau tidak tipenya
+  // menyatu jadi `{} | Record<...>` dan halaman tidak bisa mengindeksnya.
+  const kosong: Record<string, boolean> = {}
+
+  if (!sesi) return { ...parentData, sesiAktif: null, siswa: [], tersimpan: kosong }
 
   const { data: anggota } = await supabase
     .from('siswa_kelas')
@@ -49,6 +53,8 @@ export async function load({ cookies, parent }) {
       mapelNama: (sesi as any).mapel?.nama ?? ''
     },
     siswa,
-    tersimpan: Object.fromEntries((presensi ?? []).map((p) => [p.siswa_detail_id, p.is_hadir]))
+    tersimpan: Object.fromEntries(
+      (presensi ?? []).map((p: any) => [p.siswa_detail_id, p.is_hadir])
+    ) as Record<string, boolean>
   }
 }

@@ -55,8 +55,10 @@ export async function listMapelByKelas(kelasId: string, tentorId: string): Promi
   if (eDiajar) throw eDiajar
   if (eDipakai) throw eDipakai
 
-  const dipakaiSet = new Set((dipakai ?? []).map((m) => m.mapel_id))
-  const ids = [...new Set((diajar ?? []).map((m) => m.mapel_id))].filter((id) => dipakaiSet.has(id))
+  const dipakaiSet = new Set((dipakai ?? []).map((m: any) => m.mapel_id))
+  const ids = [...new Set((diajar ?? []).map((m: any) => m.mapel_id))].filter((id) =>
+    dipakaiSet.has(id)
+  )
   if (ids.length === 0) return []
 
   const { data, error } = await supabase

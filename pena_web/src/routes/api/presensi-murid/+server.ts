@@ -26,7 +26,7 @@ export async function POST({ request, cookies }) {
     .eq('kelas_id', sesi.kelas_id)
     .is('deleted_at', null)
 
-  const sah = new Set((anggota ?? []).map((a) => a.siswa_detail_id))
+  const sah = new Set((anggota ?? []).map((a: any) => a.siswa_detail_id))
 
   const baris = []
   for (const e of entries) {
