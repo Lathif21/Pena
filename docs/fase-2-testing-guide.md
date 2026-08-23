@@ -28,7 +28,6 @@ Siapkan juga: 1 mapel, minimal 1 kelas terhubung ke mapel itu (Master Data → M
 
 Path: **Konten → [mapel] → [materi] → [sub materi] → Soal** (latihan), atau **→ Try Out** (try out).
 
-| # | Langkah | Hasil yang benar |
 |---|---|---|
 | 1.1 | Buat soal dengan 3 pilihan, 1 benar | Tersimpan |
 | 1.2 | Buat soal dengan 4 dan 5 pilihan | Tersimpan — jumlah pilihan bebas per soal |
