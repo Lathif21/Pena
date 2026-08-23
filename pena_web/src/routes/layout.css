@@ -3,9 +3,36 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-  --color-primary: #6C5DD3;
-  --color-primary-hover: #5A4CC0;
-  --color-success: #10B981;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
+  --color-background: #F5F3EF;
+  --color-foreground: #1A1714;
+  --color-card: #FFFFFF;
+  --color-primary: #1E3A5F;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #EDF3F8;
+  --color-secondary-foreground: #1E3A5F;
+  --color-muted: #E4E0D8;
+  --color-muted-foreground: #716860;
+  --color-accent: #C17F2E;
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: #C0392B;
+  --color-border: rgba(26, 23, 20, 0.1);
+  --color-input-background: #EDEAE4;
+  --color-ring: #1E3A5F;
+
+  --color-sidebar: #1E3A5F;
+  --color-sidebar-foreground: #F5F3EF;
+  --color-sidebar-accent: #264D73;
+  --color-sidebar-border: rgba(245, 243, 239, 0.12);
+
+  --color-chart-1: #1E3A5F;
+  --color-chart-2: #C17F2E;
+  --color-chart-3: #2E7D52;
+  --color-chart-4: #8B4513;
+  --color-chart-5: #5B2C6F;
+
+  --font-serif: 'DM Serif Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --radius: 0.5rem;
 }
