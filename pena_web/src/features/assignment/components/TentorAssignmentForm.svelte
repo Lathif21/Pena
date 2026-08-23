@@ -18,7 +18,20 @@
 
   let tentor_list: Tentor[] = []
   let kelas_list: Kelas[] = []
-  let mapel_list: Mapel[] = []
+  let mapel_list = $state<Mapel[]>([])
+
+  // Hanya mapel yang dipakai kelas terpilih. Menawarkan seluruh mapel membuat
+  // assignment ke mapel yang tidak diajarkan di kelas itu bisa tersimpan, lalu
+  // diam-diam hilang dari dropdown presensi tentor karena tersaring di sana.
+  const mapelTersedia = $derived(
+    kelas_id ? mapel_list.filter((m) => m.kelas_ids?.includes(kelas_id)) : []
+  )
+
+  function pilihKelas(id: string) {
+    kelas_id = id
+    // Mapel yang sudah terpilih belum tentu ada di kelas yang baru.
+    if (!mapel_list.find((m) => m.id === mapel_id)?.kelas_ids?.includes(id)) mapel_id = ''
+  }
 
   let loading = $state(false)
   let loadingData = $state(true)
@@ -28,11 +41,10 @@
     loadingData = true
     error = ''
     try {
-      ;[tentor_list, kelas_list, mapel_list] = await Promise.all([
-        listTentor(),
-        listKelas(),
-        listMapel()
-      ])
+      const [t, k, m] = await Promise.all([listTentor(), listKelas(), listMapel()])
+      tentor_list = t
+      kelas_list = k
+      mapel_list = m
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load data'
       console.error('Error loading assignment data:', err)
@@ -99,7 +111,8 @@
           id="kelas"
           name="kelas_id"
           required
-          bind:value={kelas_id}
+          value={kelas_id}
+          onchange={(e) => pilihKelas((e.currentTarget as HTMLSelectElement).value)}
           class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
         >
           <option value="">Pilih Kelas</option>
@@ -117,14 +130,20 @@
           id="mapel"
           name="mapel_id"
           required
+          disabled={!kelas_id}
           bind:value={mapel_id}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 disabled:bg-gray-50"
         >
-          <option value="">Pilih Mapel</option>
-          {#each mapel_list as m (m.id)}
+          <option value="">{kelas_id ? 'Pilih Mapel' : 'Pilih kelas dulu'}</option>
+          {#each mapelTersedia as m (m.id)}
             <option value={m.id}>{m.nama}</option>
           {/each}
         </select>
+        {#if kelas_id && mapelTersedia.length === 0}
+          <p class="mt-1 text-xs text-amber-700">
+            Kelas ini belum memakai mapel apa pun. Daftarkan dulu lewat Master Data &rarr; Mapel.
+          </p>
+        {/if}
       </div>
 
       <div class="flex space-x-3">
