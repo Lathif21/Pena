@@ -156,7 +156,7 @@
                 showForm = true
                 editingSoal = null
               }}
-              class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover"
+              class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90"
             >
               + Buat Soal Pertama
             </button>

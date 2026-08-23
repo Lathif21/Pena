@@ -200,7 +200,7 @@
         <button
           type="submit"
           disabled={submitting || !data.mapelId || data.siswa.length === 0 || terisi === 0}
-          class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50"
+          class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {submitting ? 'Menyimpan...' : `Simpan Nilai (${terisi})`}
         </button>

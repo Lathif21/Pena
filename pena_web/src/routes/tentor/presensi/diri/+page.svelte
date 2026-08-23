@@ -108,7 +108,7 @@
         {/if}
 
         <div class="mt-4 flex gap-3">
-          <button onclick={() => goto('/tentor/presensi/murid')} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+          <button onclick={() => goto('/tentor/presensi/murid')} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
             Lanjut Presensi Murid
           </button>
         </div>
@@ -176,7 +176,7 @@
       <button
         onclick={submit}
         disabled={loading || !file || (!data.sesiAktif && (!kelasId || !mapelId))}
-        class="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+        class="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary/90 disabled:opacity-50"
       >
         {loading ? 'Menyimpan...' : data.sesiAktif ? 'Ganti Foto' : 'Submit & Mulai Sesi'}
       </button>

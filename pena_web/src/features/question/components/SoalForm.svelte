@@ -138,7 +138,7 @@
       <button
         type="submit"
         disabled={loading}
-        class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary-hover disabled:opacity-50"
+        class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90 disabled:opacity-50"
       >
         {loading ? 'Menyimpan...' : 'Simpan Soal'}
       </button>

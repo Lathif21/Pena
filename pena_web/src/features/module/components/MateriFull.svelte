@@ -69,7 +69,7 @@
         editingMateri = null
         showForm = true
       }}
-      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
     >
       Tambah Materi
     </button>
@@ -100,21 +100,21 @@
             <tr class="hover:bg-gray-50">
               <td class="px-6 py-4 text-sm text-gray-900">{item.nomor_urut}</td>
               <td class="px-6 py-4 text-sm">
-                <a href="/kepala-guru/konten/{mapelId}/materi/{item.id}" class="text-primary hover:text-primary-hover font-medium">
+                <a href="/kepala-guru/konten/{mapelId}/materi/{item.id}" class="text-primary hover:text-primary/90 font-medium">
                   {item.nama}
                 </a>
               </td>
               <td class="px-6 py-4 text-right">
                 <button
                   onclick={() => handleEditClick(item)}
-                  class="text-sm text-primary hover:text-primary-hover font-medium"
+                  class="text-sm text-primary hover:text-primary/90 font-medium"
                 >
                   Edit
                 </button>
                 <span class="text-gray-300 mx-2">·</span>
                 <button
                   onclick={() => handleDelete(item.id)}
-                  class="text-sm text-danger hover:text-red-700 font-medium"
+                  class="text-sm text-destructive hover:text-red-700 font-medium"
                 >
                   Hapus
                 </button>

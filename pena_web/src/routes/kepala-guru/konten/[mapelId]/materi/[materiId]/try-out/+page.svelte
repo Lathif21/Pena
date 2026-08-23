@@ -204,14 +204,14 @@
                     <button
                       onclick={() => handlePublishTryOut(tryOut.id)}
                       disabled={publishing}
-                      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+                      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
                     >
                       {publishing ? 'Memproses...' : 'Publish'}
                     </button>
                     <button
                       onclick={() => handleDeleteTryOut(tryOut)}
                       disabled={publishing}
-                      class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-danger hover:bg-red-50 disabled:opacity-50"
+                      class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-destructive hover:bg-red-50 disabled:opacity-50"
                     >
                       Hapus
                     </button>
@@ -280,7 +280,7 @@
                   {#if soalLocked}
                     <p class="mt-2 text-sm text-gray-500">{soalLock.reason}</p>
                   {:else}
-                    <button onclick={() => { showSoalForm = true; selectedSoal = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover">
+                    <button onclick={() => { showSoalForm = true; selectedSoal = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
                       + Tambah Soal
                     </button>
                   {/if}
@@ -305,7 +305,7 @@
         {:else}
           <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
             <p class="text-gray-600">Pilih atau buat try out untuk mulai mengelola soal.</p>
-            <button onclick={() => { showTryOutForm = true; editingTryOut = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover">
+            <button onclick={() => { showTryOutForm = true; editingTryOut = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
               + Buat Try Out Pertama
             </button>
           </div>

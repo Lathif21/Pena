@@ -25,7 +25,7 @@
           <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
           <input id="tanggal" type="date" bind:value={tanggal} class="mt-1 rounded-md border border-gray-300 px-3 py-2 text-sm" />
         </div>
-        <button onclick={terapkan} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+        <button onclick={terapkan} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
           Terapkan
         </button>
         <button onclick={() => { tanggal = ''; goto('/kepala-guru/monitoring/sesi') }} class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">

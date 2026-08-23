@@ -48,7 +48,7 @@
           </select>
         </div>
         <div class="flex items-end gap-2">
-          <button onclick={terapkan} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+          <button onclick={terapkan} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
             Terapkan
           </button>
           <button onclick={reset} class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">

@@ -52,7 +52,7 @@
         <p class="mt-2 text-sm text-amber-800">
           Presensi murid baru terbuka setelah Anda mengunggah foto presensi dan sesi dimulai.
         </p>
-        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
           Ke Presensi Diri
         </button>
       </div>
@@ -108,7 +108,7 @@
           <button
             onclick={simpan}
             disabled={loading}
-            class="mt-6 w-full rounded-lg bg-primary px-4 py-3 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            class="mt-6 w-full rounded-lg bg-primary px-4 py-3 font-medium text-white hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? 'Menyimpan...' : 'Simpan Presensi'}
           </button>

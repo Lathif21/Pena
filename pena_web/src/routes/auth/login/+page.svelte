@@ -5,7 +5,7 @@
   let error = $state('')
 </script>
 
-<div class="min-h-screen bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center px-4">
+<div class="min-h-screen bg-gradient-to-br from-primary to-primary/90 flex items-center justify-center px-4">
   <div class="w-full max-w-md">
     <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-lg">
       <div class="mb-8">
@@ -67,7 +67,7 @@
         <button
           type="submit"
           disabled={loading}
-          class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50 mt-6"
+          class="w-full rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50 mt-6"
         >
           {loading ? 'Masuk...' : 'Masuk'}
         </button>

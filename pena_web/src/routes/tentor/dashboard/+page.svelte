@@ -54,7 +54,7 @@
         <p class="mt-1 text-sm text-gray-500">Dashboard Tentor</p>
       </div>
       <form method="POST" action="?/logout" use:enhance>
-        <button type="submit" class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-danger hover:bg-red-50">
+        <button type="submit" class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-destructive hover:bg-red-50">
           Logout
         </button>
       </form>
@@ -80,7 +80,7 @@
           <button
             onclick={() => (konfirmasi = true)}
             disabled={!data.sesiAktif.adaJurnal || menutup}
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
           >
             Selesai Mengajar
           </button>
@@ -97,7 +97,7 @@
         <p class="mt-1 text-sm text-gray-500">
           Mulai dengan mengunggah foto presensi diri — itu yang membuka sesi.
         </p>
-        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
           Mulai Sesi
         </button>
       </div>
@@ -148,7 +148,7 @@
         <button
           onclick={selesaikan}
           disabled={menutup}
-          class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {menutup ? 'Memproses...' : 'Ya, Selesai'}
         </button>

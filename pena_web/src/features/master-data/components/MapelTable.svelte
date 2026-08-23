@@ -50,7 +50,7 @@
       editingMapel = null
       showForm = true
     }}
-    class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+    class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
   >
     Tambah Mapel
   </button>
@@ -88,10 +88,10 @@
               {/if}
             </td>
             <td class="px-6 py-4 text-sm space-x-2">
-              <button onclick={() => handleEdit(item)} class="text-primary hover:text-primary-hover">
+              <button onclick={() => handleEdit(item)} class="text-primary hover:text-primary/90">
                 Edit
               </button>
-              <button onclick={() => handleDelete(item.id)} class="text-danger hover:text-red-700">
+              <button onclick={() => handleDelete(item.id)} class="text-destructive hover:text-red-700">
                 Hapus
               </button>
             </td>

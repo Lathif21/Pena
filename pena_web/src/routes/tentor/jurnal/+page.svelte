@@ -41,7 +41,7 @@
       <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">
         <p class="font-medium text-amber-900">Belum ada sesi berjalan</p>
         <p class="mt-2 text-sm text-amber-800">Submit presensi diri dulu untuk membuka sesi.</p>
-        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover">
+        <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
           Ke Presensi Diri
         </button>
       </div>
@@ -98,7 +98,7 @@
         <button
           onclick={simpan}
           disabled={loading}
-          class="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          class="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? 'Menyimpan...' : 'Simpan Draft'}
         </button>

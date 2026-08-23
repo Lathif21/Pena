@@ -23,7 +23,7 @@
         <h1 class="text-2xl font-bold text-gray-900">Nilai Siswa</h1>
         <p class="mt-1 text-sm text-gray-600">Lihat nilai e-learning dan nilai manual per siswa</p>
       </div>
-      <button onclick={() => goto('/tentor/nilai/input')} class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover">
+      <button onclick={() => goto('/tentor/nilai/input')} class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
         + Input Nilai Manual
       </button>
     </div>
