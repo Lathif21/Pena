@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'
   import SoalForm from '$features/question/components/SoalForm.svelte'
   import SoalList from '$features/question/components/SoalList.svelte'
   import { listSoalBySubMateri } from '$features/question/data/soal'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { Pencil } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -47,138 +49,110 @@
   }
 </script>
 
-<div class="min-h-screen bg-gray-50">
-  <div class="mx-auto max-w-7xl px-4 py-8">
-    <!-- Header -->
-    <div class="mb-8 flex items-center justify-between">
-      <div>
-        <button
-          onclick={() => goto(`/kepala-guru/konten/${data.mapel.id}/materi/${data.materi.id}`)}
-          class="mb-4 text-sm font-medium text-primary hover:underline"
-        >
-          ← Kembali ke {data.materi.nama}
-        </button>
-        <h1 class="text-2xl font-bold text-gray-900">
-          Kelola Soal Latihan
-        </h1>
-        <p class="mt-1 text-sm text-gray-600">
-          {data.subMateri.nama} ({data.mapel.nama})
-        </p>
-      </div>
-    </div>
+<div class="mb-6">
+  <a
+    href="/kepala-guru/konten/{data.mapel.id}/materi/{data.materi.id}"
+    class="text-sm font-medium text-primary hover:underline"
+  >
+    ← Kembali ke {data.materi.nama}
+  </a>
+  <h1 class="mt-4 font-serif text-2xl text-foreground">Kelola Soal Latihan</h1>
+  <p class="mt-1 text-sm text-muted-foreground">{data.subMateri.nama} ({data.mapel.nama})</p>
+</div>
 
-    <!-- Main Content -->
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
-      <!-- Sidebar: Soal List -->
-      <div class="rounded-2xl border border-gray-200 bg-white overflow-hidden lg:col-span-1">
-        <SoalList
-          soalList={soalList}
-          selectedSoalId={selectedSoalId}
-          onSelect={handleSelectSoal}
-          onEdit={handleEditSoal}
-          onDelete={handleDeleteSoal}
-        />
-      </div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+  <div class="overflow-hidden rounded-xl border border-border bg-card lg:col-span-1">
+    <SoalList
+      {soalList}
+      {selectedSoalId}
+      onSelect={handleSelectSoal}
+      onEdit={handleEditSoal}
+      onDelete={handleDeleteSoal}
+    />
+  </div>
 
-      <!-- Main: Form atau Preview -->
-      <div class="lg:col-span-3">
-        {#if showForm || (editingSoal && !selectedSoalId)}
-          <!-- Form Mode -->
-          <SoalForm
-            parentId={data.subMateri.id}
-            parentType="sub_materi"
-            initial={editingSoal}
-            onSuccess={refreshSoal}
-            onCancel={() => {
-              showForm = false
-              editingSoal = null
-              selectedSoalId = null
-            }}
-          />
-        {:else if selectedSoalId && editingSoal}
-          <!-- Preview Mode -->
-          <div class="space-y-6">
-            <div class="rounded-2xl border border-gray-200 bg-white p-6">
-              <div class="mb-4 flex items-start justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">
-                  Soal {editingSoal.nomor_urut}
-                </h2>
-                <button
-                  onclick={() => handleEditSoal(editingSoal)}
-                  class="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100"
+  <div class="lg:col-span-3">
+    {#if showForm || (editingSoal && !selectedSoalId)}
+      <SoalForm
+        parentId={data.subMateri.id}
+        parentType="sub_materi"
+        initial={editingSoal}
+        onSuccess={refreshSoal}
+        onCancel={() => {
+          showForm = false
+          editingSoal = null
+          selectedSoalId = null
+        }}
+      />
+    {:else if selectedSoalId && editingSoal}
+      <Card>
+        <div class="mb-4 flex items-start justify-between gap-4">
+          <h2 class="font-serif text-lg text-foreground">
+            Soal <span class="font-mono">{editingSoal.nomor_urut}</span>
+          </h2>
+          <Button variant="secondary" onclick={() => handleEditSoal(editingSoal)}>
+            <Pencil class="mr-2 h-4 w-4" />
+            Edit
+          </Button>
+        </div>
+
+        <div class="mb-6 rounded-lg bg-muted/30 p-4">
+          <p class="text-foreground">{editingSoal.pertanyaan}</p>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-sm font-medium text-foreground">Pilihan Jawaban:</p>
+          {#each editingSoal.pilihan as pilihan (pilihan.id)}
+            <div
+              class="rounded-lg border p-3 {pilihan.is_benar
+                ? 'border-emerald-300 bg-emerald-100'
+                : 'border-border bg-muted/30'}"
+            >
+              <div class="flex items-start gap-3">
+                <span
+                  class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs font-medium {pilihan.is_benar
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-muted text-muted-foreground'}"
                 >
-                  ✏️ Edit
-                </button>
-              </div>
-
-              <div class="mb-6 rounded-lg bg-gray-50 p-4">
-                <p class="text-gray-900">{editingSoal.pertanyaan}</p>
-              </div>
-
-              <div class="space-y-2">
-                <p class="text-sm font-medium text-gray-700">Pilihan Jawaban:</p>
-                {#each editingSoal.pilihan as pilihan (pilihan.id)}
-                  <div
-                    class={`rounded-lg p-3 ${
-                      pilihan.is_benar
-                        ? 'bg-emerald-50 border border-emerald-200'
-                        : 'bg-gray-50 border border-gray-200'
-                    }`}
-                  >
-                    <div class="flex items-start gap-3">
-                      <span
-                        class={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                          pilihan.is_benar
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-gray-300 text-gray-700'
-                        }`}
-                      >
-                        {pilihan.nomor_urut}
-                      </span>
-                      <div class="flex-1">
-                        <p class="text-gray-900">{pilihan.teks}</p>
-                        {#if pilihan.is_benar}
-                          <span class="text-xs font-medium text-emerald-700">✓ Jawaban Benar</span>
-                        {/if}
-                      </div>
-                    </div>
-                  </div>
-                {/each}
+                  {pilihan.nomor_urut}
+                </span>
+                <div class="flex-1">
+                  <p class="text-foreground">{pilihan.teks}</p>
+                  {#if pilihan.is_benar}
+                    <span class="text-xs font-medium text-emerald-800">✓ Jawaban Benar</span>
+                  {/if}
+                </div>
               </div>
             </div>
-          </div>
-        {:else}
-          <!-- Empty State -->
-          <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-            <p class="mb-4 text-gray-600">Belum ada soal latihan.</p>
-            <button
-              onclick={() => {
-                showForm = true
-                editingSoal = null
-              }}
-              class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90"
-            >
-              + Buat Soal Pertama
-            </button>
-          </div>
-        {/if}
+          {/each}
+        </div>
+      </Card>
+    {:else}
+      <Card class="p-8 text-center">
+        <p class="mb-4 text-sm text-muted-foreground">Belum ada soal latihan.</p>
+        <Button
+          onclick={() => {
+            showForm = true
+            editingSoal = null
+          }}
+        >
+          + Buat Soal Pertama
+        </Button>
+      </Card>
+    {/if}
 
-        <!-- Add Button -->
-        {#if !showForm && (!editingSoal || selectedSoalId)}
-          <div class="mt-6">
-            <button
-              onclick={() => {
-                showForm = true
-                editingSoal = null
-                selectedSoalId = null
-              }}
-              class="w-full rounded-lg border border-primary bg-primary/5 px-4 py-3 font-medium text-primary hover:bg-primary/10"
-            >
-              + Tambah Soal Baru
-            </button>
-          </div>
-        {/if}
-      </div>
-    </div>
+    {#if !showForm && (!editingSoal || selectedSoalId)}
+      <Button
+        variant="secondary"
+        class="mt-6 w-full"
+        onclick={() => {
+          showForm = true
+          editingSoal = null
+          selectedSoalId = null
+        }}
+      >
+        + Tambah Soal Baru
+      </Button>
+    {/if}
   </div>
 </div>

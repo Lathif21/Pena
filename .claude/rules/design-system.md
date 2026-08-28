@@ -114,9 +114,17 @@ Build these **hand-rolled in `lib/components/`** with Tailwind. The design uses 
 **Cards:** `bg-card border border-border rounded-xl p-5`. No shadows.
 
 **Buttons:** `rounded-lg px-4 py-2.5`.
-- Primary: `bg-primary text-primary-foreground`
-- Secondary: `bg-card border border-border`
-- Destructive: `text-destructive border border-border`
+
+| Variant | Base | Hover |
+|---|---|---|
+| Primary | `bg-primary text-primary-foreground` | `hover:bg-primary/90` |
+| Secondary | `bg-card border border-border` | `hover:bg-muted/40` |
+| Destructive | `text-destructive border border-border` | `hover:bg-destructive/10` |
+| Ghost / icon | transparent | `hover:bg-muted/40` |
+
+**Hover states derive from existing tokens via opacity — never introduce a separate hover token.** There is no `primary-hover`, no `danger`; use `bg-primary/90` and `text-destructive`. A dedicated hover color would double the palette and drift out of sync with its base.
+
+Sidebar is the one exception: its active and hover states use `--color-sidebar-accent`, which is a real token because the navy surface needs a lighter navy rather than an opacity shift.
 
 **Inputs:** `bg-input-background rounded-lg px-3 py-2.5`, transparent border, `ring` on focus.
 

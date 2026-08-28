@@ -100,20 +100,20 @@
 
 </script>
 
-<div class="rounded-lg border border-gray-200 bg-white p-6">
-  <h3 class="mb-4 text-lg font-semibold text-gray-900">
+<div class="rounded-xl border border-border bg-card p-5">
+  <h3 class="mb-4 font-serif text-lg text-foreground">
     {initial ? 'Edit Try Out' : 'Buat Try Out'}
   </h3>
 
   {#if error}
-    <div class="mb-4 rounded-md bg-red-50 p-3">
+    <div class="mb-4 rounded-lg bg-red-100 p-3">
       <p class="text-sm text-red-800">{error}</p>
     </div>
   {/if}
 
   <form onsubmit={handleSubmit} class="space-y-4">
     <div>
-      <label for="judul" class="block text-sm font-medium text-gray-700">
+      <label for="judul" class="block text-sm font-medium text-foreground">
         Judul Try Out
       </label>
       <input
@@ -121,20 +121,20 @@
         type="text"
         bind:value={judul}
         required
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         placeholder="Contoh: Try Out Matematika Bab 1"
       />
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid gap-4 sm:grid-cols-2">
       <div>
-        <label for="tipeTest" class="block text-sm font-medium text-gray-700">
+        <label for="tipeTest" class="block text-sm font-medium text-foreground">
           Tipe Test
         </label>
         <select
           id="tipeTest"
           bind:value={tipeTest}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2 text-sm"
+          class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 pr-8 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         >
           <option value="biasa">Biasa</option>
           <option value="pre_test">Pre-Test</option>
@@ -143,7 +143,7 @@
       </div>
 
       <div>
-        <label for="durasiMenit" class="block text-sm font-medium text-gray-700">
+        <label for="durasiMenit" class="block text-sm font-medium text-foreground">
           Durasi (menit)
         </label>
         <input
@@ -151,13 +151,13 @@
           type="number"
           bind:value={durasiMenit}
           min="1"
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         />
       </div>
     </div>
 
     <div>
-      <label for="waktuBuka" class="block text-sm font-medium text-gray-700">
+      <label for="waktuBuka" class="block text-sm font-medium text-foreground">
         Waktu Buka
       </label>
       <input
@@ -165,42 +165,42 @@
         type="datetime-local"
         bind:value={waktuBuka}
         required
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
       />
-      <p class="mt-1 text-xs text-gray-500">
+      <p class="mt-1 text-xs text-muted-foreground">
         Soal akan tersembunyi sampai waktu ini
       </p>
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-700 mb-2">
+      <label class="block text-sm font-medium text-foreground mb-2">
         Target Kelas
       </label>
-      <div class="space-y-2 border border-gray-200 rounded-md p-3 bg-gray-50">
+      <div class="space-y-2 border border-border rounded-lg p-3 bg-muted/30">
         {#each kelasOptions as kelas (kelas.id)}
           <label class="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={selectedKelas.has(kelas.id)}
               onchange={() => toggleKelas(kelas.id)}
-              class="rounded border-gray-300"
+              class="rounded border-border"
             />
-            <span class="text-sm text-gray-700">{kelas.nama}</span>
+            <span class="text-sm text-foreground">{kelas.nama}</span>
           </label>
         {/each}
       </div>
       {#if selectedKelas.size === 0}
-        <p class="mt-2 text-sm text-amber-700 bg-amber-50 p-2 rounded">
+        <p class="mt-2 text-sm text-amber-800 bg-amber-100 p-2 rounded">
           ⚠️ Pilih minimal 1 kelas
         </p>
       {/if}
     </div>
 
-    <div class="flex gap-3 border-t border-gray-200 pt-4">
+    <div class="flex gap-3 border-t border-border pt-4">
       <button
         type="submit"
         disabled={loading || selectedKelas.size === 0}
-        class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary/90 disabled:opacity-50"
+        class="rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       >
         {loading ? 'Menyimpan...' : initial ? 'Simpan Perubahan' : 'Buat Try Out'}
       </button>
@@ -208,7 +208,7 @@
       <button
         type="button"
         onclick={() => onCancel?.()}
-        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50"
+        class="rounded-lg border border-border bg-card px-4 py-2 text-foreground hover:bg-muted/30"
       >
         Batal
       </button>

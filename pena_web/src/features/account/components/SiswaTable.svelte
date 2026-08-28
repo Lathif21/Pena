@@ -1,6 +1,11 @@
 <script lang="ts">
   import { deleteSiswa, type Siswa } from '../data/siswa'
   import SiswaForm from './SiswaForm.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import Table from '$lib/components/Table.svelte'
+  import Th from '$lib/components/Th.svelte'
+  import Td from '$lib/components/Td.svelte'
 
   interface Props {
     siswa: Siswa[]
@@ -36,82 +41,109 @@
     editingSiswa = null
     loadSiswa()
   }
+
+  // Regular biru, privat emas. Dua paket saja — bukan status, jadi tidak memakai
+  // nada badge hadir/draft/error.
+  const gayaPaket = (paket: string) =>
+    paket === 'regular' ? 'bg-blue-100 text-blue-800' : 'bg-accent/15 text-accent'
 </script>
 
 <div class="space-y-4">
   {#if error}
-    <div class="rounded-md bg-red-50 p-4">
+    <div class="rounded-lg bg-red-100 p-4">
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
 
-  <button
-    onclick={() => (showForm = true)}
-    class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
-  >
-    Tambah Siswa
-  </button>
+  <Button onclick={() => (showForm = true)}>Tambah Siswa</Button>
 
   {#if showForm}
-    <SiswaForm editingSiswa={editingSiswa} onclose={handleCloseForm} />
+    <SiswaForm {editingSiswa} onclose={handleCloseForm} />
   {/if}
 
-  <div class="overflow-x-auto rounded-md border border-gray-200">
-      <table class="w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Nama</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Email</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">NIS</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Kelas</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Paket</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Aksi</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          {#each siswa as item (item.id)}
-            <tr>
-              <td class="px-6 py-4 text-sm text-gray-900">{item.nama_lengkap}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{item.email}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{item.nis}</td>
-              <td class="px-6 py-4 text-sm">
-                {#if item.kelas_nama}
-                  <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
-                    {item.kelas_nama}
-                  </span>
-                {:else}
-                  <span class="text-xs text-gray-400">Belum ada kelas</span>
-                {/if}
-              </td>
-              <td class="px-6 py-4 text-sm">
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                  class:bg-blue-100={item.paket === 'regular'}
-                  class:text-blue-800={item.paket === 'regular'}
-                  class:bg-purple-100={item.paket === 'privat'}
-                  class:text-purple-800={item.paket === 'privat'}
-                >
-                  {item.paket === 'regular' ? 'Regular' : 'Privat'}
-                </span>
-              </td>
-              <td class="px-6 py-4 text-sm space-x-3">
-                <button
-                  onclick={() => handleEditClick(item)}
-                  class="text-blue-600 hover:text-blue-900"
-                >
-                  Edit
-                </button>
-                <button
-                  onclick={() => handleDelete(item.id)}
-                  class="text-red-600 hover:text-red-900"
-                >
-                  Hapus
-                </button>
-              </td>
-            </tr>
-          {/each}
-        </tbody>
-      </table>
-    </div>
-</div>
+  <!-- Enam kolom bermakna — di bawah md jadi tumpukan card. -->
+  <div class="space-y-3 md:hidden">
+    {#each siswa as item (item.id)}
+      <Card>
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <p class="font-medium text-foreground">{item.nama_lengkap}</p>
+            <p class="text-sm text-muted-foreground">{item.email}</p>
+          </div>
+          <span
+            class="shrink-0 rounded-full px-2.5 py-1 text-xs font-medium {gayaPaket(item.paket)}"
+          >
+            {item.paket === 'regular' ? 'Regular' : 'Privat'}
+          </span>
+        </div>
+        <dl class="mt-3 space-y-1 text-sm">
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted-foreground">NIS</dt>
+            <dd class="font-mono text-foreground">{item.nis}</dd>
+          </div>
+          <div class="flex justify-between gap-3">
+            <dt class="text-muted-foreground">Kelas</dt>
+            <dd class="text-foreground">{item.kelas_nama ?? 'Belum ada kelas'}</dd>
+          </div>
+        </dl>
+        <div class="mt-3 flex gap-2">
+          <Button variant="secondary" class="flex-1" onclick={() => handleEditClick(item)}>
+            Edit
+          </Button>
+          <Button variant="destructive" class="flex-1" onclick={() => handleDelete(item.id)}>
+            Hapus
+          </Button>
+        </div>
+      </Card>
+    {/each}
+  </div>
 
+  <div class="hidden md:block">
+    <Table>
+      {#snippet head()}
+        <Th>Nama</Th>
+        <Th>Email</Th>
+        <Th>NIS</Th>
+        <Th>Kelas</Th>
+        <Th>Paket</Th>
+        <Th>Aksi</Th>
+      {/snippet}
+      {#snippet body()}
+        {#each siswa as item (item.id)}
+          <tr class="border-b border-border">
+            <Td>{item.nama_lengkap}</Td>
+            <Td>{item.email}</Td>
+            <Td numeric>{item.nis}</Td>
+            <Td>
+              {#if item.kelas_nama}
+                <span
+                  class="inline-flex items-center rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground"
+                >
+                  {item.kelas_nama}
+                </span>
+              {:else}
+                <span class="text-xs text-muted-foreground">Belum ada kelas</span>
+              {/if}
+            </Td>
+            <Td>
+              <span class="rounded-full px-2.5 py-1 text-xs font-medium {gayaPaket(item.paket)}">
+                {item.paket === 'regular' ? 'Regular' : 'Privat'}
+              </span>
+            </Td>
+            <Td class="space-x-3">
+              <button onclick={() => handleEditClick(item)} class="text-primary hover:underline">
+                Edit
+              </button>
+              <button
+                onclick={() => handleDelete(item.id)}
+                class="text-destructive hover:underline"
+              >
+                Hapus
+              </button>
+            </Td>
+          </tr>
+        {/each}
+      {/snippet}
+    </Table>
+  </div>
+</div>

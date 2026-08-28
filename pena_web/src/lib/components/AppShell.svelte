@@ -7,6 +7,9 @@
     href: string
     label: string
     icon: Component
+    /** Prefix penanda aktif kalau berbeda dari href — dipakai saat satu item
+        menaungi beberapa halaman sejajar (mis. akun siswa/tentor/wali). */
+    match?: string
   }
 
   interface Props {
@@ -22,8 +25,10 @@
 
   // Prefix, bukan sama persis — supaya sub-route seperti /tentor/nilai/input
   // tetap menyalakan item "Input Nilai".
-  const aktif = (href: string) =>
-    page.url.pathname === href || page.url.pathname.startsWith(href + '/')
+  const aktif = (item: NavItem) => {
+    const dasar = item.match ?? item.href
+    return page.url.pathname === dasar || page.url.pathname.startsWith(dasar + '/')
+  }
 
   const inisial = $derived(
     nama
@@ -83,7 +88,7 @@
 
     <nav class="flex-1 space-y-1 overflow-y-auto p-3">
       {#each nav as item (item.href)}
-        {@const ini = aktif(item.href)}
+        {@const ini = aktif(item)}
         <a
           href={item.href}
           class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm {ini

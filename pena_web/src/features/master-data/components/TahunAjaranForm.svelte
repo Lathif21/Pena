@@ -26,20 +26,20 @@
   }
 </script>
 
-<div class="rounded-md border border-gray-200 bg-white p-6">
-  <h3 class="text-lg font-medium text-gray-900 mb-4">
+<div class="rounded-xl border border-border bg-card p-5">
+  <h3 class="mb-4 font-serif text-lg text-foreground">
     Tambah Tahun Ajaran
   </h3>
 
   {#if error}
-    <div class="mb-4 rounded-md bg-red-50 p-4">
+    <div class="mb-4 rounded-lg bg-red-100 p-4">
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
 
   <form onsubmit={handleSubmit} class="space-y-4">
     <div>
-      <label for="nama" class="block text-sm font-medium text-gray-700">
+      <label for="nama" class="block text-sm font-medium text-foreground">
         Nama Tahun Ajaran (e.g., 2025/2026)
       </label>
       <input
@@ -48,7 +48,7 @@
         placeholder="2025/2026"
         required
         bind:value={nama}
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+        class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
       />
     </div>
 
@@ -56,14 +56,14 @@
       <button
         type="submit"
         disabled={loading}
-        class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+        class="rounded-lg bg-primary px-4 py-2.5 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       >
         {loading ? 'Saving...' : 'Simpan'}
       </button>
       <button
         type="button"
         onclick={() => onclose?.()}
-        class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+        class="rounded-lg border border-border px-4 py-2 text-foreground hover:bg-muted/30"
       >
         Batal
       </button>

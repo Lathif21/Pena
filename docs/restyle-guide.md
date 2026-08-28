@@ -11,7 +11,7 @@ Dari hasil audit:
 | Hex ungu lama | 2 | Di `layout.css` |
 | Kelas indigo/purple/violet | 5 di 3 file | |
 | `shadow-` | 5 di 5 file | |
-| **Kelas `gray-`** | **674 di 56 file** | Beban terbesar |
+| **Kelas `gray-`** | **775 occurrence** (674 baris) di 56 file | Beban terbesar |
 | Sidebar | **Tidak ada** | Konstruksi baru, bukan penggantian |
 | Halaman dengan wrapper `min-h-screen` sendiri | 35 | Semuanya tersentuh saat shell dipasang |
 
@@ -90,6 +90,13 @@ Buka `src/routes/layout.css` (file yang memuat `@import "tailwindcss"`). Ganti d
   --font-mono: "DM Mono", monospace;
 
   --radius: 0.5rem;
+
+  /* TOKEN JEMBATAN — sementara, hapus di Langkah 6.
+     Ada hanya supaya 52 pemakaian lama tidak mati senyap saat Langkah 2.
+     Di v4, token yang hilang dari @theme membuat utility-nya tidak
+     ter-generate: kelasnya mati tanpa error. */
+  --color-primary-hover: #264D73;   /* = sidebar-accent, navy terang */
+  --color-danger: #C0392B;          /* = destructive */
 }
 ```
 
@@ -109,7 +116,7 @@ Commit: `feat: design tokens + fonts`
 
 ## Langkah 3 — Peta Penggantian Gray
 
-674 occurrence bukan 674 keputusan. Sebagian besar mengikuti pola yang bisa dipetakan langsung:
+775 occurrence bukan 775 keputusan. Sebagian besar mengikuti pola yang bisa dipetakan langsung:
 
 | Lama | Baru | Konteks |
 |---|---|---|
@@ -126,18 +133,64 @@ Commit: `feat: design tokens + fonts`
 | `border-gray-100` | `border-border` | Pembatas baris tabel |
 | `border-gray-300` | `border-border` | Border input |
 
-Dua yang ambigu dan **harus dilihat konteksnya**, jangan diganti buta:
+Plus 52 pemakaian token jembatan yang harus dibereskan supaya keduanya bisa dihapus:
 
-- `bg-gray-50` bisa berarti latar halaman (`bg-background`) atau hover baris (`bg-muted/30`). Lihat elemen induknya.
-- `text-gray-700` vs `text-gray-600` sering dipakai bergantian tanpa maksud berbeda. Samakan ke `text-foreground` kalau isi utama, `text-muted-foreground` kalau label.
+| Lama | Baru | Jumlah |
+|---|---|---|
+| `hover:bg-primary-hover` | `hover:bg-primary/90` | 39 |
+| `hover:text-primary-hover` | `hover:text-primary/90` | 5 |
+| `to-primary-hover` | `to-primary/90` | 1 |
+| `text-danger` | `text-destructive` | 7 |
 
-Kelas gray di luar tabel ini (misal `bg-gray-800`) kemungkinan disengaja — tanyakan sebelum mengganti.
+Setelah keempatnya nol, hapus `--color-primary-hover` dan `--color-danger` dari blok `@theme`. Jangan hapus lebih awal — utility-nya akan mati senyap dan kerusakannya baru terlihat saat halaman dibuka.
+
+### `bg-gray-50` — empat kasus, bukan dua
+
+| Pemakaian | Jml | Jadi |
+|---|---|---|
+| `min-h-screen bg-gray-50` (wrapper halaman) | 34 | **Jangan disentuh** — wrapper ini dibuang di Langkah 5 |
+| `hover:bg-gray-50` (baris tabel) | 37 | `hover:bg-muted/30` |
+| `<thead>` / `<tr>` header | 9 | `bg-muted/30` |
+| Panel sekunder `rounded-lg p-4` | ~20 | `bg-muted/30` |
+| `disabled:bg-gray-50` | 3 | `disabled:bg-muted` |
+
+Yang pertama penting: mengganti 34 wrapper itu sekarang adalah kerja sia-sia, karena seluruhnya dihapus saat shell dipasang.
+
+`text-gray-700` vs `text-gray-600` sering dipakai bergantian tanpa maksud berbeda. Samakan ke `text-foreground` kalau isi utama, `text-muted-foreground` kalau label.
+
+### 30 occurrence di luar peta utama
+
+| Kelas | Jml | Jadi |
+|---|---|---|
+| `text-white` (di tombol `bg-primary`) | 49 | `text-primary-foreground` |
+| `divide-gray-200` / `divide-gray-100` | 18 | `divide-border` |
+| `bg-gray-200` (track progress) | 1 | `bg-muted` |
+| `bg-gray-200`/`300` (tombol sekunder) | 5 | `bg-card border border-border`, hover `hover:bg-muted/40` |
+| `text-gray-300` (pemisah titik ·) | 2 | `text-muted-foreground/50` |
+| `bg-gray-100 text-gray-800` (badge netral) | 1 | `bg-muted text-muted-foreground` |
+| `placeholder-gray-500` | 2 | `placeholder-muted-foreground` |
+| `bg-black/40`, `bg-black/70` (scrim modal) | 2 | `bg-foreground/50` |
+| Penanda jawaban soal | 2 | lihat di bawah |
+
+**Penanda jawaban soal** — `bg-gray-300` untuk jawaban salah keliru secara semantik: abu-abu terbaca "nonaktif", bukan "salah", sehingga siswa bisa mengira soal itu tidak dijawab. Ganti jadi:
+
+| Keadaan | Kelas |
+|---|---|
+| Jawaban benar | `bg-emerald-100 text-emerald-800 border border-emerald-300` |
+| Pilihan siswa yang salah | `bg-red-100 text-red-800 border border-red-300` |
+| Pilihan lain | `bg-muted text-muted-foreground` |
+
+Border mengembalikan ketajaman yang hilang saat turun dari `emerald-500`, tanpa blok jenuh yang bertabrakan dengan latar cream.
+
+**Scrim** memakai `bg-foreground/50`, bukan token baru dan bukan hitam murni — `--foreground` adalah near-black hangat yang serasi dengan palet. Drawer sidebar di Langkah 5 memakai scrim yang sama.
+
+Kelas gray di luar semua tabel ini kemungkinan disengaja — tanyakan sebelum mengganti.
 
 ## Langkah 4 — Komponen Bersama
 
 Bangun di `src/lib/components/` sesuai `.claude/rules/design-system.md`: `Card`, `Button`, `Badge`, `Input`, `Table`, `ProgressBar`.
 
-Kerjakan sebelum menyentuh halaman. Sekali komponen ada, migrasi halaman jadi mengganti markup dengan komponen alih-alih menambal kelas satu per satu — dan itu memangkas sebagian besar dari 674 occurrence tadi.
+Kerjakan sebelum menyentuh halaman. Sekali komponen ada, migrasi halaman jadi mengganti markup dengan komponen alih-alih menambal kelas satu per satu — dan itu memangkas sebagian besar dari 775 occurrence tadi.
 
 Commit tiap komponen.
 
@@ -153,9 +206,9 @@ Karena 35 halaman memegang wrapper `min-h-screen` masing-masing, urutannya penti
 
 **5c. Uji di tiga lebar** — 375px, 768px, 1440px. Pastikan drawer buka-tutup, konten tidak terpotong, tidak ada scroll horizontal.
 
-**5d. Lanjut group berikutnya** — `(siswa)`, `(wali)`, `(kepala-guru)`. Satu group satu commit.
+**5d. Lanjut folder berikutnya** — `siswa/`, `wali/`, `kepala-guru/`. Satu folder satu commit.
 
-Jangan pasang shell ke keempat group sekaligus. Kalau ada yang salah di group kedua, kamu ingin bisa revert satu commit.
+Jangan pasang shell ke keempat folder sekaligus. Kalau ada yang salah di folder kedua, kamu ingin bisa revert satu commit.
 
 ## Langkah 6 — Migrasi Halaman
 
@@ -188,7 +241,10 @@ Per halaman:
 (Scan "shadow-").Count                 # harus 0
 (Scan "(bg|text|border)-gray-").Count  # harus mendekati 0
 (Scan "(indigo|purple|violet)-").Count # harus 0
+(Scan "primary-hover|text-danger").Count  # harus 0
 ```
+
+Kalau baris terakhir sudah 0, hapus `--color-primary-hover` dan `--color-danger` dari `@theme`, lalu jalankan build sekali lagi untuk memastikan tidak ada yang rusak.
 
 Checklist manual:
 
