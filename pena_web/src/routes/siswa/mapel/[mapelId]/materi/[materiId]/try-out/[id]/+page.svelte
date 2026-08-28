@@ -144,7 +144,7 @@
             <li>• Jangan menutup browser di tengah pengerjaan</li>
           </ul>
         </div>
-        <button onclick={startTryOut} disabled={loading} class="rounded-lg bg-primary px-8 py-3 text-white hover:bg-primary-hover disabled:opacity-50">
+        <button onclick={startTryOut} disabled={loading} class="rounded-lg bg-primary px-8 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
           {loading ? 'Memulai...' : 'Mulai Try Out'}
         </button>
       </div>
@@ -192,7 +192,7 @@
                       >
                         <span class="flex-1 text-gray-900">{pilihan.teks}</span>
                   {#if gagalSimpan.has(soal.id) && jawaban.get(soal.id) === pilihan.id}
-                    <span class="text-xs font-medium text-danger">belum tersimpan</span>
+                    <span class="text-xs font-medium text-destructive">belum tersimpan</span>
                   {/if}
                         {#if pilihan.id === kunci}
                           <span class="text-xs font-medium text-emerald-700">Jawaban benar</span>
@@ -252,7 +252,7 @@
       </div>
 
       <div class="mt-8 flex gap-3">
-        <button onclick={() => handleSubmit(false)} disabled={loading} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50">
+        <button onclick={() => handleSubmit(false)} disabled={loading} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
           {loading ? 'Mengirim...' : 'Selesai & Kirim'}
         </button>
       </div>

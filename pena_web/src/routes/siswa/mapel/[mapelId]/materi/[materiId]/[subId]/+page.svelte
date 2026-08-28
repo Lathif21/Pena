@@ -18,7 +18,7 @@
         {#if data.hasLatihan}
           <a
             href="/siswa/mapel/{data.mapelId}/materi/{data.materiId}/{data.subMateri.id}/latihan"
-            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+            class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
           >
             Kerjakan Latihan
           </a>

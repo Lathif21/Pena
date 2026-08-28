@@ -1,10 +1,14 @@
 <script lang="ts">
-  import { goto, invalidateAll } from '$app/navigation'
+  import { invalidateAll } from '$app/navigation'
   import SoalForm from '$features/question/components/SoalForm.svelte'
   import SoalList from '$features/question/components/SoalList.svelte'
   import TryOutForm from '$features/question/components/TryOutForm.svelte'
   import { listSoalByTryOut } from '$features/question/data/soal'
   import { publishTryOut, unpublishTryOut, deleteTryOut } from '$features/question/data/try-out'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { Pencil } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -118,199 +122,270 @@
   }
 </script>
 
-<div class="min-h-screen bg-gray-50">
-  <div class="mx-auto max-w-7xl px-4 py-8">
-    <div class="mb-8">
-      <button onclick={() => goto(`/kepala-guru/konten/${data.mapel.id}/materi`)} class="mb-4 text-sm font-medium text-primary hover:underline">
-        ← Kembali ke {data.mapel.nama}
-      </button>
-      <h1 class="text-2xl font-bold text-gray-900">Kelola Try Out</h1>
-      <p class="mt-1 text-sm text-gray-600">{data.materi.nama}</p>
-    </div>
+<div class="mb-6">
+  <a
+    href="/kepala-guru/konten/{data.mapel.id}/materi"
+    class="text-sm font-medium text-primary hover:underline"
+  >
+    ← Kembali ke {data.mapel.nama}
+  </a>
+  <h1 class="mt-4 font-serif text-2xl text-foreground">Kelola Try Out</h1>
+  <p class="mt-1 text-sm text-muted-foreground">{data.materi.nama}</p>
+</div>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
-      <div class="lg:col-span-1">
-        <div class="rounded-2xl border border-gray-200 bg-white overflow-hidden">
-          <div class="border-b border-gray-200 p-4">
-            <h3 class="font-semibold text-gray-900">Try Out</h3>
-            <p class="text-xs text-gray-500">{tryOutList.length} dibuat</p>
-          </div>
-          <div class="max-h-96 overflow-y-auto">
-            {#each tryOutList as to (to.id)}
-              <button
-                onclick={() => selectTryOut(to.id)}
-                class={`w-full border-b border-gray-100 px-4 py-3 text-left transition-colors ${selectedTryOutId === to.id ? 'bg-primary/10' : 'hover:bg-gray-50'}`}
-              >
-                <p class="font-medium text-gray-900 truncate">{to.judul}</p>
-                <p class="text-xs text-gray-500">{to.status === 'published' ? '✓ Published' : '○ Draft'}</p>
-              </button>
-            {/each}
-          </div>
-          <div class="border-t border-gray-200 p-3">
-            <button onclick={() => { showTryOutForm = true; editingTryOut = null; selectedTryOutId = null }} class="w-full rounded-md bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20">
-              + Buat Try Out
-            </button>
-          </div>
-        </div>
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+  <div class="lg:col-span-1">
+    <div class="overflow-hidden rounded-xl border border-border bg-card">
+      <div class="border-b border-border p-4">
+        <h3 class="font-serif text-base text-foreground">Try Out</h3>
+        <p class="text-xs text-muted-foreground">
+          <span class="font-mono">{tryOutList.length}</span> dibuat
+        </p>
       </div>
+      <div class="max-h-96 overflow-y-auto">
+        {#each tryOutList as to (to.id)}
+          <button
+            onclick={() => selectTryOut(to.id)}
+            class="w-full border-b border-border px-4 py-3 text-left {selectedTryOutId === to.id
+              ? 'bg-secondary'
+              : 'hover:bg-muted/30'}"
+          >
+            <p class="truncate text-sm font-medium text-foreground">{to.judul}</p>
+            <p class="text-xs text-muted-foreground">
+              {to.status === 'published' ? 'Published' : 'Draft'}
+            </p>
+          </button>
+        {/each}
+      </div>
+      <div class="border-t border-border p-3">
+        <Button
+          variant="secondary"
+          class="w-full"
+          onclick={() => {
+            showTryOutForm = true
+            editingTryOut = null
+            selectedTryOutId = null
+          }}
+        >
+          + Buat Try Out
+        </Button>
+      </div>
+    </div>
+  </div>
 
-      <div class="lg:col-span-3">
-        {#if showTryOutForm}
-          <TryOutForm
-            materiId={data.materi.id}
-            kelasOptions={data.kelas}
-            initial={editingTryOut}
-            onSuccess={async () => { showTryOutForm = false; editingTryOut = null; await invalidateAll() }}
-            onCancel={() => { showTryOutForm = false; editingTryOut = null }}
-          />
-        {:else if selectedTryOutId}
-          {@const tryOut = tryOutList.find(t => t.id === selectedTryOutId)}
-          {#if tryOut}
-            <div class="rounded-2xl border border-gray-200 bg-white p-6 mb-6">
-              <div class="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <h2 class="text-lg font-semibold text-gray-900">{tryOut.judul}</h2>
-                  <p class="mt-1 text-sm text-gray-600">
-                    {tryOut.durasi_menit} menit • {tryOut.tipe_test} • {soalList.length} soal
-                  </p>
-                  <p class="mt-1 text-xs text-gray-500">
-                    Buka {new Date(tryOut.waktu_buka).toLocaleString('id-ID')}
-                  </p>
-                </div>
-                {#if tryOut.status === 'published'}
-                  <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">✓ Published</span>
-                    {#if tryOut.expired}
-                      <span class="text-sm text-gray-500">Terkunci — waktu sudah lewat</span>
-                    {:else}
-                      <button
-                        onclick={() => handleUnpublishTryOut(tryOut.id)}
-                        disabled={publishing}
-                        class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        {publishing ? 'Memproses...' : 'Batalkan Publish'}
-                      </button>
-                    {/if}
-                  </div>
+  <div class="lg:col-span-3">
+    {#if showTryOutForm}
+      <TryOutForm
+        materiId={data.materi.id}
+        kelasOptions={data.kelas}
+        initial={editingTryOut}
+        onSuccess={async () => {
+          showTryOutForm = false
+          editingTryOut = null
+          await invalidateAll()
+        }}
+        onCancel={() => {
+          showTryOutForm = false
+          editingTryOut = null
+        }}
+      />
+    {:else if selectedTryOutId}
+      {@const tryOut = tryOutList.find((t) => t.id === selectedTryOutId)}
+      {#if tryOut}
+        <Card class="mb-6">
+          <div class="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <h2 class="font-serif text-lg text-foreground">{tryOut.judul}</h2>
+              <p class="mt-1 text-sm text-muted-foreground">
+                <span class="font-mono">{tryOut.durasi_menit}</span> menit · {tryOut.tipe_test} ·
+                <span class="font-mono">{soalList.length}</span> soal
+              </p>
+              <p class="mt-1 text-xs text-muted-foreground">
+                Buka
+                <span class="font-mono">
+                  {new Date(tryOut.waktu_buka).toLocaleString('id-ID')}
+                </span>
+              </p>
+            </div>
+            {#if tryOut.status === 'published'}
+              <div class="flex flex-wrap items-center gap-3">
+                <Badge tone="success">Published</Badge>
+                {#if tryOut.expired}
+                  <span class="text-sm text-muted-foreground">Terkunci — waktu sudah lewat</span>
                 {:else}
-                  <div class="flex items-center gap-3">
-                    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">○ Draft</span>
-                    <button
-                      onclick={() => { editingTryOut = tryOut; showTryOutForm = true }}
-                      class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Edit Jadwal
-                    </button>
-                    <button
-                      onclick={() => handlePublishTryOut(tryOut.id)}
-                      disabled={publishing}
-                      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-                    >
-                      {publishing ? 'Memproses...' : 'Publish'}
-                    </button>
-                    <button
-                      onclick={() => handleDeleteTryOut(tryOut)}
-                      disabled={publishing}
-                      class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-danger hover:bg-red-50 disabled:opacity-50"
-                    >
-                      Hapus
-                    </button>
-                  </div>
+                  <Button
+                    variant="secondary"
+                    onclick={() => handleUnpublishTryOut(tryOut.id)}
+                    disabled={publishing}
+                  >
+                    {publishing ? 'Memproses...' : 'Batalkan Publish'}
+                  </Button>
                 {/if}
               </div>
-              {#if publishError}
-                <div class="mt-4 rounded-md bg-red-50 p-3">
-                  <p class="text-sm text-red-800">{publishError}</p>
+            {:else}
+              <div class="flex flex-wrap items-center gap-3">
+                <Badge tone="pending">Draft</Badge>
+                <Button
+                  variant="secondary"
+                  onclick={() => {
+                    editingTryOut = tryOut
+                    showTryOutForm = true
+                  }}
+                >
+                  Edit Jadwal
+                </Button>
+                <Button onclick={() => handlePublishTryOut(tryOut.id)} disabled={publishing}>
+                  {publishing ? 'Memproses...' : 'Publish'}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onclick={() => handleDeleteTryOut(tryOut)}
+                  disabled={publishing}
+                >
+                  Hapus
+                </Button>
+              </div>
+            {/if}
+          </div>
+          {#if publishError}
+            <div class="mt-4 rounded-lg bg-red-100 p-3">
+              <p class="text-sm text-red-800">{publishError}</p>
+            </div>
+          {/if}
+        </Card>
+      {/if}
+
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-4">
+        <div class="overflow-hidden rounded-xl border border-border bg-card lg:col-span-1">
+          <SoalList
+            {soalList}
+            {selectedSoalId}
+            onSelect={selectSoal}
+            onEdit={editSoal}
+            onDelete={deleteSoal}
+            locked={soalLocked}
+          />
+        </div>
+
+        <div class="lg:col-span-3">
+          {#if showSoalForm}
+            <!-- initial null = tambah soal baru. Previously this branch also
+                 required selectedSoal, so "Tambah Soal" rendered nothing. -->
+            <SoalForm
+              parentId={selectedTryOutId}
+              parentType="try_out"
+              initial={selectedSoal}
+              onSuccess={() => {
+                loadSoal()
+                showSoalForm = false
+                selectedSoal = null
+              }}
+              onCancel={() => {
+                showSoalForm = false
+              }}
+            />
+          {:else if selectedSoalId && selectedSoal}
+            <Card>
+              <div class="mb-4 flex items-start justify-between gap-4">
+                <h3 class="font-serif text-lg text-foreground">
+                  Soal <span class="font-mono">{selectedSoal.nomor_urut}</span>
+                </h3>
+                {#if soalLocked}
+                  <span class="text-xs text-muted-foreground">{soalLock.reason}</span>
+                {:else}
+                  <Button variant="secondary" onclick={() => editSoal(selectedSoal)}>
+                    <Pencil class="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                {/if}
+              </div>
+              <div class="mb-6 rounded-lg bg-muted/30 p-4">
+                <p class="text-foreground">{selectedSoal.pertanyaan}</p>
+              </div>
+              <div class="space-y-2">
+                <p class="text-sm font-medium text-foreground">Pilihan Jawaban:</p>
+                {#each selectedSoal.pilihan as pilihan (pilihan.id)}
+                  <div
+                    class="rounded-lg border p-3 {pilihan.is_benar
+                      ? 'border-emerald-300 bg-emerald-100'
+                      : 'border-border bg-muted/30'}"
+                  >
+                    <div class="flex items-start gap-3">
+                      <span
+                        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-xs font-medium {pilihan.is_benar
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-muted text-muted-foreground'}"
+                      >
+                        {pilihan.nomor_urut}
+                      </span>
+                      <div class="flex-1">
+                        <p class="text-foreground">{pilihan.teks}</p>
+                        {#if pilihan.is_benar}
+                          <span class="text-xs font-medium text-emerald-800">✓ Jawaban Benar</span>
+                        {/if}
+                      </div>
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </Card>
+          {:else}
+            <Card class="p-8 text-center">
+              <p class="text-sm text-muted-foreground">Belum ada soal untuk try out ini.</p>
+              {#if soalLocked}
+                <p class="mt-2 text-sm text-muted-foreground">{soalLock.reason}</p>
+              {:else}
+                <Button
+                  class="mt-4"
+                  onclick={() => {
+                    showSoalForm = true
+                    selectedSoal = null
+                  }}
+                >
+                  + Tambah Soal
+                </Button>
+              {/if}
+            </Card>
+          {/if}
+
+          {#if !showSoalForm && soalList.length > 0}
+            <div class="mt-6">
+              {#if soalLocked}
+                <div class="rounded-lg border border-border bg-muted/30 px-4 py-3 text-center">
+                  <p class="text-sm text-muted-foreground">{soalLock.reason}</p>
                 </div>
+              {:else}
+                <Button
+                  variant="secondary"
+                  class="w-full"
+                  onclick={() => {
+                    showSoalForm = true
+                    selectedSoal = null
+                    selectedSoalId = null
+                  }}
+                >
+                  + Tambah Soal
+                </Button>
               {/if}
             </div>
           {/if}
-
-          <div class="grid grid-cols-4 gap-6">
-            <div class="col-span-1 rounded-2xl border border-gray-200 bg-white overflow-hidden">
-              <SoalList soalList={soalList} selectedSoalId={selectedSoalId} onSelect={selectSoal} onEdit={editSoal} onDelete={deleteSoal} locked={soalLocked} />
-            </div>
-
-            <div class="col-span-3">
-              {#if showSoalForm}
-                <!-- initial null = tambah soal baru. Previously this branch also
-                     required selectedSoal, so "Tambah Soal" rendered nothing. -->
-                <SoalForm
-                  parentId={selectedTryOutId}
-                  parentType="try_out"
-                  initial={selectedSoal}
-                  onSuccess={() => { loadSoal(); showSoalForm = false; selectedSoal = null }}
-                  onCancel={() => { showSoalForm = false }}
-                />
-              {:else if selectedSoalId && selectedSoal}
-                <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                  <div class="mb-4 flex justify-between items-start">
-                    <h3 class="text-lg font-semibold text-gray-900">Soal {selectedSoal.nomor_urut}</h3>
-                    {#if soalLocked}
-                      <span class="text-xs text-gray-500">{soalLock.reason}</span>
-                    {:else}
-                      <button onclick={() => editSoal(selectedSoal)} class="rounded-lg bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-100">✏️ Edit</button>
-                    {/if}
-                  </div>
-                  <div class="mb-6 rounded-lg bg-gray-50 p-4">
-                    <p class="text-gray-900">{selectedSoal.pertanyaan}</p>
-                  </div>
-                  <div class="space-y-2">
-                    <p class="text-sm font-medium text-gray-700">Pilihan Jawaban:</p>
-                    {#each selectedSoal.pilihan as pilihan (pilihan.id)}
-                      <div class={`rounded-lg p-3 ${pilihan.is_benar ? 'bg-emerald-50 border border-emerald-200' : 'bg-gray-50 border border-gray-200'}`}>
-                        <div class="flex items-start gap-3">
-                          <span class={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${pilihan.is_benar ? 'bg-emerald-500 text-white' : 'bg-gray-300 text-gray-700'}`}>
-                            {pilihan.nomor_urut}
-                          </span>
-                          <div class="flex-1">
-                            <p class="text-gray-900">{pilihan.teks}</p>
-                            {#if pilihan.is_benar}
-                              <span class="text-xs font-medium text-emerald-700">✓ Jawaban Benar</span>
-                            {/if}
-                          </div>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                </div>
-              {:else}
-                <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-                  <p class="text-gray-600">Belum ada soal untuk try out ini.</p>
-                  {#if soalLocked}
-                    <p class="mt-2 text-sm text-gray-500">{soalLock.reason}</p>
-                  {:else}
-                    <button onclick={() => { showSoalForm = true; selectedSoal = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover">
-                      + Tambah Soal
-                    </button>
-                  {/if}
-                </div>
-              {/if}
-
-              {#if !showSoalForm && soalList.length > 0}
-                <div class="mt-6">
-                  {#if soalLocked}
-                    <div class="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-center">
-                      <p class="text-sm text-gray-600">{soalLock.reason}</p>
-                    </div>
-                  {:else}
-                    <button onclick={() => { showSoalForm = true; selectedSoal = null; selectedSoalId = null }} class="w-full rounded-lg border border-primary bg-primary/5 px-4 py-3 font-medium text-primary hover:bg-primary/10">
-                      + Tambah Soal
-                    </button>
-                  {/if}
-                </div>
-              {/if}
-            </div>
-          </div>
-        {:else}
-          <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-            <p class="text-gray-600">Pilih atau buat try out untuk mulai mengelola soal.</p>
-            <button onclick={() => { showTryOutForm = true; editingTryOut = null }} class="mt-4 rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-hover">
-              + Buat Try Out Pertama
-            </button>
-          </div>
-        {/if}
+        </div>
       </div>
-    </div>
+    {:else}
+      <Card class="p-8 text-center">
+        <p class="text-sm text-muted-foreground">
+          Pilih atau buat try out untuk mulai mengelola soal.
+        </p>
+        <Button
+          class="mt-4"
+          onclick={() => {
+            showTryOutForm = true
+            editingTryOut = null
+          }}
+        >
+          + Buat Try Out Pertama
+        </Button>
+      </Card>
+    {/if}
   </div>
 </div>

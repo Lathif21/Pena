@@ -58,20 +58,20 @@
   }
 </script>
 
-<div class="rounded-lg border border-gray-200 bg-white p-6">
-  <h3 class="mb-4 text-lg font-semibold text-gray-900">
+<div class="rounded-xl border border-border bg-card p-5">
+  <h3 class="mb-4 font-serif text-lg text-foreground">
     {initial ? 'Edit Soal' : 'Tambah Soal'}
   </h3>
 
   {#if error}
-    <div class="mb-4 rounded-md bg-red-50 p-3">
+    <div class="mb-4 rounded-lg bg-red-100 p-3">
       <p class="text-sm text-red-800">{error}</p>
     </div>
   {/if}
 
   <form onsubmit={handleSubmit} class="space-y-4">
     <div>
-      <label for="pertanyaan" class="block text-sm font-medium text-gray-700">
+      <label for="pertanyaan" class="block text-sm font-medium text-foreground">
         Pertanyaan
       </label>
       <textarea
@@ -79,13 +79,13 @@
         bind:value={pertanyaan}
         required
         rows={3}
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         placeholder="Masukkan pertanyaan..."
       />
     </div>
 
     <div class="space-y-3">
-      <label class="block text-sm font-medium text-gray-700">
+      <label class="block text-sm font-medium text-foreground">
         Pilihan Jawaban
       </label>
 
@@ -96,7 +96,7 @@
               type="text"
               bind:value={pilihan[idx].teks}
               required
-              class="block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+              class="block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
               placeholder="Pilihan {idx + 1}..."
             />
           </div>
@@ -104,10 +104,10 @@
           <button
             type="button"
             onclick={() => setBenar(idx)}
-            class={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+            class={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               p.is_benar
-                ? 'bg-emerald-50 text-emerald-700'
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-muted/30 text-foreground hover:bg-muted'
             }`}
           >
             ✓ Benar
@@ -117,7 +117,7 @@
             <button
               type="button"
               onclick={() => removePilihan(idx)}
-              class="rounded-md bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+              class="rounded-lg bg-red-100 px-3 py-2 text-sm font-medium text-red-800 hover:bg-red-100"
             >
               Hapus
             </button>
@@ -128,24 +128,24 @@
       <button
         type="button"
         onclick={addPilihan}
-        class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+        class="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted/30"
       >
         + Tambah Pilihan
       </button>
     </div>
 
-    <div class="flex gap-3 border-t border-gray-200 pt-4">
+    <div class="flex gap-3 border-t border-border pt-4">
       <button
         type="submit"
         disabled={loading}
-        class="rounded-md bg-primary px-4 py-2 text-white hover:bg-primary-hover disabled:opacity-50"
+        class="rounded-lg bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
       >
         {loading ? 'Menyimpan...' : 'Simpan Soal'}
       </button>
       <button
         type="button"
         onclick={() => onCancel?.()}
-        class="rounded-md border border-gray-300 bg-white px-4 py-2 text-gray-700 hover:bg-gray-50"
+        class="rounded-lg border border-border bg-card px-4 py-2 text-foreground hover:bg-muted/30"
       >
         Batal
       </button>

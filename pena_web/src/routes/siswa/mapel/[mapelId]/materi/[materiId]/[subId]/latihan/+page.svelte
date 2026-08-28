@@ -84,7 +84,7 @@
         {:else}
           <h2 class="mb-4 text-xl font-semibold text-gray-900">Siap Memulai?</h2>
           <p class="mb-6 text-gray-600">Latihan soal ini terdiri dari <strong>{data.soal.length} soal</strong>. Anda bisa mengulang latihan ini berkali-kali.</p>
-          <button onclick={startLatihan} disabled={loading} class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50">
+          <button onclick={startLatihan} disabled={loading} class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
             {loading ? 'Memulai...' : 'Mulai Latihan'}
           </button>
         {/if}
@@ -131,7 +131,7 @@
                   <input type="radio" name="soal-{soal.id}" value={pilihan.id} checked={jawaban.get(soal.id) === pilihan.id} onchange={() => handleSelectJawaban(soal.id, pilihan.id)} class="h-4 w-4" />
                   <span class="flex-1 text-gray-900">{pilihan.teks}</span>
                   {#if gagalSimpan.has(soal.id) && jawaban.get(soal.id) === pilihan.id}
-                    <span class="text-xs font-medium text-danger">belum tersimpan</span>
+                    <span class="text-xs font-medium text-destructive">belum tersimpan</span>
                   {/if}
                 </label>
               {/each}
@@ -141,7 +141,7 @@
       </div>
 
       <div class="mt-8 flex gap-3">
-        <button onclick={handleSubmit} disabled={loading || jawaban.size < data.soal.length} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50">
+        <button onclick={handleSubmit} disabled={loading || jawaban.size < data.soal.length} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
           {loading ? 'Mengirim...' : 'Selesai & Kirim'}
         </button>
         <button onclick={() => goto(kembaliUrl)} class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">Batal</button>

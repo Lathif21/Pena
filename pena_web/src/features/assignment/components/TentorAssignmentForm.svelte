@@ -18,7 +18,20 @@
 
   let tentor_list: Tentor[] = []
   let kelas_list: Kelas[] = []
-  let mapel_list: Mapel[] = []
+  let mapel_list = $state<Mapel[]>([])
+
+  // Hanya mapel yang dipakai kelas terpilih. Menawarkan seluruh mapel membuat
+  // assignment ke mapel yang tidak diajarkan di kelas itu bisa tersimpan, lalu
+  // diam-diam hilang dari dropdown presensi tentor karena tersaring di sana.
+  const mapelTersedia = $derived(
+    kelas_id ? mapel_list.filter((m) => m.kelas_ids?.includes(kelas_id)) : []
+  )
+
+  function pilihKelas(id: string) {
+    kelas_id = id
+    // Mapel yang sudah terpilih belum tentu ada di kelas yang baru.
+    if (!mapel_list.find((m) => m.id === mapel_id)?.kelas_ids?.includes(id)) mapel_id = ''
+  }
 
   let loading = $state(false)
   let loadingData = $state(true)
@@ -28,11 +41,10 @@
     loadingData = true
     error = ''
     try {
-      ;[tentor_list, kelas_list, mapel_list] = await Promise.all([
-        listTentor(),
-        listKelas(),
-        listMapel()
-      ])
+      const [t, k, m] = await Promise.all([listTentor(), listKelas(), listMapel()])
+      tentor_list = t
+      kelas_list = k
+      mapel_list = m
     } catch (err) {
       error = err instanceof Error ? err.message : 'Failed to load data'
       console.error('Error loading assignment data:', err)
@@ -44,19 +56,19 @@
   loadData()
 </script>
 
-<div class="rounded-md border border-gray-200 bg-white p-6">
-  <h3 class="text-lg font-medium text-gray-900 mb-4">
+<div class="rounded-xl border border-border bg-card p-5">
+  <h3 class="mb-4 font-serif text-lg text-foreground">
     {editingAssignment ? 'Edit Assignment Tentor' : 'Tambah Assignment Tentor'}
   </h3>
 
   {#if error}
-    <div class="mb-4 rounded-md bg-red-50 p-4">
+    <div class="mb-4 rounded-lg bg-red-100 p-4">
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
 
   {#if loadingData}
-    <p class="text-gray-600">Loading...</p>
+    <p class="text-muted-foreground">Loading...</p>
   {:else}
     <form method="POST" action={editingAssignment ? '?/update' : '?/create'} use:enhance={({ formData }) => {
       if (editingAssignment) {
@@ -74,7 +86,7 @@
       }
     }} class="space-y-4">
       <div>
-        <label for="tentor" class="block text-sm font-medium text-gray-700">
+        <label for="tentor" class="block text-sm font-medium text-foreground">
           Tentor
         </label>
         <select
@@ -82,7 +94,7 @@
           name="tentor_id"
           required
           bind:value={tentor_id}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         >
           <option value="">Pilih Tentor</option>
           {#each tentor_list as t (t.id)}
@@ -92,15 +104,16 @@
       </div>
 
       <div>
-        <label for="kelas" class="block text-sm font-medium text-gray-700">
+        <label for="kelas" class="block text-sm font-medium text-foreground">
           Kelas
         </label>
         <select
           id="kelas"
           name="kelas_id"
           required
-          bind:value={kelas_id}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          value={kelas_id}
+          onchange={(e) => pilihKelas((e.currentTarget as HTMLSelectElement).value)}
+          class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
         >
           <option value="">Pilih Kelas</option>
           {#each kelas_list as k (k.id)}
@@ -110,35 +123,41 @@
       </div>
 
       <div>
-        <label for="mapel" class="block text-sm font-medium text-gray-700">
+        <label for="mapel" class="block text-sm font-medium text-foreground">
           Mata Pelajaran
         </label>
         <select
           id="mapel"
           name="mapel_id"
           required
+          disabled={!kelas_id}
           bind:value={mapel_id}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+          class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none disabled:opacity-50"
         >
-          <option value="">Pilih Mapel</option>
-          {#each mapel_list as m (m.id)}
+          <option value="">{kelas_id ? 'Pilih Mapel' : 'Pilih kelas dulu'}</option>
+          {#each mapelTersedia as m (m.id)}
             <option value={m.id}>{m.nama}</option>
           {/each}
         </select>
+        {#if kelas_id && mapelTersedia.length === 0}
+          <p class="mt-1 text-xs text-amber-800">
+            Kelas ini belum memakai mapel apa pun. Daftarkan dulu lewat Master Data &rarr; Mapel.
+          </p>
+        {/if}
       </div>
 
       <div class="flex space-x-3">
         <button
           type="submit"
           disabled={loading}
-          class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          class="rounded-lg bg-primary px-4 py-2.5 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? (editingAssignment ? 'Updating...' : 'Creating...') : 'Simpan'}
         </button>
         <button
           type="button"
           onclick={() => onclose?.()}
-          class="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
+          class="rounded-lg border border-border px-4 py-2 text-foreground hover:bg-muted/30"
         >
           Batal
         </button>

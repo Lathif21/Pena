@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Pencil, Trash2 } from 'lucide-svelte'
   import { softDeleteSoal } from '../data/soal'
 
   interface Soal {
@@ -38,10 +39,12 @@
   }
 </script>
 
-<div class="border-r border-gray-200 bg-gray-50">
+<div class="border-r border-border bg-muted/30">
   <div class="p-4">
-    <h3 class="text-sm font-semibold text-gray-900">Daftar Soal</h3>
-    <p class="text-xs text-gray-500">{soalList.length} soal</p>
+    <h3 class="font-serif text-sm text-foreground">Daftar Soal</h3>
+    <p class="text-xs text-muted-foreground">
+      <span class="font-mono">{soalList.length}</span> soal
+    </p>
   </div>
 
   <div class="space-y-1 px-2 pb-4">
@@ -49,14 +52,14 @@
       <div class="flex items-start gap-2">
         <button
           onclick={() => onSelect?.(soal.id)}
-          class={`flex-1 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+          class={`flex-1 rounded-lg px-3 py-2 text-left text-sm transition-colors ${
             selectedSoalId === soal.id
-              ? 'bg-primary/10 text-primary'
-              : 'text-gray-700 hover:bg-gray-200'
+              ? 'bg-secondary text-secondary-foreground'
+              : 'text-foreground hover:bg-muted'
           }`}
         >
-          <span class="block font-medium">Soal {soal.nomor_urut}</span>
-          <span class="block truncate text-xs text-gray-600">
+          <span class="block font-medium">Soal <span class="font-mono">{soal.nomor_urut}</span></span>
+          <span class="block truncate text-xs text-muted-foreground">
             {soal.pertanyaan.substring(0, 40)}...
           </span>
         </button>
@@ -66,17 +69,17 @@
             <button
               onclick={() => onEdit?.(soal)}
               title="Edit"
-              class="rounded-md bg-blue-50 p-2 text-blue-700 hover:bg-blue-100"
+              class="rounded-lg p-2.5 text-muted-foreground hover:bg-muted/40"
             >
-              ✏️
+              <Pencil class="h-4 w-4" />
             </button>
             <button
               onclick={() => handleDelete(soal)}
               disabled={deleting === soal.id}
               title="Hapus"
-              class="rounded-md bg-red-50 p-2 text-red-700 hover:bg-red-100 disabled:opacity-50"
+              class="rounded-lg p-2.5 text-destructive hover:bg-destructive/10 disabled:opacity-50"
             >
-              🗑️
+              <Trash2 class="h-4 w-4" />
             </button>
           </div>
         {/if}
@@ -84,7 +87,7 @@
     {/each}
 
     {#if soalList.length === 0}
-      <p class="px-3 py-4 text-center text-sm text-gray-500">
+      <p class="px-3 py-4 text-center text-sm text-muted-foreground">
         Belum ada soal. Buat soal baru di kanan.
       </p>
     {/if}

@@ -81,131 +81,129 @@
   }
 </script>
 
-<div class="min-h-screen bg-gray-50">
-  <div class="mx-auto max-w-4xl px-4 py-8">
-    <div class="mb-8">
-      <button onclick={() => goto('/tentor/nilai')} class="mb-4 text-sm font-medium text-primary hover:underline">← Kembali</button>
-      <h1 class="text-2xl font-bold text-gray-900">Input Nilai Manual</h1>
-      <p class="mt-1 text-sm text-gray-600">Masukkan nilai dari ujian atau tugas tertulis</p>
-    </div>
+<div class="mx-auto max-w-4xl">
+  <div class="mb-8">
+    <button onclick={() => goto('/tentor/nilai')} class="mb-4 text-sm font-medium text-primary hover:underline">← Kembali</button>
+    <h1 class="text-2xl font-bold text-gray-900">Input Nilai Manual</h1>
+    <p class="mt-1 text-sm text-gray-600">Masukkan nilai dari ujian atau tugas tertulis</p>
+  </div>
 
-    {#if error}
-      <div class="mb-4 rounded-md bg-red-50 p-4"><p class="text-sm text-red-800">{error}</p></div>
-    {/if}
-    {#if message}
-      <div class="mb-4 rounded-md bg-emerald-50 p-4"><p class="text-sm text-emerald-800">✓ {message}</p></div>
-    {/if}
+  {#if error}
+    <div class="mb-4 rounded-md bg-red-50 p-4"><p class="text-sm text-red-800">{error}</p></div>
+  {/if}
+  {#if message}
+    <div class="mb-4 rounded-md bg-emerald-50 p-4"><p class="text-sm text-emerald-800">✓ {message}</p></div>
+  {/if}
 
-    <form onsubmit={handleSubmit} class="space-y-6">
-      <div class="rounded-2xl border border-gray-200 bg-white p-6">
-        <h2 class="mb-4 text-lg font-semibold text-gray-900">Pilih Mapel & Tipe Test</h2>
-        <div class="grid grid-cols-3 gap-4">
-          <div>
-            <label for="mapel" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
-            <select
-              id="mapel"
-              value={data.mapelId}
-              onchange={(e) => pilihMapel((e.currentTarget as HTMLSelectElement).value)}
-              class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2"
-            >
-              <option value="">Pilih Mapel...</option>
-              {#each data.mapel as m (m.id)}
-                <option value={m.id}>{m.nama}</option>
-              {/each}
-            </select>
-          </div>
-          <div>
-            <label for="tipeTest" class="block text-sm font-medium text-gray-700">Tipe Test</label>
-            <select id="tipeTest" bind:value={tipeTest} class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2">
-              <option value="pre_test">Pre-Test</option>
-              <option value="try_out">Try Out</option>
-              <option value="post_test">Post-Test</option>
-            </select>
-          </div>
-          <div>
-            <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
-            <input id="tanggal" type="date" bind:value={tanggal} class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
-          </div>
+  <form onsubmit={handleSubmit} class="space-y-6">
+    <div class="rounded-2xl border border-gray-200 bg-white p-6">
+      <h2 class="mb-4 text-lg font-semibold text-gray-900">Pilih Mapel & Tipe Test</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label for="mapel" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
+          <select
+            id="mapel"
+            value={data.mapelId}
+            onchange={(e) => pilihMapel((e.currentTarget as HTMLSelectElement).value)}
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2"
+          >
+            <option value="">Pilih Mapel...</option>
+            {#each data.mapel as m (m.id)}
+              <option value={m.id}>{m.nama}</option>
+            {/each}
+          </select>
         </div>
         <div>
-          <label for="judul" class="mt-4 block text-sm font-medium text-gray-700">Judul / Deskripsi</label>
-          <input id="judul" type="text" bind:value={judul} placeholder="Contoh: Ulangan Harian Bab 1" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+          <label for="tipeTest" class="block text-sm font-medium text-gray-700">Tipe Test</label>
+          <select id="tipeTest" bind:value={tipeTest} class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2">
+            <option value="pre_test">Pre-Test</option>
+            <option value="try_out">Try Out</option>
+            <option value="post_test">Post-Test</option>
+          </select>
+        </div>
+        <div>
+          <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
+          <input id="tanggal" type="date" bind:value={tanggal} class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
         </div>
       </div>
+      <div>
+        <label for="judul" class="mt-4 block text-sm font-medium text-gray-700">Judul / Deskripsi</label>
+        <input id="judul" type="text" bind:value={judul} placeholder="Contoh: Ulangan Harian Bab 1" class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" />
+      </div>
+    </div>
 
-      {#if data.mapelId}
-        <div class="rounded-2xl border border-gray-200 bg-white p-6">
-          <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
-            <h2 class="text-lg font-semibold text-gray-900">Daftar Siswa ({data.siswa.length})</h2>
-            <p class="text-xs text-gray-500">Hanya siswa dari kelas yang Anda ajar · nilai 0–{NILAI_MAX}</p>
-          </div>
+    {#if data.mapelId}
+      <div class="rounded-2xl border border-gray-200 bg-white p-6">
+        <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="text-lg font-semibold text-gray-900">Daftar Siswa ({data.siswa.length})</h2>
+          <p class="text-xs text-gray-500">Hanya siswa dari kelas yang Anda ajar · nilai 0–{NILAI_MAX}</p>
+        </div>
 
-          {#if data.siswa.length === 0}
-            <p class="text-gray-600">Tidak ada siswa yang Anda ajar untuk mapel ini.</p>
-          {:else}
-            <div class="overflow-x-auto">
-              <table class="w-full">
-                <thead>
-                  <tr class="border-b border-gray-200">
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Nama Siswa</th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Kelas</th>
-                    <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Nilai</th>
-                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Catatan (Opsional)</th>
+        {#if data.siswa.length === 0}
+          <p class="text-gray-600">Tidak ada siswa yang Anda ajar untuk mapel ini.</p>
+        {:else}
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-200">
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Nama Siswa</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Kelas</th>
+                  <th class="px-4 py-3 text-center text-sm font-medium text-gray-700">Nilai</th>
+                  <th class="px-4 py-3 text-left text-sm font-medium text-gray-700">Catatan (Opsional)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {#each data.siswa as siswa (siswa.siswa_detail_id)}
+                  {@const current = nilaiInput.get(siswa.siswa_detail_id) ?? { nilai: null, catatan: '' }}
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm">
+                      <span class="block text-gray-900">{siswa.nama_lengkap}</span>
+                      <span class="text-xs text-gray-500">{siswa.nis}</span>
+                    </td>
+                    <td class="px-4 py-3">
+                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
+                        {siswa.kelas}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                      <input
+                        type="number"
+                        min="0"
+                        max={NILAI_MAX}
+                        step="1"
+                        value={current.nilai ?? ''}
+                        oninput={(e) => setNilai(siswa.siswa_detail_id, e.currentTarget.value, current.catatan)}
+                        placeholder="—"
+                        class="w-20 rounded-md border border-gray-300 px-2 py-1 text-center text-sm"
+                      />
+                    </td>
+                    <td class="px-4 py-3">
+                      <input
+                        type="text"
+                        value={current.catatan}
+                        oninput={(e) => setCatatan(siswa.siswa_detail_id, e.currentTarget.value)}
+                        placeholder="Catatan..."
+                        class="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
+                      />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {#each data.siswa as siswa (siswa.siswa_detail_id)}
-                    {@const current = nilaiInput.get(siswa.siswa_detail_id) ?? { nilai: null, catatan: '' }}
-                    <tr class="border-b border-gray-100 hover:bg-gray-50">
-                      <td class="px-4 py-3 text-sm">
-                        <span class="block text-gray-900">{siswa.nama_lengkap}</span>
-                        <span class="text-xs text-gray-500">{siswa.nis}</span>
-                      </td>
-                      <td class="px-4 py-3">
-                        <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
-                          {siswa.kelas}
-                        </span>
-                      </td>
-                      <td class="px-4 py-3 text-center">
-                        <input
-                          type="number"
-                          min="0"
-                          max={NILAI_MAX}
-                          step="1"
-                          value={current.nilai ?? ''}
-                          oninput={(e) => setNilai(siswa.siswa_detail_id, e.currentTarget.value, current.catatan)}
-                          placeholder="—"
-                          class="w-20 rounded-md border border-gray-300 px-2 py-1 text-center text-sm"
-                        />
-                      </td>
-                      <td class="px-4 py-3">
-                        <input
-                          type="text"
-                          value={current.catatan}
-                          oninput={(e) => setCatatan(siswa.siswa_detail_id, e.currentTarget.value)}
-                          placeholder="Catatan..."
-                          class="w-full rounded-md border border-gray-300 px-2 py-1 text-sm"
-                        />
-                      </td>
-                    </tr>
-                  {/each}
-                </tbody>
-              </table>
-            </div>
-          {/if}
-        </div>
-      {/if}
-
-      <div class="flex gap-3">
-        <button
-          type="submit"
-          disabled={submitting || !data.mapelId || data.siswa.length === 0 || terisi === 0}
-          class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary-hover disabled:opacity-50"
-        >
-          {submitting ? 'Menyimpan...' : `Simpan Nilai (${terisi})`}
-        </button>
-        <button type="button" onclick={() => goto('/tentor/nilai')} class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">Batal</button>
+                {/each}
+              </tbody>
+            </table>
+          </div>
+        {/if}
       </div>
-    </form>
-  </div>
+    {/if}
+
+    <div class="flex gap-3">
+      <button
+        type="submit"
+        disabled={submitting || !data.mapelId || data.siswa.length === 0 || terisi === 0}
+        class="rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50"
+      >
+        {submitting ? 'Menyimpan...' : `Simpan Nilai (${terisi})`}
+      </button>
+      <button type="button" onclick={() => goto('/tentor/nilai')} class="rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">Batal</button>
+    </div>
+  </form>
 </div>

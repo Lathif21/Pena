@@ -40,14 +40,14 @@
 
 <div class="space-y-4">
   {#if error}
-    <div class="rounded-md bg-red-50 p-4">
+    <div class="rounded-lg bg-red-100 p-4">
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
 
   <button
     onclick={() => (showForm = true)}
-    class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+    class="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
   >
     Tambah Wali Murid
   </button>
@@ -56,30 +56,30 @@
     <WaliForm editingWali={editingWali} onclose={handleCloseForm} />
   {/if}
 
-  <div class="overflow-x-auto rounded-md border border-gray-200">
-      <table class="w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
+  <div class="overflow-x-auto rounded-lg border border-border">
+      <table class="w-full divide-y divide-border">
+        <thead class="bg-muted/30">
           <tr>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Nama</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Email</th>
-            <th class="px-6 py-3 text-left text-sm font-medium text-gray-900">Aksi</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">Nama</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
+        <tbody class="divide-y divide-border">
           {#each wali as item (item.id)}
             <tr>
-              <td class="px-6 py-4 text-sm text-gray-900">{item.nama_lengkap}</td>
-              <td class="px-6 py-4 text-sm text-gray-900">{item.email}</td>
-              <td class="px-6 py-4 text-sm space-x-3">
+              <td class="px-4 py-3 text-sm text-foreground">{item.nama_lengkap}</td>
+              <td class="px-4 py-3 text-sm text-foreground">{item.email}</td>
+              <td class="px-4 py-3 text-sm space-x-3">
                 <button
                   onclick={() => handleEditClick(item)}
-                  class="text-blue-600 hover:text-blue-900"
+                  class="text-primary hover:underline"
                 >
                   Edit
                 </button>
                 <button
                   onclick={() => handleDelete(item.id)}
-                  class="text-red-600 hover:text-red-900"
+                  class="text-destructive hover:underline"
                 >
                   Hapus
                 </button>

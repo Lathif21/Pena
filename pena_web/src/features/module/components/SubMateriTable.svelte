@@ -1,6 +1,7 @@
 <script lang="ts">
   import { listSubMateri, softDeleteSubMateri, type SubMateri } from '../data/sub-materi.ts'
   import SubMateriForm from './SubMateriForm.svelte'
+  import { FileText } from 'lucide-svelte'
 
   interface Props {
     materiId: string
@@ -55,8 +56,8 @@
 
 <div class="space-y-6">
   {#if error}
-    <div class="rounded-lg bg-red-50 p-4">
-      <p class="text-sm text-red-700">{error}</p>
+    <div class="rounded-lg bg-red-100 p-4">
+      <p class="text-sm text-red-800">{error}</p>
     </div>
   {/if}
 
@@ -67,7 +68,7 @@
         editingSubMateri = null
         showForm = true
       }}
-      class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-hover"
+      class="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
     >
       Tambah Sub Materi
     </button>
@@ -78,41 +79,42 @@
   {/if}
 
   {#if loading}
-    <p class="text-sm text-gray-500">Loading...</p>
+    <p class="text-sm text-muted-foreground">Loading...</p>
   {:else if submateri.length === 0}
-    <div class="rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center">
-      <p class="text-sm text-gray-500">Belum ada sub materi. Tambahkan sub materi pertama untuk mulai.</p>
+    <div class="rounded-xl border border-dashed border-border p-8 text-center">
+      <FileText class="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+      <p class="text-sm text-muted-foreground">Belum ada sub materi. Tambahkan sub materi pertama untuk mulai.</p>
     </div>
   {:else}
-    <div class="overflow-x-auto rounded-2xl border border-gray-200 bg-white">
+    <div class="overflow-x-auto rounded-xl border border-border bg-card">
       <table class="w-full">
         <thead>
-          <tr class="border-b border-gray-100">
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Urutan</th>
-            <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama</th>
-            <th class="px-6 py-3 text-right text-sm font-semibold text-gray-900">Aksi</th>
+          <tr class="border-b border-border">
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">Urutan</th>
+            <th class="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground">Nama</th>
+            <th class="px-4 py-3 text-right text-xs font-medium uppercase tracking-wide text-muted-foreground">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
+        <tbody class="divide-y divide-border">
           {#each submateri as item (item.id)}
-            <tr class="hover:bg-gray-50">
-              <td class="px-6 py-4 text-sm text-gray-900">{item.nomor_urut}</td>
-              <td class="px-6 py-4 text-sm">
-                <a href="/kepala-guru/konten/{mapelId}/materi/{materiId}/{item.id}/module" class="text-primary hover:text-primary-hover font-medium">
+            <tr class="hover:bg-muted/30">
+              <td class="px-4 py-3 font-mono text-sm text-foreground">{item.nomor_urut}</td>
+              <td class="px-4 py-3 text-sm">
+                <a href="/kepala-guru/konten/{mapelId}/materi/{materiId}/{item.id}/module" class="text-primary hover:underline font-medium">
                   {item.nama}
                 </a>
               </td>
-              <td class="px-6 py-4 text-right">
+              <td class="px-4 py-3 text-right">
                 <button
                   onclick={() => handleEditClick(item)}
-                  class="text-sm text-primary hover:text-primary-hover font-medium"
+                  class="text-sm text-primary hover:underline font-medium"
                 >
                   Edit
                 </button>
-                <span class="text-gray-300 mx-2">·</span>
+                <span class="mx-2 text-muted-foreground/50">·</span>
                 <button
                   onclick={() => handleDelete(item.id)}
-                  class="text-sm text-danger hover:text-red-700 font-medium"
+                  class="text-sm text-destructive hover:underline font-medium"
                 >
                   Hapus
                 </button>

@@ -8,107 +8,146 @@ paths:
 
 # Design System
 
-Extracted from reference screenshots in `docs/design-reference/` (SaaS learning-platform style: clean cards, purple accent, pill badges, generous whitespace). Applies to every page across all phases — do not deviate per-feature.
+Derived from the approved Figma export. This **replaces** the earlier purple/SaaS direction — do not mix the two.
 
-## Color Palette
+Character: warm, academic, calm. Cream background, deep navy chrome, gold accents.
 
-| Role | Value | Usage |
-|---|---|---|
-| Primary | `#6C5DD3` (indigo/purple) | Primary buttons, active nav state, links, logo mark, progress bar fill |
-| Primary hover | `#5A4CC0` | Button hover state |
-| Success | `#10B981` (emerald-500) | Published status, "hadir", correct answers, completion rings |
-| Warning | `#F59E0B` (amber-500) | Draft status, pending review, "upgrade"-style CTAs, points/badges |
-| Danger | `#EF4444` (red-500) | Delete actions, incorrect answers, belum lunas / overdue |
-| Background | `#F7F7F9` (gray-50) | Page background behind cards |
-| Card | `#FFFFFF` | All card surfaces |
-| Border | `#E5E7EB` (gray-200) | Card borders, table dividers |
-| Text primary | `#111827` (gray-900) | Headings, primary content |
-| Text secondary | `#6B7280` (gray-500) | Labels, metadata, timestamps |
+## Color Tokens
 
-Configure these as Tailwind theme extensions in `tailwind.config.js` (`primary`, `success`, `warning`, `danger`) rather than hardcoding hex values in components.
+Declare as CSS variables in `app.css`, map in `tailwind.config.js`. Never hardcode hex in components.
+
+```css
+:root {
+  --background: #F5F3EF;        /* warm cream page background */
+  --foreground: #1A1714;
+  --card: #FFFFFF;
+  --primary: #1E3A5F;           /* deep navy — buttons, active states */
+  --primary-foreground: #FFFFFF;
+  --secondary: #EDF3F8;
+  --secondary-foreground: #1E3A5F;
+  --muted: #E4E0D8;
+  --muted-foreground: #716860;
+  --accent: #C17F2E;            /* gold — highlights, active nav marker */
+  --accent-foreground: #FFFFFF;
+  --destructive: #C0392B;
+  --border: rgba(26, 23, 20, 0.1);
+  --input-background: #EDEAE4;
+  --ring: #1E3A5F;
+
+  --sidebar: #1E3A5F;
+  --sidebar-foreground: #F5F3EF;
+  --sidebar-accent: #264D73;
+  --sidebar-border: rgba(245, 243, 239, 0.12);
+
+  --chart-1: #1E3A5F;  /* navy */
+  --chart-2: #C17F2E;  /* gold */
+  --chart-3: #2E7D52;  /* green */
+  --chart-4: #8B4513;  /* brown */
+  --chart-5: #5B2C6F;  /* plum */
+
+  --radius: 0.5rem;    /* 8px */
+}
+```
+
+Dark mode tokens exist in the export but are **out of scope** — light mode only.
 
 ## Typography
 
-- Font: Inter (or system sans fallback) — set globally in `app.css`
-- Page title: `text-2xl font-bold text-gray-900` (e.g. "Good morning, [Nama]")
-- Section heading: `text-lg font-semibold text-gray-900`
-- Card title: `text-base font-semibold`
-- Body text: `text-sm text-gray-700`
-- Metadata/caption: `text-xs text-gray-500`
+| Family | Job |
+|---|---|
+| **DM Serif Display** | Product name, page titles, section headings. Carries the academic character — do not substitute. |
+| **Plus Jakarta Sans** | Body, labels, buttons, table content. Default sans. |
+| **DM Mono** | Numbers read as data: scores, percentages, KPI figures, timers, counts. |
 
-## Cards
+Mono for figures keeps digits aligned and scannable in tables. Apply consistently.
 
-Default card wrapper for every panel, table container, and stat block:
+## Responsive
 
-```
-bg-white rounded-2xl border border-gray-200 p-6
-```
+The app must work on phone, tablet, and desktop. Breakpoints: `sm` 640, `md` 768, `lg` 1024.
 
-No heavy shadows — reference uses flat cards with a thin border, not `shadow-lg`. If elevation is needed (modals, dropdowns), use `shadow-sm` at most.
+**Mobile-first flows.** Two flows are used on a phone by default and must be designed for it first, not adapted after:
 
-## Buttons
+- **Presensi tentor** — the photo comes from Timestamp Camera Free, a phone app. A tentor will always be on their phone here. Use `<input type="file" accept="image/*">` so the gallery opens natively; do not build a drag-and-drop zone as the primary control.
+- **Presensi murid** — filled in class, on a phone, right after.
 
-| Variant | Style | Use for |
-|---|---|---|
-| Primary | `bg-primary text-white rounded-lg px-4 py-2 font-medium hover:bg-primary-hover` | Publish, Simpan, Submit |
-| Secondary | `bg-white border border-gray-200 rounded-lg px-4 py-2 font-medium hover:bg-gray-50` | Cancel, Preview, Export |
-| Danger | `bg-white border border-red-200 text-danger rounded-lg px-4 py-2 hover:bg-red-50` | Hapus |
-| Icon button | `rounded-full p-2 hover:bg-gray-100` | Overflow menu (⋮), close (×) |
+Everything else (content building, grade entry, KG monitoring) is desktop-primary but must remain usable on tablet.
 
-Buttons use `rounded-lg` (8px), not full pill, except icon-only buttons which use `rounded-full`.
+**Sidebar.** Fixed 240px from `lg` up. Below `lg`, it becomes an off-canvas drawer: hamburger in a sticky top bar, drawer slides from the left over a scrim, closes on navigate and on scrim tap. Same navy styling in both modes.
 
-## Badges / Status Pills
+**Tables.** Below `md`, a table with more than three meaningful columns becomes a stack of cards: primary value as the card heading, remaining fields as label/value rows. Do not rely on horizontal scroll for data the user must act on — a checkbox or button pushed off-screen is unreachable in practice.
 
-Small rounded-full pills with tinted background matching text color, per reference (e.g. "Completed", "LIVE", subject tags):
+**Forms.** Single column below `md`. Inputs full width. Labels above fields, never beside.
 
-```
-inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium
-```
+**Charts.** Below `md`, reduce to one chart per row and drop legends in favour of direct labels. Wali murid's per-subject chart may scroll horizontally when there are many exams — that is data to read, not to act on, so scrolling is acceptable here.
 
-| Status | Background | Text |
-|---|---|---|
-| Published / Selesai / Hadir | `bg-emerald-50` | `text-emerald-700` |
-| Draft / Pending | `bg-amber-50` | `text-amber-700` |
-| Locked / Belum | `bg-red-50` | `text-red-700` |
-| Neutral (paket, tag) | `bg-gray-100` | `text-gray-700` |
+**Touch targets.** Minimum 44×44px for anything tappable. The default `px-4 py-2.5` button clears this; icon-only buttons need explicit `p-2.5` or larger.
 
-Use this pattern for: content status (draft/published), `paket` badge (regular/privat), presensi status, KPI status.
-
-## Tables
-
-- No heavy borders — thin `border-b border-gray-100` between rows only
-- Row hover: `hover:bg-gray-50`
-- Avatar + name + subtext pattern for people rows (tentor, siswa, wali lists): circular avatar (initials fallback), name bold, role/detail as `text-xs text-gray-500` beneath
-- Numeric/status columns right-aligned or centered with icon (✓ green / ✗ red) rather than plain text where applicable
-
-## Data Visualization
-
-Two patterns appear repeatedly in the reference and map directly to Pena's KPI and progress features:
-
-- **Circular progress ring** (donut, single value) — for individual percentages: KPI score, kelengkapan jurnal, accuracy. Primary color fill, gray track.
-- **Segmented gauge** (semi-circle, multi-category) — for breakdowns with several categories: e.g. distribusi status siswa (passed/failed/in-progress). Use distinct colors per segment from the palette above.
-
-For Wali dashboard bar charts (nilai kronologis), use simple bar charts, not the ring/gauge pattern — bars suit a timeline of scores better.
+**Try out on mobile.** The countdown timer stays visible while scrolling — sticky top bar with the timer and answered-count. One question per screen below `md`; the whole set may scroll on desktop. Never let the submit button scroll out of reach.
 
 ## Layout Shell
 
-- Sidebar: icon-only, fixed width ~64px, white or near-white background, active item gets `bg-primary/10 text-primary` highlight, collapsible via top toggle icon
-- Main content: `max-w-[1200px] mx-auto p-8` inside the gray-50 background
-- Top-right utility area (search, notifications, avatar) stays consistent across all dashboards (KG, Tentor, Siswa, Wali)
+Sidebar (`lg` and up): 240px, navy, labelled.
 
-## Mapping to Pena Screens
+- Logo in DM Serif Display at top
+- Nav items: icon + label, `rounded-lg px-3 py-2.5`
+- Active: `bg-sidebar-accent`, semibold, `border-r-2 border-accent` gold marker
+- Inactive: `text-sidebar-foreground/70`, hover lightens
+- Bottom: avatar, name, role title, logout
 
-| Reference screenshot | Maps to |
+Main content on cream; cards in white on top. Content max width ~1200px, `p-4` on mobile rising to `p-8` on desktop.
+
+## Navigation Per Role
+
+| Role | Items |
 |---|---|
-| Siswa_Dashboard | `(siswa)/` home — greeting header, in-progress content cards, stat cards top-right |
-| Tentor_Dashboard / KG_Dashboard | `(kepala-guru)/overview/` — stat cards, to-do/ringkasan list, table of pending items (jurnal belum direview → "Ungraded Quiz" pattern) |
-| Modul_page | `(kepala-guru)/konten/.../module` — content detail panel, trainer/assignee-style list adapted for tentor assignment |
-| Create_Try_Out_or_Quiz | `(kepala-guru)/konten/.../try-out` builder — question list sidebar + editor panel (Phase 2) |
-| Score | `(kepala-guru)/monitoring/nilai` or siswa's try out review — question-by-question breakdown with stats panel |
-| Report | Export/rekap tables (Phase 5) — dense data table with per-question pass/fail icons |
+| Kepala Guru | Beranda, Manajemen Akun, Konten & Kurikulum, Absensi Tentor, Jurnal Mengajar, KPI Tentor |
+| Tentor | Beranda, Absensi Saya, Absensi Siswa, Input Nilai, Jurnal Mengajar |
+| Siswa | Beranda, Belajar, Latihan Soal, Ujian, Nilai Saya |
+| Wali Murid | Beranda, Progress Nilai, Absensi Anak |
+
+Icons from `lucide-svelte`.
+
+## Components
+
+Build these **hand-rolled in `lib/components/`** with Tailwind. The design uses plain cards, tables, badges, and inputs — all trivial, and a component library would add dependencies for no gain. Reach for `shadcn-svelte` only if a genuinely complex widget appears (date picker, combobox).
+
+**Cards:** `bg-card border border-border rounded-xl p-5`. No shadows.
+
+**Buttons:** `rounded-lg px-4 py-2.5`.
+
+| Variant | Base | Hover |
+|---|---|---|
+| Primary | `bg-primary text-primary-foreground` | `hover:bg-primary/90` |
+| Secondary | `bg-card border border-border` | `hover:bg-muted/40` |
+| Destructive | `text-destructive border border-border` | `hover:bg-destructive/10` |
+| Ghost / icon | transparent | `hover:bg-muted/40` |
+
+**Hover states derive from existing tokens via opacity — never introduce a separate hover token.** There is no `primary-hover`, no `danger`; use `bg-primary/90` and `text-destructive`. A dedicated hover color would double the palette and drift out of sync with its base.
+
+Sidebar is the one exception: its active and hover states use `--color-sidebar-accent`, which is a real token because the navy surface needs a lighter navy rather than an opacity shift.
+
+**Inputs:** `bg-input-background rounded-lg px-3 py-2.5`, transparent border, `ring` on focus.
+
+**Tables:** `border-b border-border` between rows, `px-4 py-3` cells, header `text-xs uppercase tracking-wide text-muted-foreground`. Numeric columns in DM Mono. See Responsive for the mobile card-stack rule.
+
+**Status badges:** `rounded-full px-2.5 py-1 text-xs font-medium`, tinted background.
+
+| Meaning | Classes |
+|---|---|
+| Hadir / published / success | `bg-emerald-100 text-emerald-800` |
+| Draft / pending | `bg-amber-100 text-amber-800` |
+| Informational | `bg-blue-100 text-blue-800` |
+| Tidak hadir / locked / error | `bg-red-100 text-red-800` |
+
+**Attendance is two-state for now:** hadir and tidak hadir. The Figma export shows four (hadir / sakit / izin / alpha) — that is a future extension, not current scope. Do not add the extra states to the schema or UI until asked; the amber and blue badge styles above stay available for other uses.
+
+**Progress bars:** `h-1.5 rounded-full bg-primary` on a `bg-muted` track, percentage beside it in DM Mono.
+
+**Charts:** LayerChart or Chart.js with `--chart-1..5` in order. Navy first, gold second.
 
 ## Rules
 
-- Every new page checks this file before styling — no ad-hoc color values outside the palette above.
-- Icons: use `lucide-svelte` (matches the line-icon style seen throughout reference — sidebar icons, info icons, chevrons).
-- Empty states get a simple centered message, not decorative illustration (the reference's colorful 3D illustrations are out of scope — too much effort for an internal tool; solid color placeholder or icon is enough).
+- No color outside the tokens above.
+- No `shadow-*`. Depth comes from cream/white contrast.
+- Headings DM Serif Display, figures DM Mono, everything else Plus Jakarta Sans.
+- Empty states: centered text plus an icon, no illustrations.

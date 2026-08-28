@@ -35,6 +35,26 @@ function readAssignmentFields(form: FormData) {
   return fields
 }
 
+/**
+ * Dropdown di form sudah menyaring mapel per kelas, tapi form bisa di-post
+ * langsung. Tanpa cek ini assignment ke mapel yang tidak dipakai kelasnya
+ * tetap tersimpan, lalu hilang dari dropdown presensi tentor tanpa pesan apa pun.
+ */
+async function mapelDipakaiKelas(supabase: any, kelasId: string, mapelId: string) {
+  const { data, error } = await supabase
+    .from('mapel_kelas')
+    .select('mapel_id')
+    .eq('kelas_id', kelasId)
+    .eq('mapel_id', mapelId)
+    .maybeSingle()
+
+  if (error) throw svelteError(500, error.message)
+  return Boolean(data)
+}
+
+const PESAN_MAPEL_ASING =
+  'Mapel ini belum terdaftar di kelas tersebut. Daftarkan dulu lewat Master Data → Mapel.'
+
 export const actions = {
   create: async ({ request, cookies }) => {
     if (!(await isKepalaGuru(cookies))) return fail(403, { error: 'Tidak diizinkan' })
@@ -44,6 +64,10 @@ export const actions = {
     if ('error' in fields) return fail(400, { error: fields.error })
 
     const supabase = createSupabaseServerClient(cookies)
+    if (!(await mapelDipakaiKelas(supabase, fields.kelas_id, fields.mapel_id))) {
+      return fail(400, { error: PESAN_MAPEL_ASING })
+    }
+
     const { error } = await supabase.from('tentor_kelas_mapel').insert(fields)
 
     if (error) {
@@ -66,6 +90,10 @@ export const actions = {
     if ('error' in fields) return fail(400, { error: fields.error })
 
     const supabase = createSupabaseServerClient(cookies)
+    if (!(await mapelDipakaiKelas(supabase, fields.kelas_id, fields.mapel_id))) {
+      return fail(400, { error: PESAN_MAPEL_ASING })
+    }
+
     const { error } = await supabase
       .from('tentor_kelas_mapel')
       .update(fields)
