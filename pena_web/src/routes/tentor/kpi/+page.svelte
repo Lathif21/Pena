@@ -24,7 +24,7 @@
 
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">KPI Saya</h1>
-  <p class="mt-1 text-sm text-muted-foreground">
+  <p class="mt-1 text-l text-muted-foreground">
     Periode {periodeNama(data.periode.mulai)} · dihitung dari data, bukan penilaian manual
   </p>
 </div>
@@ -41,7 +41,7 @@
   {:else if belumLengkap}
     <div class="py-8 text-center">
       <Badge tone="pending">Belum lengkap</Badge>
-      <p class="mt-3 text-sm text-muted-foreground">
+      <p class="mt-3 text-m text-muted-foreground">
         Skor muncul setelah ada minimal <span class="font-mono">{MIN_SISWA}</span> siswa dengan
         nilai pre dan post, serta <span class="font-mono">{MIN_SESI}</span> sesi mengajar bulan ini.
         Rinciannya tetap bisa dilihat di bawah.
@@ -64,7 +64,7 @@
     {#if data.kpi.gain !== null}
       <ProgressBar value={data.kpi.gain * 100} showLabel={false} class="mt-2" />
     {/if}
-    <p class="mt-2 text-xs text-muted-foreground">
+    <p class="mt-2 text-s text-muted-foreground">
       Dari <span class="font-mono">{data.kpi.jumlahSiswaDinilai}</span> siswa yang punya nilai
       pre dan post
       {#if data.kpi.jumlahSiswaDikecualikan > 0}
@@ -83,7 +83,7 @@
     {#if data.kpi.jurnal !== null}
       <ProgressBar value={data.kpi.jurnal * 100} showLabel={false} class="mt-2" />
     {/if}
-    <p class="mt-2 text-xs text-muted-foreground">
+    <p class="mt-2 text-s text-muted-foreground">
       <span class="font-mono">{data.kpi.sesiBerjurnal}</span> dari
       <span class="font-mono">{data.kpi.jumlahSesi}</span> sesi jurnalnya sudah tersubmit
     </p>
