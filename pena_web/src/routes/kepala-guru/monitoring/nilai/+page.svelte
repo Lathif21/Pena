@@ -138,6 +138,12 @@
             </dd>
           </div>
         </dl>
+        <a
+          href="/kepala-guru/laporan/{s.siswaDetailId}"
+          class="mt-3 block text-sm font-medium text-primary hover:underline"
+        >
+          Cetak laporan
+        </a>
       </Card>
     {/each}
   </div>
@@ -151,6 +157,7 @@
         <Th>Try Out</Th>
         <Th>Nilai Manual</Th>
         <Th>Rata-rata</Th>
+        <Th>Laporan</Th>
       {/snippet}
       {#snippet body()}
         {#each terlihat as s (s.siswaDetailId)}
@@ -181,6 +188,14 @@
                   </span>
                 </div>
               {/if}
+            </Td>
+            <Td>
+              <a
+                href="/kepala-guru/laporan/{s.siswaDetailId}"
+                class="text-sm font-medium text-primary hover:underline"
+              >
+                Cetak
+              </a>
             </Td>
           </tr>
         {/each}
