@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { sesiMilikPemanggil } from '$lib/supabase/sesi.server'
@@ -11,7 +12,7 @@ import { sesiMilikPemanggil } from '$lib/supabase/sesi.server'
 export async function POST({ request, cookies }) {
   const { sesiId, entries } = await request.json().catch(() => ({}))
 
-  if (!sesiId) throw svelteError(400, 'sesiId wajib diisi')
+  if (!sesiId) throw svelteError(400, 'Sesi tidak dikenali. Muat ulang halaman lalu coba lagi.')
   if (!Array.isArray(entries) || entries.length === 0) {
     throw svelteError(400, 'Tidak ada data presensi untuk disimpan')
   }
@@ -48,7 +49,7 @@ export async function POST({ request, cookies }) {
     .from('presensi_murid')
     .upsert(baris, { onConflict: 'sesi_id,siswa_detail_id' })
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json({ saved: baris.length })
 }

@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { sesiMilikPemanggil } from '$lib/supabase/sesi.server'
@@ -33,7 +34,7 @@ export async function POST({ request, cookies, params }) {
     .select()
     .single()
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   // JPG diganti PNG berarti path berubah, dan file lama tidak tertimpa oleh
   // upsert — buang supaya tidak tertinggal yatim di bucket.

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import { SvelteMap } from 'svelte/reactivity'
   import { savePresensi } from '$features/attendance/data/presensi-murid'
@@ -36,7 +37,7 @@
       message = `Presensi tersimpan untuk ${hasil.saved} siswa`
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan presensi'
+      error = pesanRamah(err, 'Gagal menyimpan presensi')
     } finally {
       loading = false
     }

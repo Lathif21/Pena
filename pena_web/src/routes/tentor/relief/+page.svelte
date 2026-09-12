@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import { createRelief, cancelRelief } from '$features/relief/data/relief'
   import Badge from '$lib/components/Badge.svelte'
@@ -60,7 +61,7 @@
       task = ''
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal mengajukan relief'
+      error = pesanRamah(err, 'Gagal mengajukan relief')
     } finally {
       loading = false
     }
@@ -79,7 +80,7 @@
       if (hasil.emailError) peringatanEmail = hasil.emailError
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal membatalkan relief'
+      error = pesanRamah(err, 'Gagal membatalkan relief')
     } finally {
       membatalkan = null
     }

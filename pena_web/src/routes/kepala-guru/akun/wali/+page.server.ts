@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError, fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
@@ -20,7 +21,7 @@ export async function load({ cookies, parent }) {
     .is('deleted_at', null)
     .order('nama_lengkap')
 
-  if (error) throw svelteError(500, error.message)
+  if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return { ...parentData, wali: wali ?? [] }
 }
@@ -72,14 +73,14 @@ export const actions = {
         tahun_ajaran_id: String(form.get('tahun_ajaran_id'))
       })
     } catch (err) {
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal membuat wali' })
+      return fail(400, { error: pesanRamah(err, 'Gagal membuat wali') })
     }
 
     try {
       await setWaliSiswa(profileId, siswaIds)
     } catch (err) {
       await rollbackAccount(profileId)
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal menautkan siswa' })
+      return fail(400, { error: pesanRamah(err, 'Gagal menautkan siswa') })
     }
 
     return { success: true }
@@ -98,7 +99,7 @@ export const actions = {
     try {
       await updateAccountEmail(waliId, email)
     } catch (err) {
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal memperbarui email' })
+      return fail(400, { error: pesanRamah(err, 'Gagal memperbarui email') })
     }
 
     const { error } = await supabaseAdmin
@@ -107,12 +108,12 @@ export const actions = {
       .eq('id', waliId)
       .eq('role', 'wali_murid')
 
-    if (error) return fail(400, { error: error.message })
+    if (error) return fail(400, { error: pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.') })
 
     try {
       await setWaliSiswa(waliId, parseSiswaIds(form.get('siswa_ids')))
     } catch (err) {
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal menautkan siswa' })
+      return fail(400, { error: pesanRamah(err, 'Gagal menautkan siswa') })
     }
 
     return { success: true }

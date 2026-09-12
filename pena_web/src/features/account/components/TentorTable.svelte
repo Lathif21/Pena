@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { deleteTentor, type Tentor } from '../data/tentor'
   import TentorForm from './TentorForm.svelte'
 
@@ -10,9 +12,10 @@
   let showForm = $state(false)
   let editingTentor: Tentor | null = $state(null)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadTentor() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   function handleEditClick(item: Tentor) {
@@ -25,16 +28,18 @@
 
     try {
       await deleteTentor(id)
+      sukses = 'Tentor berhasil dihapus.'
       await loadTentor()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete tentor'
+      error = pesanRamah(err, 'Gagal menghapus tentor.')
     }
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingTentor = null
     loadTentor()
+    if (tersimpan) sukses = 'Tentor berhasil disimpan.'
   }
 </script>
 
@@ -44,6 +49,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => (showForm = true)}

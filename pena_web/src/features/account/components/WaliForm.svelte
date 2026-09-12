@@ -1,11 +1,12 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { enhance } from '$app/forms'
   import { listSiswa, type Siswa } from '../data/siswa'
   import { listTahunAjaran, type TahunAjaran } from '$features/master-data/data/tahun-ajaran'
 
   interface Props {
     editingWali?: { id: string; nama_lengkap: string; email: string }
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { editingWali, onclose }: Props = $props()
@@ -42,7 +43,7 @@
         await loadWaliSiswa(editingWali.id)
       }
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load data'
+      error = pesanRamah(err, 'Gagal memuat data. Coba muat ulang halaman.')
     } finally {
       loadingData = false
     }
@@ -59,7 +60,7 @@
       if (err) throw err
       selectedSiswaIds = data.map((row: any) => row.siswa_detail_id)
     } catch (err) {
-      console.error('Failed to load wali siswa:', err)
+      console.error('Gagal memuat data anak wali:', err)
     }
   }
 
@@ -89,7 +90,7 @@
       return async ({ result }) => {
         loading = false
         if (result.type === 'success') {
-          onclose?.()
+          onclose?.(true)
         } else if (result.type === 'failure') {
           error = result.data?.error || (editingWali ? 'Gagal memperbarui wali' : 'Gagal membuat wali')
         }

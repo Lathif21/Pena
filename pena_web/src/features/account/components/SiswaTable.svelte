@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { deleteSiswa, type Siswa } from '../data/siswa'
   import SiswaForm from './SiswaForm.svelte'
   import Button from '$lib/components/Button.svelte'
@@ -15,9 +17,10 @@
   let showForm = $state(false)
   let editingSiswa: Siswa | null = $state(null)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadSiswa() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   function handleEditClick(item: Siswa) {
@@ -30,16 +33,18 @@
 
     try {
       await deleteSiswa(id)
+      sukses = 'Siswa berhasil dihapus.'
       await loadSiswa()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete siswa'
+      error = pesanRamah(err, 'Gagal menghapus siswa.')
     }
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingSiswa = null
     loadSiswa()
+    if (tersimpan) sukses = 'Siswa berhasil disimpan.'
   }
 
   // Regular biru, privat emas. Dua paket saja — bukan status, jadi tidak memakai
@@ -54,6 +59,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <Button onclick={() => (showForm = true)}>Tambah Siswa</Button>
 

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { setActiveTahunAjaran, type TahunAjaran } from '../data/tahun-ajaran'
   import TahunAjaranForm from './TahunAjaranForm.svelte'
 
@@ -9,23 +11,26 @@
   let { tahunAjaran }: Props = $props()
   let showForm = $state(false)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadTahunAjaran() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   async function handleSetActive(id: string) {
     try {
       await setActiveTahunAjaran(id)
+      sukses = 'Tahun ajaran berhasil dihapus.'
       await loadTahunAjaran()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to set active'
+      error = pesanRamah(err, 'Gagal mengaktifkan tahun ajaran.')
     }
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     loadTahunAjaran()
+    if (tersimpan) sukses = 'Tahun ajaran berhasil disimpan.'
   }
 </script>
 
@@ -35,6 +40,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => (showForm = true)}

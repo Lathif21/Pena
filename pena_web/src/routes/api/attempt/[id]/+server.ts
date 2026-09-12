@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getSiswaDetail } from '$lib/supabase/guard.server'
@@ -52,7 +53,7 @@ export async function PATCH({ request, cookies, params }) {
   }
 
   const { soalId, pilihanId } = await request.json().catch(() => ({}))
-  if (!soalId) throw svelteError(400, 'soalId wajib diisi')
+  if (!soalId) throw svelteError(400, 'Soal tidak dikenali. Muat ulang halaman lalu coba lagi.')
 
   // The soal must belong to this attempt's parent, and the pilihan to that soal.
   // Soal hang off try_out_id (not materi_id) since the soal-per-try-out migration.
@@ -69,7 +70,7 @@ export async function PATCH({ request, cookies, params }) {
 
   // Surface a real query failure as a 500 — treating it as "not part of this quiz"
   // is how a dropped column silently turned into every answer being discarded.
-  if (soalError) throw svelteError(500, soalError.message)
+  if (soalError) throw svelteError(500, pesanRamah(soalError, 'Gagal menyimpan. Coba lagi sebentar.'))
   if (!soal) throw svelteError(400, 'Soal bukan bagian dari kuis ini')
 
   if (pilihanId) {
@@ -91,7 +92,7 @@ export async function PATCH({ request, cookies, params }) {
       { onConflict: 'attempt_id,soal_id' }
     )
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
   return json({ saved: true })
 }
 

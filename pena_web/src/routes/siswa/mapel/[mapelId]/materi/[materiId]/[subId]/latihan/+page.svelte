@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { page } from '$app/state'
   import { SvelteMap, SvelteSet } from 'svelte/reactivity'
   import { startLatihan as apiStartLatihan, saveJawaban, submitAttempt } from '$features/question/data/attempt'
@@ -31,7 +32,7 @@
       const attempt = await apiStartLatihan(data.subMateri.id)
       attemptId = attempt.id; jawaban.clear(); submitted = false; nilai = 0
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal memulai latihan'
+      error = pesanRamah(err, 'Gagal memulai latihan')
     } finally {
       loading = false
     }
@@ -60,7 +61,7 @@
       const score = await submitAttempt(attemptId)
       nilai = score; submitted = true; message = `Selesai! Nilai Anda: ${score}`
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal submit latihan'
+      error = pesanRamah(err, 'Gagal submit latihan')
     } finally {
       loading = false
     }

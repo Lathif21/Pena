@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 
@@ -27,7 +28,7 @@ export async function load({ cookies, parent, url }) {
       .is('deleted_at', null)
   ])
 
-  if (kmError) throw svelteError(500, kmError.message)
+  if (kmError) throw svelteError(500, pesanRamah(kmError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const assignments = kelasMapel ?? []
   const privatAssignments = privat ?? []

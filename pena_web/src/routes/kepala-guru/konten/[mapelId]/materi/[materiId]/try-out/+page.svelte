@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import SoalForm from '$features/question/components/SoalForm.svelte'
   import SoalList from '$features/question/components/SoalList.svelte'
@@ -39,7 +40,7 @@
       await publishTryOut(tryOutId)
       await invalidateAll()
     } catch (err) {
-      publishError = err instanceof Error ? err.message : 'Gagal publish try out'
+      publishError = pesanRamah(err, 'Gagal publish try out')
     } finally {
       publishing = false
     }
@@ -54,7 +55,7 @@
       await unpublishTryOut(tryOutId)
       await invalidateAll()
     } catch (err) {
-      publishError = err instanceof Error ? err.message : 'Gagal membatalkan publish'
+      publishError = pesanRamah(err, 'Gagal membatalkan publish')
     } finally {
       publishing = false
     }
@@ -71,7 +72,7 @@
       selectedTryOutId = tryOutList.find((t) => t.id !== tryOut.id)?.id ?? null
       await invalidateAll()
     } catch (err) {
-      publishError = err instanceof Error ? err.message : 'Gagal menghapus try out'
+      publishError = pesanRamah(err, 'Gagal menghapus try out')
     } finally {
       publishing = false
     }

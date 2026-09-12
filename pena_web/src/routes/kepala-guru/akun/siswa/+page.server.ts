@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError, fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
@@ -34,7 +35,7 @@ export async function load({ cookies, parent }) {
     .is('deleted_at', null)
     .order('nama_lengkap')
 
-  if (error) throw svelteError(500, error.message)
+  if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const siswa = (data ?? []).map((profile: any) => {
     const detail = profile.siswa_detail?.[0]
@@ -183,7 +184,7 @@ export const actions = {
         tahun_ajaran_id: tahunAjaranId
       })
     } catch (err) {
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal membuat siswa' })
+      return fail(400, { error: pesanRamah(err, 'Gagal membuat siswa') })
     }
 
     const { data: detail, error: detailError } = await supabaseAdmin
@@ -207,7 +208,7 @@ export const actions = {
       if (kelasError) {
         await supabaseAdmin.from('siswa_detail').delete().eq('id', detail.id)
         await rollbackAccount(profileId)
-        return fail(400, { error: kelasError.message })
+        return fail(400, { error: pesanRamah(kelasError, 'Gagal menyimpan. Coba lagi sebentar.') })
       }
     } else {
       const { error: privatError } = await supabaseAdmin.from('tentor_siswa_privat').insert(
@@ -222,7 +223,7 @@ export const actions = {
       if (privatError) {
         await supabaseAdmin.from('siswa_detail').delete().eq('id', detail.id)
         await rollbackAccount(profileId)
-        return fail(400, { error: privatError.message })
+        return fail(400, { error: pesanRamah(privatError, 'Gagal menyimpan. Coba lagi sebentar.') })
       }
     }
 
@@ -243,7 +244,7 @@ export const actions = {
     try {
       await updateAccountEmail(siswaId, email)
     } catch (err) {
-      return fail(400, { error: err instanceof Error ? err.message : 'Gagal memperbarui email' })
+      return fail(400, { error: pesanRamah(err, 'Gagal memperbarui email') })
     }
 
     const { error: profileError } = await supabaseAdmin
@@ -252,7 +253,7 @@ export const actions = {
       .eq('id', siswaId)
       .eq('role', 'siswa')
 
-    if (profileError) return fail(400, { error: profileError.message })
+    if (profileError) return fail(400, { error: pesanRamah(profileError, 'Gagal menyimpan. Coba lagi sebentar.') })
 
     const { data: detail, error: detailError } = await supabaseAdmin
       .from('siswa_detail')
@@ -309,7 +310,7 @@ export const actions = {
 
           // Bail before touching the old enrolment, so a failure here leaves the
           // student in the kelas they were already in rather than in none.
-          if (kelasError) return fail(400, { error: kelasError.message })
+          if (kelasError) return fail(400, { error: pesanRamah(kelasError, 'Gagal menyimpan. Coba lagi sebentar.') })
         }
 
         // Soft delete the old enrolment rather than dropping it — attendance and

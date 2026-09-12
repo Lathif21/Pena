@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { listMateri, softDeleteMateri, type Materi } from '../data/materi.ts'
   import MateriForm from './MateriForm.svelte'
   import { BookOpen } from 'lucide-svelte'
@@ -21,7 +22,7 @@
     try {
       materi = await listMateri(mapelId)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load materi'
+      error = pesanRamah(err, 'Gagal memuat materi.')
     } finally {
       loading = false
     }
@@ -38,7 +39,7 @@
       await softDeleteMateri(id)
       await loadMateri()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete materi'
+      error = pesanRamah(err, 'Gagal menghapus materi.')
     }
   }
 

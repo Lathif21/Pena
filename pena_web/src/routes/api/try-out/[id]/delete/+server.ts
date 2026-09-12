@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { isKepalaGuru } from '$lib/supabase/guard.server'
@@ -55,14 +56,14 @@ export async function POST({ cookies, params }) {
     .eq('try_out_id', params.id)
     .is('deleted_at', null)
 
-  if (soalError) throw svelteError(400, soalError.message)
+  if (soalError) throw svelteError(400, pesanRamah(soalError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const { error } = await supabaseAdmin
     .from('try_out')
     .update({ deleted_at: now })
     .eq('id', params.id)
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json({ deleted: true })
 }

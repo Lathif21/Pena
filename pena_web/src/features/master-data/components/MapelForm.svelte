@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { createMapel, updateMapel, listKelasForMapel, type Mapel } from '../data/mapel'
   import { listKelas, type Kelas } from '../data/kelas'
 
   interface Props {
     initial?: Mapel | null
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { initial = null, onclose }: Props = $props()
@@ -31,7 +32,7 @@
         selectedKelas = await listKelasForMapel(initial.id)
       }
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal memuat kelas'
+      error = pesanRamah(err, 'Gagal memuat kelas')
     } finally {
       loadingKelas = false
     }
@@ -48,9 +49,9 @@
       } else {
         await createMapel(nama, selectedKelas)
       }
-      onclose?.()
+      onclose?.(true)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to save'
+      error = pesanRamah(err, 'Gagal menyimpan. Periksa isian lalu coba lagi.')
     } finally {
       loading = false
     }

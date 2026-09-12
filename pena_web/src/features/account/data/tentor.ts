@@ -35,7 +35,7 @@ export async function createTentor(
   })
 
   if (authError) throw authError
-  if (!authData.user?.id) throw new Error('Failed to create auth user')
+  if (!authData.user?.id) throw new Error('Gagal membuat akun. Email mungkin sudah terpakai.')
 
   // Wait a moment for auth user to be created
   await new Promise(resolve => setTimeout(resolve, 1000))

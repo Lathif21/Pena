@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import {
     getModuleBySubMateri,
     uploadModule,
@@ -39,7 +40,7 @@
         if (!head?.ok) signedUrl = ''
       }
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal memuat modul'
+      error = pesanRamah(err, 'Gagal memuat modul')
     } finally {
       loading = false
     }
@@ -67,7 +68,7 @@
       await uploadModule(data.subMateri.id, file)
       await load()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal mengunggah PDF'
+      error = pesanRamah(err, 'Gagal mengunggah PDF')
     } finally {
       busy = false
       input.value = ''
@@ -84,7 +85,7 @@
       await publishModule()
       await load()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal publish modul'
+      error = pesanRamah(err, 'Gagal publish modul')
     } finally {
       busy = false
     }
@@ -105,7 +106,7 @@
       await unpublishModule()
       await load()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal membatalkan publish'
+      error = pesanRamah(err, 'Gagal membatalkan publish')
     } finally {
       busy = false
     }

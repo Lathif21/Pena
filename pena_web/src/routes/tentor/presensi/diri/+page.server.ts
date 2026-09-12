@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { signedUrl } from '$features/attendance/data/sesi.server'
@@ -14,7 +15,7 @@ export async function load({ cookies, parent }) {
     .eq('tentor_id', tentorId)
     .is('deleted_at', null)
 
-  if (aError) throw svelteError(500, aError.message)
+  if (aError) throw svelteError(500, pesanRamah(aError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   // Kelas yang diajar tentor ini saja — dropdown tidak pernah memuat seluruh kelas.
   const unik = new Map<string, { id: string; nama: string }>()

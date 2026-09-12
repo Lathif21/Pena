@@ -1,8 +1,9 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { createTahunAjaran } from '../data/tahun-ajaran'
 
   interface Props {
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { onclose }: Props = $props()
@@ -17,9 +18,9 @@
 
     try {
       await createTahunAjaran(nama)
-      onclose?.()
+      onclose?.(true)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to save'
+      error = pesanRamah(err, 'Gagal menyimpan. Periksa isian lalu coba lagi.')
     } finally {
       loading = false
     }

@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import {
@@ -105,7 +106,7 @@ export async function POST({ request, cookies, params }) {
   if (dbError) {
     // Barisnya tidak pernah jadi — buang filenya supaya tidak yatim di bucket.
     await hapusModul(path)
-    throw svelteError(500, dbError.message)
+    throw svelteError(500, pesanRamah(dbError, 'Gagal menyimpan. Coba lagi sebentar.'))
   }
 
   // File lama dibuang hanya setelah barisnya menunjuk yang baru.

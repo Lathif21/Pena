@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError, fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { isKepalaGuru } from '$lib/supabase/guard.server'
@@ -12,7 +13,7 @@ export async function load({ cookies, parent }) {
     .is('deleted_at', null)
     .order('nama', { ascending: false })
 
-  if (error) throw svelteError(500, error.message)
+  if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const list = tahunAjaran ?? []
   const active = list.find(t => t.is_active) ?? list[0] ?? null
@@ -48,7 +49,7 @@ async function mapelDipakaiKelas(supabase: any, kelasId: string, mapelId: string
     .eq('mapel_id', mapelId)
     .maybeSingle()
 
-  if (error) throw svelteError(500, error.message)
+  if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
   return Boolean(data)
 }
 

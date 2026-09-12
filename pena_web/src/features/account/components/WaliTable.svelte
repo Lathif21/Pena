@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { deleteWali, type Wali } from '../data/wali'
   import WaliForm from './WaliForm.svelte'
 
@@ -10,9 +12,10 @@
   let showForm = $state(false)
   let editingWali: Wali | null = $state(null)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadWali() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   function handleEditClick(item: Wali) {
@@ -25,16 +28,18 @@
 
     try {
       await deleteWali(id)
+      sukses = 'Wali murid berhasil dihapus.'
       await loadWali()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete wali'
+      error = pesanRamah(err, 'Gagal menghapus wali murid.')
     }
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingWali = null
     loadWali()
+    if (tersimpan) sukses = 'Wali murid berhasil disimpan.'
   }
 </script>
 
@@ -44,6 +49,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => (showForm = true)}

@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getSiswaDetail } from '$lib/supabase/guard.server'
@@ -40,7 +41,7 @@ export async function POST({ request, cookies }) {
       .select()
       .single()
 
-    if (error) throw svelteError(400, error.message)
+    if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
     return json(data)
   }
 
@@ -107,6 +108,6 @@ export async function POST({ request, cookies }) {
     .select()
     .single()
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
   return json(data)
 }

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { resetAttempt } from '$features/question/data/attempt'
   import Badge from '$lib/components/Badge.svelte'
   import Button from '$lib/components/Button.svelte'
@@ -34,7 +35,7 @@
       message = `Reset berhasil untuk ${attempt.siswa_detail.nama_lengkap}`
       setTimeout(() => { window.location.reload() }, 1500)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal reset attempt'
+      error = pesanRamah(err, 'Gagal reset attempt')
     } finally {
       resetting = null
     }

@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 
@@ -54,7 +55,7 @@ export async function load({ cookies, params, parent }) {
       .select('try_out_id, kelas_id')
       .in('try_out_id', tryOutIds)
 
-    if (error) throw svelteError(500, error.message)
+    if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
     tryOutKelasData = data || []
   }
 

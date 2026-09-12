@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import { closeSesi } from '$features/session/data/close-sesi'
   import Badge from '$lib/components/Badge.svelte'
@@ -37,7 +38,7 @@
       konfirmasi = false
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyelesaikan sesi'
+      error = pesanRamah(err, 'Gagal menyelesaikan sesi')
       konfirmasi = false
     } finally {
       menutup = false

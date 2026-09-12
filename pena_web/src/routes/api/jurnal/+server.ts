@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { sesiMilikPemanggil } from '$lib/supabase/sesi.server'
@@ -12,7 +13,7 @@ import { sesiMilikPemanggil } from '$lib/supabase/sesi.server'
 export async function POST({ request, cookies }) {
   const { sesiId, materiId, deskripsi } = await request.json().catch(() => ({}))
 
-  if (!sesiId) throw svelteError(400, 'sesiId wajib diisi')
+  if (!sesiId) throw svelteError(400, 'Sesi tidak dikenali. Muat ulang halaman lalu coba lagi.')
   if (!materiId) throw svelteError(400, 'Materi wajib dipilih')
   if (typeof deskripsi !== 'string' || !deskripsi.trim()) {
     throw svelteError(400, 'Deskripsi wajib diisi')
@@ -47,7 +48,7 @@ export async function POST({ request, cookies }) {
     .select()
     .single()
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json(data)
 }

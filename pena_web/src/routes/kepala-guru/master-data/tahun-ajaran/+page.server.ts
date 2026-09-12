@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 
@@ -11,7 +12,7 @@ export async function load({ cookies, parent }) {
     .is('deleted_at', null)
     .order('nama', { ascending: false })
 
-  if (error) throw svelteError(500, error.message)
+  if (error) throw svelteError(500, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return { ...parentData, tahunAjaran: tahunAjaran ?? [] }
 }

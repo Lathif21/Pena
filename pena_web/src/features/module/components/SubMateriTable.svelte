@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { listSubMateri, softDeleteSubMateri, type SubMateri } from '../data/sub-materi.ts'
   import SubMateriForm from './SubMateriForm.svelte'
   import { FileText } from 'lucide-svelte'
@@ -22,7 +23,7 @@
     try {
       submateri = await listSubMateri(materiId)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load sub materi'
+      error = pesanRamah(err, 'Gagal memuat sub materi.')
     } finally {
       loading = false
     }
@@ -39,7 +40,7 @@
       await softDeleteSubMateri(id)
       await loadSubMateri()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete sub materi'
+      error = pesanRamah(err, 'Gagal menghapus sub materi.')
     }
   }
 

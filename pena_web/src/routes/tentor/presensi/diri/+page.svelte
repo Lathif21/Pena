@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import { listMapelByKelas, openSesi, replaceFoto, type Pilihan } from '$features/attendance/data/sesi'
   import Badge from '$lib/components/Badge.svelte'
@@ -42,7 +43,7 @@
       mapelOptions = await listMapelByKelas(id, data.user.id)
       if (mapelOptions.length === 0) error = 'Tidak ada mapel yang Anda ajar di kelas ini.'
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal memuat mapel'
+      error = pesanRamah(err, 'Gagal memuat mapel')
     } finally {
       memuatMapel = false
     }
@@ -72,7 +73,7 @@
       if (preview) { URL.revokeObjectURL(preview); preview = '' }
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan presensi'
+      error = pesanRamah(err, 'Gagal menyimpan presensi')
     } finally {
       loading = false
     }

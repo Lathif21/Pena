@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { enhance } from '$app/forms'
   import { listTahunAjaran, type TahunAjaran } from '$features/master-data/data/tahun-ajaran'
 
   interface Props {
     editingTentor?: { id: string; nama_lengkap: string; email: string }
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { editingTentor, onclose }: Props = $props()
@@ -24,7 +25,7 @@
       const active = tahun_ajaran_list.find((ta) => ta.is_active)
       if (active) tahun_ajaran_id = active.id
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load tahun ajaran'
+      error = pesanRamah(err, 'Gagal memuat tahun ajaran.')
     } finally {
       loadingTA = false
     }
@@ -52,7 +53,7 @@
       return async ({ result }) => {
         loading = false
         if (result.type === 'success') {
-          onclose?.()
+          onclose?.(true)
         } else if (result.type === 'failure') {
           error = result.data?.error || (editingTentor ? 'Gagal memperbarui tentor' : 'Gagal membuat tentor')
         }

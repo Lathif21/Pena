@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getPengajar, mengajarKelasMapel } from '$lib/supabase/sesi.server'
@@ -72,7 +73,7 @@ export async function POST({ request, cookies }) {
   if (error) {
     // Jangan tinggalkan file yatim di bucket kalau barisnya gagal dibuat.
     await hapusFoto(path)
-    throw svelteError(400, error.message)
+    throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
   }
 
   return json(sesi)

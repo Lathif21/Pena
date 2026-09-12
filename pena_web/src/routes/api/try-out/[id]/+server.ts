@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getSessionProfile } from '$lib/supabase/guard.server'
@@ -84,7 +85,7 @@ export async function PATCH({ request, cookies, params }) {
     })
     .eq('id', params.id)
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   // Targets are replaced wholesale — simpler than diffing, and the table is a
   // plain join with no history worth keeping.
@@ -93,13 +94,13 @@ export async function PATCH({ request, cookies, params }) {
     .delete()
     .eq('try_out_id', params.id)
 
-  if (clearError) throw svelteError(400, clearError.message)
+  if (clearError) throw svelteError(400, pesanRamah(clearError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const { error: insertError } = await supabaseAdmin
     .from('try_out_kelas')
     .insert(kelasIds.map((kelas_id: string) => ({ try_out_id: params.id, kelas_id })))
 
-  if (insertError) throw svelteError(400, insertError.message)
+  if (insertError) throw svelteError(400, pesanRamah(insertError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json({ updated: true })
 }

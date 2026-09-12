@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { deleteKelas, type Kelas } from '../data/kelas'
   import KelasForm from './KelasForm.svelte'
 
@@ -10,9 +12,10 @@
   let showForm = $state(false)
   let editingKelas: Kelas | null = null
   let error = $state('')
+  let sukses = $state('')
 
   async function loadKelas() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   async function handleDelete(id: string) {
@@ -20,9 +23,10 @@
 
     try {
       await deleteKelas(id)
+      sukses = 'Kelas berhasil dihapus.'
       await loadKelas()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete kelas'
+      error = pesanRamah(err, 'Gagal menghapus kelas.')
     }
   }
 
@@ -31,10 +35,11 @@
     showForm = true
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingKelas = null
     loadKelas()
+    if (tersimpan) sukses = 'Kelas berhasil disimpan.'
   }
 
   function handleFormClose() {
@@ -48,6 +53,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => (showForm = true)}

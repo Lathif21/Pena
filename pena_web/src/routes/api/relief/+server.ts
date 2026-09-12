@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getPengajar, mengajarKelasMapel } from '$lib/supabase/sesi.server'
@@ -69,7 +70,7 @@ export async function POST({ request, cookies, url }) {
     if (error.code === '23505') {
       throw svelteError(409, 'Sudah ada relief aktif untuk kelas, mapel, dan tanggal ini')
     }
-    throw svelteError(400, error.message)
+    throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
   }
 
   const emailError = await kirimNotifikasi('baru', relief, profile.id, pengganti, url.origin)

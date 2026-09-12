@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { SvelteSet } from 'svelte/reactivity'
   import { createTryOut, updateTryOut } from '../data/try-out'
 
@@ -92,7 +93,7 @@
 
       onSuccess?.()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan try out'
+      error = pesanRamah(err, 'Gagal menyimpan try out')
     } finally {
       loading = false
     }

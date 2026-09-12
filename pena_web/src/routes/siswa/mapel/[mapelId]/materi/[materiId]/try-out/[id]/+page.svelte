@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { browser } from '$app/environment'
   import { startTryOut as apiStartTryOut, saveJawaban, submitAttempt } from '$features/question/data/attempt'
   import { onMount } from 'svelte'
@@ -77,7 +78,7 @@
       const attempt = await apiStartTryOut(data.tryOut.id)
       attemptId = attempt.id; jawaban.clear(); submitted = false; nilai = 0; timeRemaining = data.tryOut.durasi_menit * 60
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal memulai try out'
+      error = pesanRamah(err, 'Gagal memulai try out')
     } finally {
       loading = false
     }
@@ -110,7 +111,7 @@
       nilai = score; submitted = true
       if (isAuto) error = 'Waktu habis! Pekerjaan Anda telah dikirim secara otomatis.'
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal submit try out'
+      error = pesanRamah(err, 'Gagal submit try out')
     } finally {
       loading = false
     }

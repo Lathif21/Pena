@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { goto } from '$app/navigation'
   import { SvelteMap } from 'svelte/reactivity'
   import { createNilaiManual } from '$features/grading/data/nilai-manual'
@@ -82,7 +83,7 @@
       message = `Berhasil menyimpan ${tersimpan} nilai`
       setTimeout(() => goto('/tentor/nilai'), 1500)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan nilai'
+      error = pesanRamah(err, 'Gagal menyimpan nilai')
     } finally {
       submitting = false
     }

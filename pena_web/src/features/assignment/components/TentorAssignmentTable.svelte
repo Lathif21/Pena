@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { listTentorAssignments, deleteTentorAssignment } from '../data/tentor-assignment'
   import TentorAssignmentForm from './TentorAssignmentForm.svelte'
   import Button from '$lib/components/Button.svelte'
@@ -15,20 +17,21 @@
   let editingAssignment: any = $state(null)
   let loading = $state(true)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadAssignmentsData() {
     loading = true
     try {
       assignments = await listTentorAssignments(tahun_ajaran_id)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load assignments'
+      error = pesanRamah(err, 'Gagal memuat daftar assignment.')
     } finally {
       loading = false
     }
   }
 
-  function reloadAssignments() {
-    window.location.reload()
+  async function reloadAssignments() {
+    await invalidateAll()
   }
 
   function handleEditClick(item: any) {
@@ -43,14 +46,15 @@
       await deleteTentorAssignment(id)
       reloadAssignments()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete assignment'
+      error = pesanRamah(err, 'Gagal menghapus assignment.')
     }
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingAssignment = null
     reloadAssignments()
+    if (tersimpan) sukses = 'Assignment berhasil disimpan.'
   }
 
   $effect(() => {
@@ -66,6 +70,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => (showForm = true)}

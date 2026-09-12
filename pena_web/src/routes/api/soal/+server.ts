@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { isKepalaGuru } from '$lib/supabase/guard.server'
@@ -17,7 +18,7 @@ export async function POST({ request, cookies }) {
   if (parentType !== 'sub_materi' && parentType !== 'try_out') {
     throw svelteError(400, 'parentType harus sub_materi atau try_out')
   }
-  if (!parentId) throw svelteError(400, 'parentId wajib diisi')
+  if (!parentId) throw svelteError(400, 'Induk soal tidak dikenali. Muat ulang halaman lalu coba lagi.')
   if (!pertanyaan?.trim()) throw svelteError(400, 'Pertanyaan wajib diisi')
 
   const invalid = validatePilihan(pilihan)
@@ -41,14 +42,14 @@ export async function POST({ request, cookies }) {
     .select()
     .single()
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   try {
     await replacePilihan(soal.id, pilihan)
   } catch (err) {
     // A soal with no choices is unusable — roll it back rather than leave it half-made.
     await supabaseAdmin.from('soal').delete().eq('id', soal.id)
-    throw svelteError(400, err instanceof Error ? err.message : 'Gagal menyimpan pilihan')
+    throw svelteError(400, pesanRamah(err, 'Gagal menyimpan pilihan'))
   }
 
   return json(soal)

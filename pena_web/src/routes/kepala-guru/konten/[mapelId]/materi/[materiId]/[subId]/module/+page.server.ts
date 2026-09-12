@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError, fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { isKepalaGuru } from '$lib/supabase/guard.server'
@@ -60,7 +61,7 @@ async function setStatus(cookies: Parameters<typeof isKepalaGuru>[0], subId: str
     })
     .eq('id', modul.id)
 
-  if (error) return fail(400, { error: error.message })
+  if (error) return fail(400, { error: pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.') })
 
   return { success: true }
 }

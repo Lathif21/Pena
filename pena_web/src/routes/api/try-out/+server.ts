@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getSessionProfile } from '$lib/supabase/guard.server'
@@ -76,7 +77,7 @@ export async function POST({ request, cookies }) {
     .select()
     .single()
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const { error: kelasError } = await supabaseAdmin
     .from('try_out_kelas')
@@ -85,7 +86,7 @@ export async function POST({ request, cookies }) {
   if (kelasError) {
     // Without target kelas nobody can sit it — don't leave a half-made try out.
     await supabaseAdmin.from('try_out').delete().eq('id', tryOut.id)
-    throw svelteError(400, kelasError.message)
+    throw svelteError(400, pesanRamah(kelasError, 'Gagal menyimpan. Coba lagi sebentar.'))
   }
 
   return json(tryOut)

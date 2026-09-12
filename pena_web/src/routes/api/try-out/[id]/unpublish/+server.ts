@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { isKepalaGuru } from '$lib/supabase/guard.server'
@@ -32,7 +33,7 @@ export async function POST({ cookies, params }) {
     .update({ status: 'draft', published_at: null })
     .eq('id', params.id)
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json({ unpublished: true })
 }

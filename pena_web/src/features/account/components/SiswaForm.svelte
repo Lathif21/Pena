@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { enhance } from '$app/forms'
   import { listKelas, type Kelas } from '$features/master-data/data/kelas'
   import { listMapel, type Mapel } from '$features/master-data/data/mapel'
@@ -15,7 +16,7 @@
       kelas_id?: string
       tentor_mapel?: Array<{ tentor_id: string; mapel_id: string }>
     }
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { editingSiswa, onclose }: Props = $props()
@@ -51,7 +52,7 @@
       const active = tahun_ajaran_list.find((ta) => ta.is_active)
       if (active) tahun_ajaran_id = active.id
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load data'
+      error = pesanRamah(err, 'Gagal memuat data. Coba muat ulang halaman.')
     } finally {
       loadingData = false
     }
@@ -87,7 +88,7 @@
       return async ({ result }) => {
         loading = false
         if (result.type === 'success') {
-          onclose?.()
+          onclose?.(true)
         } else if (result.type === 'failure') {
           error = result.data?.error || (editingSiswa ? 'Gagal memperbarui siswa' : 'Gagal membuat siswa')
         }

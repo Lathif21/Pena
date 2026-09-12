@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { invalidateAll } from '$app/navigation'
   import { saveJurnal } from '$features/journal/data/jurnal'
   import Badge from '$lib/components/Badge.svelte'
@@ -30,7 +31,7 @@
       message = 'Jurnal tersimpan sebagai draft'
       await invalidateAll()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan jurnal'
+      error = pesanRamah(err, 'Gagal menyimpan jurnal')
     } finally {
       loading = false
     }

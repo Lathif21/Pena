@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { redirect, fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 
@@ -30,10 +31,10 @@ export const actions = {
 
     if (signInError) {
       console.error('Supabase signin error:', signInError)
-      return fail(400, { error: signInError.message || 'Email atau password salah' })
+      return fail(400, { error: pesanRamah(signInError, 'Email atau password salah') })
     }
     if (!signInData.user) {
-      return fail(400, { error: 'Login failed' })
+      return fail(400, { error: 'Login gagal. Coba lagi sebentar.' })
     }
 
     // Get user profile to determine role
@@ -45,7 +46,7 @@ export const actions = {
 
     if (profileError) {
       console.error('Profile fetch error:', profileError)
-      return fail(400, { error: profileError.message || 'Profil tidak ditemukan' })
+      return fail(400, { error: pesanRamah(profileError, 'Profil tidak ditemukan') })
     }
     if (!profile) {
       return fail(400, { error: 'Profil tidak ditemukan' })

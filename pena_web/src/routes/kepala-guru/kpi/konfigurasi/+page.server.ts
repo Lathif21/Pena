@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { fail } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
@@ -51,7 +52,7 @@ export const actions = {
       tahun_ajaran_id: profile.tahun_ajaran_id
     })
 
-    if (error) return fail(400, { error: error.message })
+    if (error) return fail(400, { error: pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.') })
 
     return { success: true }
   }

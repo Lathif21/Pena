@@ -1,9 +1,10 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { createKelas, updateKelas, type Kelas } from '../data/kelas'
 
   interface Props {
     initial?: Kelas | null
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { initial = null, onclose }: Props = $props()
@@ -22,9 +23,9 @@
       } else {
         await createKelas(nama)
       }
-      onclose?.()
+      onclose?.(true)
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to save'
+      error = pesanRamah(err, 'Gagal menyimpan. Periksa isian lalu coba lagi.')
     } finally {
       loading = false
     }

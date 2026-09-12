@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { Pencil, Trash2 } from 'lucide-svelte'
   import { softDeleteSoal } from '../data/soal'
 
@@ -32,7 +33,7 @@
       onDelete?.(soal.id)
     } catch (err) {
       console.error('Error deleting soal:', err)
-      alert(err instanceof Error ? err.message : 'Gagal menghapus soal')
+      alert(pesanRamah(err, 'Gagal menghapus soal'))
     } finally {
       deleting = null
     }

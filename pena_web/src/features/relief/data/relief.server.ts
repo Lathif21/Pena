@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { kirimReliefBaru, kirimReliefDibatalkan } from '$lib/email/relief'
 import { hariIni } from '$lib/utils/tanggal'
@@ -148,7 +149,7 @@ export async function kirimNotifikasi(
 
     return null
   } catch (err) {
-    const pesan = err instanceof Error ? err.message : 'Gagal mengirim email'
+    const pesan = pesanRamah(err, 'Gagal mengirim email')
     await supabaseAdmin.from('relief').update({ email_error: pesan }).eq('id', relief.id)
     return pesan
   }

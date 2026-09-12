@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getSessionProfile } from '$lib/supabase/guard.server'
@@ -29,7 +30,7 @@ export async function POST({ cookies, params }) {
     .update({ is_active: false })
     .eq('id', attempt.id)
 
-  if (archiveError) throw svelteError(400, archiveError.message)
+  if (archiveError) throw svelteError(400, pesanRamah(archiveError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   // A fresh attempt so the student can sit the try out again. The most recent
   // active attempt is the one that counts.
@@ -45,7 +46,7 @@ export async function POST({ cookies, params }) {
     .select()
     .single()
 
-  if (insertError) throw svelteError(400, insertError.message)
+  if (insertError) throw svelteError(400, pesanRamah(insertError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   return json(fresh)
 }

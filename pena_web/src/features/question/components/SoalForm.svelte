@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { createSoal, updateSoal } from '../data/soal'
 
   interface Props {
@@ -51,7 +52,7 @@
       }
       onSuccess?.()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Gagal menyimpan soal'
+      error = pesanRamah(err, 'Gagal menyimpan soal')
     } finally {
       loading = false
     }

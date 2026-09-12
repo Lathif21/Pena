@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getPengajar } from '$lib/supabase/sesi.server'
@@ -34,7 +35,7 @@ export async function POST({ params, cookies, url }) {
     .update({ status: 'dibatalkan' })
     .eq('id', relief.id)
 
-  if (error) throw svelteError(400, error.message)
+  if (error) throw svelteError(400, pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const { data: pengganti } = await supabaseAdmin
     .from('profiles')

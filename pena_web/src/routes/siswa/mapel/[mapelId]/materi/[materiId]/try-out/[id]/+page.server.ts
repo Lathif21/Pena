@@ -1,3 +1,4 @@
+import { pesanRamah } from '$lib/utils/pesan'
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { autoSubmitExpired } from '$features/question/data/grade.server'
@@ -72,7 +73,7 @@ export async function load({ cookies, params, parent }) {
     .is('deleted_at', null)
     .order('nomor_urut')
 
-  if (soalError) throw svelteError(500, soalError.message)
+  if (soalError) throw svelteError(500, pesanRamah(soalError, 'Gagal menyimpan. Coba lagi sebentar.'))
   if (!soalData || soalData.length === 0) throw svelteError(404, 'Try out belum memiliki soal')
 
   const soalIds = soalData.map(s => s.id)
@@ -83,7 +84,7 @@ export async function load({ cookies, params, parent }) {
     .is('deleted_at', null)
     .order('nomor_urut')
 
-  if (pilihanError) throw svelteError(500, pilihanError.message)
+  if (pilihanError) throw svelteError(500, pesanRamah(pilihanError, 'Gagal menyimpan. Coba lagi sebentar.'))
 
   const pilihanByQuestionId = new Map<string, any[]>()
   pilihanData?.forEach(p => {

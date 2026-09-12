@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { pesanRamah } from '$lib/utils/pesan'
   import { enhance } from '$app/forms'
   import { listTentor, type Tentor } from '$features/account/data/tentor'
   import { listKelas, type Kelas } from '$features/master-data/data/kelas'
@@ -7,7 +8,7 @@
   interface Props {
     tahun_ajaran_id: string
     editingAssignment?: { id: string; tentor_id: string; kelas_id: string; mapel_id: string }
-    onclose?: () => void
+    onclose?: (tersimpan?: boolean) => void
   }
 
   let { tahun_ajaran_id, editingAssignment, onclose }: Props = $props()
@@ -46,7 +47,7 @@
       kelas_list = k
       mapel_list = m
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to load data'
+      error = pesanRamah(err, 'Gagal memuat data. Coba muat ulang halaman.')
       console.error('Error loading assignment data:', err)
     } finally {
       loadingData = false
@@ -79,7 +80,7 @@
       return async ({ result }) => {
         loading = false
         if (result.type === 'success') {
-          onclose?.()
+          onclose?.(true)
         } else if (result.type === 'failure') {
           error = result.data?.error || (editingAssignment ? 'Gagal memperbarui assignment' : 'Gagal membuat assignment')
         }

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { invalidateAll } from '$app/navigation'
+  import { pesanRamah } from '$lib/utils/pesan'
   import { deleteMapel, type Mapel } from '../data/mapel'
   import MapelForm from './MapelForm.svelte'
 
@@ -10,9 +12,10 @@
   let showForm = $state(false)
   let editingMapel = $state<Mapel | null>(null)
   let error = $state('')
+  let sukses = $state('')
 
   async function loadMapel() {
-    window.location.reload()
+    await invalidateAll()
   }
 
   async function handleDelete(id: string) {
@@ -20,9 +23,10 @@
 
     try {
       await deleteMapel(id)
+      sukses = 'Mata pelajaran berhasil dihapus.'
       await loadMapel()
     } catch (err) {
-      error = err instanceof Error ? err.message : 'Failed to delete mapel'
+      error = pesanRamah(err, 'Gagal menghapus mata pelajaran.')
     }
   }
 
@@ -31,10 +35,11 @@
     showForm = true
   }
 
-  function handleCloseForm() {
+  async function handleCloseForm(tersimpan = false) {
     showForm = false
     editingMapel = null
     loadMapel()
+    if (tersimpan) sukses = 'Mata pelajaran berhasil disimpan.'
   }
 </script>
 
@@ -44,6 +49,12 @@
       <p class="text-sm font-medium text-red-800">{error}</p>
     </div>
   {/if}
+
+    {#if sukses}
+      <div class="rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm font-medium text-emerald-800">✓ {sukses}</p>
+      </div>
+    {/if}
 
   <button
     onclick={() => {
