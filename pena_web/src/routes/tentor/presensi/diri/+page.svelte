@@ -20,11 +20,21 @@
   let error = $state('')
 
   // Mapel bergantung pada kelas yang dipilih, jadi dimuat di klien saat kelas berubah.
+  // Kelas relief tidak ada di tentor_kelas_mapel, jadi listMapelByKelas akan
+  // mengembalikan kosong. Mapelnya diambil langsung dari baris reliefnya.
+  let reliefTerpilih = $derived(data.relief.filter((r) => r.kelasId === kelasId))
+
   async function pilihKelas(id: string) {
     kelasId = id
     mapelId = ''
     mapelOptions = []
     if (!id) return
+
+    const dariRelief = data.relief.filter((r) => r.kelasId === id)
+    if (dariRelief.length > 0) {
+      mapelOptions = dariRelief.map((r) => ({ id: r.mapelId, nama: r.mapelNama }))
+      return
+    }
 
     memuatMapel = true
     error = ''
@@ -121,6 +131,15 @@
       {data.sesiAktif ? 'Ganti Foto Presensi' : 'Mulai Sesi'}
     </h2>
 
+    {#if reliefTerpilih.length > 0}
+      <div class="mt-4 rounded-lg border-l-2 border-l-accent bg-muted/30 p-4">
+        <p class="text-xs font-medium text-muted-foreground">
+          Task delegasi dari {reliefTerpilih[0].tentorAsliNama}
+        </p>
+        <p class="mt-1 whitespace-pre-wrap text-sm text-foreground">{reliefTerpilih[0].task}</p>
+      </div>
+    {/if}
+
     {#if !data.sesiAktif}
       <div class="mt-4 grid gap-4 sm:grid-cols-2">
         <div>
@@ -133,7 +152,7 @@
           >
             <option value="">Pilih kelas...</option>
             {#each data.kelas as k (k.id)}
-              <option value={k.id}>{k.nama}</option>
+              <option value={k.id}>{k.nama}{k.relief ? ' (relief)' : ''}</option>
             {/each}
           </select>
           {#if data.kelas.length === 0}

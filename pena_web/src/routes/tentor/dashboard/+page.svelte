@@ -58,6 +58,26 @@
   <div class="mb-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
 {/if}
 
+<!-- Relief hari ini ditaruh paling atas: pengganti perlu melihatnya sebelum
+     apa pun, dan izinnya habis lewat tengah malam. -->
+{#each data.reliefUntukSaya as r (r.id)}
+  <Card class="mb-6 border-l-2 border-l-accent">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <Badge tone="info">Relief hari ini</Badge>
+        <h2 class="mt-2 font-serif text-base text-foreground">{r.kelasNama} · {r.mapelNama}</h2>
+        <p class="mt-1 text-sm text-muted-foreground">Menggantikan {r.tentorAsliNama}</p>
+      </div>
+      <Button href="/tentor/presensi/diri">Mulai Sesi Relief</Button>
+    </div>
+
+    <div class="mt-3 rounded-lg bg-muted/30 p-3">
+      <p class="text-xs font-medium text-muted-foreground">Task delegasi</p>
+      <p class="mt-1 whitespace-pre-wrap text-sm text-foreground">{r.task}</p>
+    </div>
+  </Card>
+{/each}
+
 {#if data.sesiAktif}
   <Card class="mb-6">
     <div class="flex flex-wrap items-start justify-between gap-4">

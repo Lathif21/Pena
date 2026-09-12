@@ -2,13 +2,15 @@ import { json, error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
 import { getPengajar, mengajarKelasMapel } from '$lib/supabase/sesi.server'
 import { validateFoto, fotoPath, uploadFoto, hapusFoto } from '$features/attendance/data/sesi.server'
+import { adaReliefAktif } from '$features/relief/data/relief.server'
 
 /**
  * Membuka sesi mengajar. Mengunggah foto presensi *adalah* pencatatan kehadiran
  * tentor — tidak ada langkah check-in terpisah.
  *
- * Otorisasi: tentor harus benar-benar mengajar kelas+mapel ini lewat
- * tentor_kelas_mapel. Peran `tentor` saja tidak cukup.
+ * Otorisasi punya dua jalur: tentor terdaftar di tentor_kelas_mapel, atau ada
+ * relief aktif hari ini yang menunjuknya sebagai pengganti. Peran `tentor` saja
+ * tidak pernah cukup.
  */
 export async function POST({ request, cookies }) {
   const profile = await getPengajar(cookies)
@@ -24,9 +26,13 @@ export async function POST({ request, cookies }) {
   if (typeof mapelId !== 'string' || !mapelId) throw svelteError(400, 'Mapel wajib dipilih')
   validateFoto(foto)
 
-  if (!(await mengajarKelasMapel(profile.id, kelasId, mapelId))) {
-    throw svelteError(403, 'Anda tidak mengajar kelas ini')
-  }
+  // Jalur relief hanya berlaku pada tanggal yang tertulis di barisnya. Lewat
+  // tengah malam izinnya habis sendiri — tidak ada pencabutan manual.
+  const boleh =
+    (await mengajarKelasMapel(profile.id, kelasId, mapelId)) ||
+    (await adaReliefAktif(profile.id, kelasId, mapelId))
+
+  if (!boleh) throw svelteError(403, 'Anda tidak mengajar kelas ini')
 
   // Satu sesi berjalan pada satu waktu: presensi murid dan jurnal semuanya
   // menggantung pada "sesi aktif", jadi dua sesi open sekaligus membuat halaman

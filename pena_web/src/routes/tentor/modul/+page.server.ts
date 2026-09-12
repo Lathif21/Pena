@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '$lib/supabase/server'
+import { reliefHariIniLengkap } from '$features/relief/data/relief.server'
 
 export async function load({ cookies, parent }) {
   const supabase = createSupabaseServerClient(cookies)
@@ -17,17 +18,22 @@ export async function load({ cookies, parent }) {
       .eq('tentor_id', user.id)
       .is('deleted_at', null)
 
-    if (!tentorMapels || tentorMapels.length === 0) {
-      console.log('No mapel found for tentor:', user.id)
+    // Mapel dari relief hari ini ikut ditampilkan meski tentor ini tidak
+    // mengajarnya: pengganti perlu membaca modulnya untuk sesi yang dia ambil.
+    // Bentuknya disamakan dengan baris tentor_kelas_mapel supaya seluruh alur di
+    // bawah ini tidak perlu tahu asal-usulnya.
+    const relief = await reliefHariIniLengkap(supabase, user.id)
+    const assignments = [
+      ...(tentorMapels ?? []),
+      ...relief.map((r) => ({ mapel_id: r.mapelId, kelas_id: r.kelasId }))
+    ]
+
+    if (assignments.length === 0) {
       return { mapel: [], materiBulk: {}, mapelKelasMap: {}, kelasLookup: {} }
     }
 
-    console.log('Tentor mapel count:', tentorMapels.length)
-
-    const mapelIds = tentorMapels.map(tm => tm.mapel_id)
-    const kelasIds = [...new Set(tentorMapels.map(tm => tm.kelas_id))]
-
-    console.log('Extracted IDs - mapelIds:', mapelIds, 'kelasIds:', kelasIds)
+    const mapelIds = [...new Set(assignments.map(tm => tm.mapel_id))]
+    const kelasIds = [...new Set(assignments.map(tm => tm.kelas_id))]
 
     // Get mapel details
     const { data: mapelData } = await supabase
@@ -38,13 +44,11 @@ export async function load({ cookies, parent }) {
       .order('nama')
 
     // Get kelas details
-    const { data: kelasData, error: kelasError } = await supabase
+    const { data: kelasData } = await supabase
       .from('kelas')
       .select('id, nama')
       .in('id', kelasIds)
       .is('deleted_at', null)
-
-    console.log('Kelas query result:', { kelasData, kelasError })
 
     // Create kelas lookup map
     const kelasLookup = new Map(
@@ -53,7 +57,7 @@ export async function load({ cookies, parent }) {
 
     // Map kelas to mapel
     const mapelKelasMap = new Map<string, string[]>()
-    tentorMapels?.forEach(tm => {
+    assignments.forEach(tm => {
       if (!mapelKelasMap.has(tm.mapel_id)) {
         mapelKelasMap.set(tm.mapel_id, [])
       }
@@ -61,11 +65,8 @@ export async function load({ cookies, parent }) {
     })
 
     if (!mapelData || mapelData.length === 0) {
-      console.log('No mapel data found for mapel IDs:', mapelIds)
       return { mapel: [], materiBulk: {}, mapelKelasMap: Object.fromEntries(mapelKelasMap), kelasLookup: Object.fromEntries(kelasLookup) }
     }
-
-    console.log('Found mapel:', mapelData.length)
 
     // Get materi for these mapel
     const { data: materiData } = await supabase
@@ -76,11 +77,8 @@ export async function load({ cookies, parent }) {
       .order('nomor_urut')
 
     if (!materiData || materiData.length === 0) {
-      console.log('No materi found for mapel IDs:', mapelIds)
       return { mapel: mapelData, materiBulk: {}, mapelKelasMap: Object.fromEntries(mapelKelasMap), kelasLookup: Object.fromEntries(kelasLookup) }
     }
-
-    console.log('Found materi:', materiData.length)
 
     // Get sub_materi
     const { data: subMateriData } = await supabase
