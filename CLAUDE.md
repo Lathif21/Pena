@@ -99,6 +99,13 @@ Detailed rules in `.claude/rules/`. Loaded when touching related files.
 - Soal & penilaian → `.claude/rules/soal-grading.md`
 - Sesi mengajar (presensi, jurnal, selesai mengajar) → `.claude/rules/sesi-mengajar.md`
 
+## Skills
+
+`supabase-postgres-best-practices` dipasang lewat `skills-lock.json` dari
+`supabase/agent-skills`. Installer menulis dua salinan identik — `.agents/skills/`
+dan `.claude/skills/` — untuk kompatibilitas antar tool. Keduanya mirror, bukan
+skill berbeda. Jangan edit isinya langsung; perubahan datang dari installer.
+
 ## Working Practices
 
 - Keep every `CLAUDE.md` and rule file under 200 lines.
