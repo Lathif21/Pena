@@ -30,10 +30,10 @@ src/
 │   ├── kpi/             (Phase 5) KPI computation, config
 │   └── export/          (Phase 5) PDF export
 └── routes/
-    ├── (auth)/
+    ├── auth/
     │   ├── login/
     │   └── logout/
-    ├── (kepala-guru)/
+    ├── kepala-guru/
     │   ├── overview/        dashboard ringkasan harian (Phase 5)
     │   ├── akun/            CRUD tentor, siswa, wali
     │   ├── master-data/     kelas, mapel, tahun_ajaran
@@ -42,30 +42,35 @@ src/
     │   ├── monitoring/      presensi, jurnal, sesi, nilai
     │   ├── kpi/             (Phase 5)
     │   └── export/          (Phase 5)
-    ├── (tentor)/
+    ├── tentor/
     │   ├── dashboard/
     │   ├── presensi/        (Phase 3)
     │   ├── nilai/           (Phase 2)
     │   ├── jurnal/          (Phase 3)
     │   ├── modul/           (Phase 1) view only
     │   └── relief/          (Phase 4)
-    ├── (siswa)/
+    ├── siswa/
     │   ├── mapel/           (Phase 1+2)
     │   └── nilai/           (Phase 2)
-    └── (wali)/
+    └── wali/
         ├── anak/            (Phase 4)
         └── progress/        (Phase 4)
 ```
 
-## Route Group Guards
+## Guard Per Folder Route
 
-Each group's `+layout.server.ts` checks the JWT role claim:
-- `(kepala-guru)` → `role === 'kepala_guru'`
-- `(tentor)` → `role === 'tentor' || role === 'kepala_guru'`
-- `(siswa)` → `role === 'siswa'`
-- `(wali)` → `role === 'wali_murid'`
+Each folder's `+layout.server.ts` checks the JWT role claim:
+- `kepala-guru` → `role === 'kepala_guru'`
+- `tentor` → `role === 'tentor' || role === 'kepala_guru'`
+- `siswa` → `role === 'siswa'`
+- `wali` → `role === 'wali_murid'`
 
-One guard per group, not per page.
+One guard per folder, not per page.
+
+Route memakai folder biasa (`tentor/`, `siswa/`, `wali/`, `kepala-guru/`),
+bukan route group berkurung. Route group menghilangkan segmennya dari URL —
+`(tentor)/dashboard` menghasilkan `/dashboard`, bukan `/tentor/dashboard` —
+dan itu akan memutus semua link, redirect login, serta path di testing guide.
 
 ## Rules
 
@@ -85,10 +90,10 @@ Use Indonesian domain terms as defined in CLAUDE.md vocabulary — `MapelList.sv
 ## Phase 0 Scope
 
 Only build these routes and features now:
-- `(auth)/` — login, logout
-- `(kepala-guru)/akun/` — CRUD tentor, siswa (with paket), wali
-- `(kepala-guru)/master-data/` — kelas, mapel, tahun_ajaran
-- `(kepala-guru)/assignment/` — all assignment types
+- `auth/` — login, logout
+- `kepala-guru/akun/` — CRUD tentor, siswa (with paket), wali
+- `kepala-guru/master-data/` — kelas, mapel, tahun_ajaran
+- `kepala-guru/assignment/` — all assignment types
 - `features/auth/`
 - `features/account/`
 - `features/master-data/`
