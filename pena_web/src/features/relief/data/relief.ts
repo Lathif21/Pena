@@ -1,5 +1,3 @@
-import { supabase } from '$lib/supabase/client'
-
 export interface Relief {
   id: string
   tentor_asli_id: string
@@ -27,40 +25,6 @@ export interface KelasMapel {
   kelasNama: string
   mapelId: string
   mapelNama: string
-}
-
-/** Tentor aktif lain. Menunjuk diri sendiri ditolak database, tapi jangan ditawarkan. */
-export async function listTentorLain(tentorId: string): Promise<Pilihan[]> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, nama_lengkap')
-    .eq('role', 'tentor')
-    .neq('id', tentorId)
-    .is('deleted_at', null)
-    .order('nama_lengkap')
-
-  if (error) throw error
-  return (data ?? []).map((t: any) => ({ id: t.id, nama: t.nama_lengkap }))
-}
-
-export async function listKelasMapelByTentor(tentorId: string): Promise<KelasMapel[]> {
-  const { data, error } = await supabase
-    .from('tentor_kelas_mapel')
-    .select('kelas:kelas_id(id, nama, deleted_at), mapel:mapel_id(id, nama, deleted_at)')
-    .eq('tentor_id', tentorId)
-    .is('deleted_at', null)
-
-  if (error) throw error
-
-  return (data ?? [])
-    .filter((r: any) => r.kelas && r.mapel && !r.kelas.deleted_at && !r.mapel.deleted_at)
-    .map((r: any) => ({
-      kelasId: r.kelas.id,
-      kelasNama: r.kelas.nama,
-      mapelId: r.mapel.id,
-      mapelNama: r.mapel.nama
-    }))
-    .sort((a, b) => a.kelasNama.localeCompare(b.kelasNama) || a.mapelNama.localeCompare(b.mapelNama))
 }
 
 /**
