@@ -1,6 +1,14 @@
 <script lang="ts">
   import AppShell from '$lib/components/AppShell.svelte'
-  import { House, Camera, ClipboardCheck, PencilLine, NotebookPen, UserRoundX } from 'lucide-svelte'
+  import {
+    House,
+    Camera,
+    ClipboardCheck,
+    PencilLine,
+    NotebookPen,
+    UserRoundX,
+    ChartNoAxesColumn
+  } from 'lucide-svelte'
 
   let { data, children } = $props()
 
@@ -12,7 +20,8 @@
     { href: '/tentor/presensi/murid', label: 'Absensi Siswa', icon: ClipboardCheck },
     { href: '/tentor/nilai', label: 'Input Nilai', icon: PencilLine },
     { href: '/tentor/jurnal', label: 'Jurnal Mengajar', icon: NotebookPen },
-    { href: '/tentor/relief', label: 'Relief', icon: UserRoundX }
+    { href: '/tentor/relief', label: 'Relief', icon: UserRoundX },
+    { href: '/tentor/kpi', label: 'KPI Saya', icon: ChartNoAxesColumn }
   ]
 </script>
 
