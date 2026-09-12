@@ -1,6 +1,8 @@
 <script lang="ts">
   import { listTentorAssignments, deleteTentorAssignment } from '../data/tentor-assignment'
   import TentorAssignmentForm from './TentorAssignmentForm.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
 
   interface Props {
     tahun_ajaran_id: string
@@ -79,7 +81,26 @@
   {#if loading}
     <p class="text-muted-foreground">Loading...</p>
   {:else}
-    <div class="overflow-x-auto rounded-lg border border-border">
+    <!-- Empat kolom bermakna, salah satunya tombol — di bawah md jadi tumpukan
+         card, kalau tidak tombol Hapus terdorong keluar layar. -->
+    <div class="space-y-3 md:hidden">
+      {#each assignments as item (item.id)}
+        <Card>
+          <p class="font-medium text-foreground">{item.tentor_nama}</p>
+          <p class="mt-1 text-sm text-muted-foreground">{item.kelas_nama} · {item.mapel_nama}</p>
+          <div class="mt-3 flex gap-2">
+            <Button variant="secondary" class="flex-1" onclick={() => handleEditClick(item)}>
+              Edit
+            </Button>
+            <Button variant="destructive" class="flex-1" onclick={() => handleDelete(item.id)}>
+              Hapus
+            </Button>
+          </div>
+        </Card>
+      {/each}
+    </div>
+
+    <div class="hidden overflow-x-auto rounded-lg border border-border md:block">
       <table class="w-full divide-y divide-border">
         <thead class="bg-muted/30">
           <tr>
@@ -95,17 +116,11 @@
               <td class="px-4 py-3 text-sm text-foreground">{item.tentor_nama}</td>
               <td class="px-4 py-3 text-sm text-foreground">{item.kelas_nama}</td>
               <td class="px-4 py-3 text-sm text-foreground">{item.mapel_nama}</td>
-              <td class="px-4 py-3 text-sm space-x-3">
-                <button
-                  onclick={() => handleEditClick(item)}
-                  class="text-primary hover:underline"
-                >
+              <td class="space-x-3 px-4 py-3 text-sm">
+                <button onclick={() => handleEditClick(item)} class="text-primary hover:underline">
                   Edit
                 </button>
-                <button
-                  onclick={() => handleDelete(item.id)}
-                  class="text-destructive hover:underline"
-                >
+                <button onclick={() => handleDelete(item.id)} class="text-destructive hover:underline">
                   Hapus
                 </button>
               </td>
