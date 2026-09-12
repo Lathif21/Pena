@@ -40,7 +40,8 @@
       items: [
         { href: '/kepala-guru/assignment', label: 'Assignment Tentor' },
         { href: '/kepala-guru/monitoring/sesi', label: 'Monitoring Sesi' },
-        { href: '/kepala-guru/monitoring/attempt', label: 'Reset Attempt Try Out' }
+        { href: '/kepala-guru/monitoring/attempt', label: 'Reset Attempt Try Out' },
+        { href: '/kepala-guru/monitoring/relief', label: 'Relief' }
       ]
     },
     { href: '/kepala-guru/monitoring/presensi', label: 'Absensi Tentor', icon: Camera },
