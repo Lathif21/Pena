@@ -13,7 +13,8 @@ assert.equal(selSatu(null), '')
 assert.equal(selSatu(undefined), '')
 
 // --- Yang wajib dibungkus ---------------------------------------------------
-assert.equal(selSatu('Putri; Ayu'), '"Putri; Ayu"', 'titik koma harus dibungkus')
+assert.equal(selSatu('Putri, Ayu'), '"Putri, Ayu"', 'koma harus dibungkus')
+assert.equal(selSatu('Putri; Ayu'), 'Putri; Ayu', 'titik koma bukan pemisah lagi, jangan dibungkus')
 assert.equal(selSatu('Ucap "hai"'), '"Ucap ""hai"""', 'kutip harus digandakan')
 assert.equal(selSatu('baris\nbaru'), '"baris\nbaru"', 'baris baru harus dibungkus')
 
@@ -42,28 +43,38 @@ const kolom = [
 const csv = keCsv(
   [
     { nama: 'Budi', nis: '001', rata: 85 },
-    { nama: 'Putri; Ayu', nis: '002', rata: null }
+    { nama: 'Putri, Ayu', nis: '002', rata: null }
   ],
   kolom
 )
 assert.ok(csv.startsWith('﻿'), 'BOM wajib ada supaya Excel membaca UTF-8')
 const baris = csv.replace('﻿', '').trimEnd().split('\r\n')
-assert.equal(baris.length, 3, 'satu baris judul + dua baris data')
-assert.equal(baris[0], 'Nama;NIS;Rata-rata')
-assert.equal(baris[1], 'Budi;001;85')
-assert.equal(baris[2], '"Putri; Ayu";002;', 'nilai null jadi sel kosong, bukan "null"')
+// Baris pengumuman pemisah. Tanpa ini Excel memakai pemisah dari locale
+// Windows, dan pada mesin yang locale-nya tidak cocok seluruh baris menyatu
+// jadi satu kolom — persis keluhan yang memicu perubahan ini.
+assert.equal(baris[0], 'sep=,', 'baris sep= wajib jadi baris pertama setelah BOM')
+assert.equal(baris.length, 4, 'sep= + judul + dua baris data')
+assert.equal(baris[1], 'Nama,NIS,Rata-rata')
+assert.equal(baris[2], 'Budi,001,85')
+assert.equal(baris[3], '"Putri, Ayu",002,', 'nilai null jadi sel kosong, bukan "null"')
 assert.ok(!csv.includes('null'), 'kata "null" tidak boleh muncul di file')
 
-// Jumlah pemisah harus sama di setiap baris — inilah yang rusak kalau escaping
-// gagal, dan yang membuat kolom bergeser tanpa peringatan.
-for (const b of baris) {
+// Jumlah pemisah harus sama di setiap baris data — inilah yang rusak kalau
+// escaping gagal, dan yang membuat kolom bergeser tanpa peringatan. Baris sep=
+// dikecualikan karena ia memang bukan baris data.
+for (const b of baris.slice(1)) {
   const diLuarKutip = b.replace(/"(?:[^"]|"")*"/g, '')
   assert.equal(
-    (diLuarKutip.match(/;/g) || []).length,
+    (diLuarKutip.match(/,/g) || []).length,
     kolom.length - 1,
     `jumlah pemisah menyimpang: ${b}`
   )
 }
+
+// Nama kolom yang memuat koma juga harus dibungkus, kalau tidak baris judulnya
+// bergeser sendiri dan seluruh tabel salah label.
+const csvJudulKoma = keCsv([{ a: 1 }], [{ kunci: 'a', judul: 'Nilai, Rata-rata' }])
+assert.ok(csvJudulKoma.includes('"Nilai, Rata-rata"'), 'judul berkoma harus dibungkus')
 
 // --- Nama berkas ------------------------------------------------------------
 assert.equal(namaBerkas('nilai-siswa', ['Reguler 3'], '2026-09-13'),

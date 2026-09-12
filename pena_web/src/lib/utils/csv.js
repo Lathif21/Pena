@@ -5,13 +5,20 @@
  */
 
 /**
- * Pemisah titik koma, bukan koma.
+ * Koma sebagai pemisah, dan pemisahnya diumumkan di baris pertama.
  *
- * Excel memakai daftar pemisah sesuai locale Windows, dan pada Windows
- * Indonesia itu titik koma. Dengan koma, seluruh baris mendarat di satu kolom
- * dan kepala guru melihat file yang tampak rusak.
+ * Excel tidak memakai pemisah yang tertulis di file — ia memakai daftar pemisah
+ * dari locale Windows. Jadi file apa pun yang menebak pemisahnya akan benar di
+ * satu mesin dan menyatu jadi satu kolom di mesin lain. Baris `sep=,` di awal
+ * adalah satu-satunya cara memberi tahu Excel secara eksplisit, sehingga
+ * hasilnya sama di locale mana pun.
+ *
+ * Harganya: Google Sheets tidak mengenali baris itu dan menampilkannya sebagai
+ * satu baris tambahan di atas. Excel adalah alat yang dipakai di sini, jadi
+ * itulah yang dimenangkan.
  */
-const PEMISAH = ';'
+const PEMISAH = ','
+const PENGUMUMAN = 'sep=' + PEMISAH
 
 /** Karakter pembuka formula di Excel. Nama siswa yang diawali ini akan dieksekusi. */
 const AWALAN_FORMULA = ['=', '+', '-', '@', '\t', '\r']
@@ -53,7 +60,7 @@ export function keCsv(baris, kolom) {
   // BOM UTF-8 supaya Excel membaca huruf beraksen dan karakter non-ASCII dengan
   // benar. Tanpa ini nama seperti "Fitriaÿ" muncil rusak di Windows.
   // CRLF: baris yang dipisah LF saja bikin sebagian versi Excel menyambung baris.
-  return '﻿' + [judul, ...isi].join('\r\n') + '\r\n'
+  return '﻿' + [PENGUMUMAN, judul, ...isi].join('\r\n') + '\r\n'
 }
 
 /**
