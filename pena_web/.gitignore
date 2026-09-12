@@ -28,4 +28,9 @@ vite.config.ts.timestamp-*
 .claude
 backup-phase0
 docs
-static
+# static/ disajikan publik tanpa autentikasi, jadi unggahan tidak boleh ada di
+# sini sama sekali (lihat .claude/rules/sesi-mengajar.md) — modul PDF dan foto
+# presensi tinggal di Supabase Storage di balik signed URL. Yang diabaikan
+# hanya folder unggahan warisan itu, bukan seluruh static/: mengabaikan
+# semuanya membuat favicon.svg ikut hilang dari repo.
+static/uploads/
