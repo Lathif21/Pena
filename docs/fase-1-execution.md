@@ -108,7 +108,7 @@ Buat `src/features/module/data/module.ts`:
 
 ## Langkah 8 — UI: Kelola Materi (Kepala Guru)
 
-Route: `src/routes/(kepala-guru)/konten/[mapelId]/materi/+page.svelte`
+Route: `src/routes/kepala-guru/konten/[mapelId]/materi/+page.svelte`
 
 - Tabel materi untuk mapel yang dipilih, urut `nomor_urut`
 - Form tambah/edit: nama, nomor urut
@@ -117,7 +117,7 @@ Route: `src/routes/(kepala-guru)/konten/[mapelId]/materi/+page.svelte`
 
 ## Langkah 9 — UI: Kelola Sub Materi (Kepala Guru)
 
-Route: `src/routes/(kepala-guru)/konten/[mapelId]/materi/[materiId]/+page.svelte`
+Route: `src/routes/kepala-guru/konten/[mapelId]/materi/[materiId]/+page.svelte`
 
 - Tabel sub materi untuk materi yang dipilih
 - Form tambah/edit: nama, nomor urut
@@ -125,7 +125,7 @@ Route: `src/routes/(kepala-guru)/konten/[mapelId]/materi/[materiId]/+page.svelte
 
 ## Langkah 10 — UI: Upload & Publish Module (Kepala Guru)
 
-Route: `src/routes/(kepala-guru)/konten/.../sub-materi/[subMateriId]/module/+page.svelte`
+Route: `src/routes/kepala-guru/konten/.../sub-materi/[subMateriId]/module/+page.svelte`
 
 - Upload PDF (drag-drop atau file picker)
 - Tampilkan status saat ini: draft/published
@@ -134,7 +134,7 @@ Route: `src/routes/(kepala-guru)/konten/.../sub-materi/[subMateriId]/module/+pag
 
 ## Langkah 11 — UI: Lihat Modul (Siswa)
 
-Route: `src/routes/(siswa)/mapel/[mapelId]/+page.svelte`
+Route: `src/routes/siswa/mapel/[mapelId]/+page.svelte`
 
 - Daftar materi (hanya yang punya konten published)
 - Klik materi → daftar sub materi (hanya yang punya module published)
@@ -144,7 +144,7 @@ Gunakan `<embed>` atau `<iframe>` dengan signed URL dari Supabase Storage untuk 
 
 ## Langkah 12 — UI: Lihat Modul (Tentor)
 
-Route: `src/routes/(tentor)/modul/+page.svelte`
+Route: `src/routes/tentor/modul/+page.svelte`
 
 - Filter otomatis: hanya modul dari mapel yang tentor pegang (via `tentor_kelas_mapel` atau `tentor_siswa_privat`)
 - Hanya tampilkan yang `published` — sama seperti siswa
@@ -152,7 +152,7 @@ Route: `src/routes/(tentor)/modul/+page.svelte`
 
 ## Langkah 13 — Search Bar (Siswa)
 
-Di halaman `(siswa)/mapel/[mapelId]/+page.svelte`, tambahkan search input yang filter daftar materi berdasarkan `nama` (client-side filter cukup untuk skala ±50 siswa, tidak perlu full-text search database).
+Di halaman `siswa/mapel/[mapelId]/+page.svelte`, tambahkan search input yang filter daftar materi berdasarkan `nama` (client-side filter cukup untuk skala ±50 siswa, tidak perlu full-text search database).
 
 ## Langkah 14 — Testing & Validasi
 

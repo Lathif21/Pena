@@ -3,8 +3,8 @@ paths:
   - "**/features/attendance/**"
   - "**/features/journal/**"
   - "**/features/session/**"
-  - "**/routes/(tentor)/**"
-  - "**/routes/(kepala-guru)/monitoring/**"
+  - "**/routes/tentor/**"
+  - "**/routes/kepala-guru/monitoring/**"
   - "**/routes/api/**"
   - "supabase/migrations/**"
 ---

@@ -2,9 +2,9 @@
 paths:
   - "**/features/question/**"
   - "**/features/grading/**"
-  - "**/routes/(kepala-guru)/konten/**"
-  - "**/routes/(siswa)/**"
-  - "**/routes/(tentor)/nilai/**"
+  - "**/routes/kepala-guru/konten/**"
+  - "**/routes/siswa/**"
+  - "**/routes/tentor/nilai/**"
   - "supabase/migrations/**"
 ---
 

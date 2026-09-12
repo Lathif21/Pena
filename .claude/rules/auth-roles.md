@@ -1,11 +1,11 @@
 ---
 paths:
   - "**/features/auth/**"
-  - "**/routes/(auth)/**"
-  - "**/routes/(kepala-guru)/**"
-  - "**/routes/(tentor)/**"
-  - "**/routes/(siswa)/**"
-  - "**/routes/(wali)/**"
+  - "**/routes/auth/**"
+  - "**/routes/kepala-guru/**"
+  - "**/routes/tentor/**"
+  - "**/routes/siswa/**"
+  - "**/routes/wali/**"
   - "supabase/migrations/**"
 ---
 
@@ -28,20 +28,20 @@ On login, `kepala_guru` sees a choice: Dashboard Kepala Guru or Dashboard Tentor
 
 When using Dashboard Tentor, `kepala_guru` behaves identically to a `tentor`: same features, same data access for their assigned classes. The tentor route group must accept both `tentor` and `kepala_guru` role claims.
 
-## Route Groups
+## Folder Route Per Peran
 
 ```
 routes/
-├── (auth)/           Login, logout, password reset
-├── (kepala-guru)/    KG dashboard — admin, content, monitoring
-├── (tentor)/         Tentor dashboard — teaching workflow
-├── (siswa)/          Student dashboard — learning
-└── (wali)/           Parent dashboard — read-only monitoring
+├── auth/           Login, logout, password reset
+├── kepala-guru/    KG dashboard — admin, content, monitoring
+├── tentor/         Tentor dashboard — teaching workflow
+├── siswa/          Student dashboard — learning
+└── wali/           Parent dashboard — read-only monitoring
 ```
 
-Each group's `+layout.server.ts` guards the entire group by checking the role claim from the JWT. A page-level guard means the grouping is wrong.
+Each folder's `+layout.server.ts` guards the whole folder by checking the role claim from the JWT. A page-level guard means the folder split is wrong.
 
-The `(tentor)/` group accepts role `tentor` OR `kepala_guru`. No other group has dual-role access.
+The `tentor/` folder accepts role `tentor` OR `kepala_guru`. No other folder has dual-role access.
 
 ## Auth Flow
 

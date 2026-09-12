@@ -60,7 +60,7 @@ materi/[materiId]/[subMateriId]/module/+page.server.ts
 ## Siswa: Module Viewing (MVP)
 
 ```
-(siswa)/mapel
+siswa/mapel
   ├── [mapelId]
         └── List of published materi for this mapel
               ├── Filter: materi.deleted_at is null
@@ -80,9 +80,9 @@ materi/[materiId]/[subMateriId]/module/+page.server.ts
 
 | Route | Component | Data Loaded | Logic |
 |-------|-----------|-------------|-------|
-| `(siswa)/mapel/[mapelId]` | SiswaMateriList | Mapel name + published materi list | Filter by published modules |
-| `(siswa)/mapel/[mapelId]/[materiId]` | SiswaSubMateriList | Materi name + published sub_materi list | Filter by published modules |
-| `(siswa)/mapel/[mapelId]/[materiId]/[subMateriId]/module` | PdfViewer | Module + signedUrl | Render iframe with PDF |
+| `siswa/mapel/[mapelId]` | SiswaMateriList | Mapel name + published materi list | Filter by published modules |
+| `siswa/mapel/[mapelId]/[materiId]` | SiswaSubMateriList | Materi name + published sub_materi list | Filter by published modules |
+| `siswa/mapel/[mapelId]/[materiId]/[subMateriId]/module` | PdfViewer | Module + signedUrl | Render iframe with PDF |
 
 ### Data Load Pattern
 
@@ -107,7 +107,7 @@ ORDER BY m.nomor_urut
 ## Tentor: Module Viewing
 
 ```
-(tentor)/modul
+tentor/modul
   └── [mapelId]
         └── Same as siswa (published modules only)
         └── Filtered: only mapel where tentor teaches
@@ -119,7 +119,7 @@ ORDER BY m.nomor_urut
 
 | Route | Component | Filter |
 |-------|-----------|--------|
-| `(tentor)/modul/[mapelId]` | TentorMateriList | Mapel in (SELECT DISTINCT mapel_id FROM tentor_kelas_mapel WHERE tentor_id = auth.uid()) |
+| `tentor/modul/[mapelId]` | TentorMateriList | Mapel in (SELECT DISTINCT mapel_id FROM tentor_kelas_mapel WHERE tentor_id = auth.uid()) |
 
 ---
 
@@ -160,15 +160,15 @@ Login (siswa role)
   ↓
 Dashboard Siswa / Menu
   ↓ Click "Pelajaran"
-(siswa)/mapel/[mapelId]
+siswa/mapel/[mapelId]
   ↓ Displays: published materi only
 List: "Bab 1", "Bab 2"
   ↓ Click "Bab 1"
-(siswa)/mapel/[mapelId]/[materiId]
+siswa/mapel/[mapelId]/[materiId]
   ↓ Displays: published sub_materi only
 List: "Bagian 1.1", "Bagian 1.2"
   ↓ Click "Bagian 1.1"
-(siswa)/mapel/.../[subMateriId]/module
+siswa/mapel/.../[subMateriId]/module
   ↓
 PDF Viewer (iframe)
   ↓ Native browser controls: zoom, print, download (browser decides)
@@ -181,13 +181,13 @@ Login (tentor role)
   ↓
 Dashboard Tentor
   ↓ Click "Modul"
-(tentor)/modul
+tentor/modul
   ↓ Auto-filtered: mapel where tentor teaches
 List: "Matematika" (if tentor teaches math)
   ↓ Click "Matematika"
-(tentor)/modul/[mapelId]
+tentor/modul/[mapelId]
   ↓ Same as siswa view from here
-(tentor)/modul/[mapelId]/[materiId]/[subMateriId]/module
+tentor/modul/[mapelId]/[materiId]/[subMateriId]/module
   ↓
 PDF Viewer
 ```

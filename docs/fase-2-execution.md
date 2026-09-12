@@ -89,7 +89,7 @@ Auto-submit saat waktu habis: cek server-side di `submitAttempt`, dan buat sched
 
 ## Langkah 10 — UI KG: Builder Soal Latihan
 
-`(kepala-guru)/konten/.../sub-materi/[id]/soal/+page.svelte`
+`kepala-guru/konten/.../sub-materi/[id]/soal/+page.svelte`
 
 Referensi visual: `docs/design-reference/Create_Try_Out_or_Quiz.png` — sidebar daftar soal di kiri, editor soal di kanan.
 
@@ -99,7 +99,7 @@ Referensi visual: `docs/design-reference/Create_Try_Out_or_Quiz.png` — sidebar
 
 ## Langkah 11 — UI KG: Builder Try Out
 
-`(kepala-guru)/konten/.../materi/[id]/try-out/+page.svelte`
+`kepala-guru/konten/.../materi/[id]/try-out/+page.svelte`
 
 Sama seperti langkah 10, plus form penjadwalan:
 - Judul try out
@@ -110,7 +110,7 @@ Sama seperti langkah 10, plus form penjadwalan:
 
 ## Langkah 12 — UI Siswa: Kerjakan Latihan
 
-`(siswa)/mapel/[mapelId]/materi/[materiId]/sub-materi/[id]/latihan/+page.svelte`
+`siswa/mapel/[mapelId]/materi/[materiId]/sub-materi/[id]/latihan/+page.svelte`
 
 - Tampilkan soal satu per satu atau semua sekaligus (pilih salah satu, konsisten)
 - Radio button pilihan jawaban
@@ -119,7 +119,7 @@ Sama seperti langkah 10, plus form penjadwalan:
 
 ## Langkah 13 — UI Siswa: Kerjakan Try Out
 
-`(siswa)/mapel/[mapelId]/materi/[materiId]/try-out/[id]/+page.svelte`
+`siswa/mapel/[mapelId]/materi/[materiId]/try-out/[id]/+page.svelte`
 
 Ini halaman paling kompleks di fase ini:
 - Cek server-side: apakah dalam jendela waktu? Apakah sudah pernah attempt?
@@ -130,7 +130,7 @@ Ini halaman paling kompleks di fase ini:
 
 ## Langkah 14 — UI Tentor: Input Nilai Manual
 
-`(tentor)/nilai/input/+page.svelte`
+`tentor/nilai/input/+page.svelte`
 
 - Dropdown mapel (dari mapel yang tentor pegang)
 - Dropdown tipe test: Pre-Test / Try Out / Post-Test
@@ -140,7 +140,7 @@ Ini halaman paling kompleks di fase ini:
 
 ## Langkah 15 — UI Tentor: Lihat Nilai Siswa
 
-`(tentor)/nilai/+page.svelte`
+`tentor/nilai/+page.svelte`
 
 - Gabungan nilai e-learning (try out) + nilai manual
 - Filter per mapel, per kelas
@@ -148,7 +148,7 @@ Ini halaman paling kompleks di fase ini:
 
 ## Langkah 16 — UI KG: Reset Attempt
 
-`(kepala-guru)/monitoring/attempt/+page.svelte`
+`kepala-guru/monitoring/attempt/+page.svelte`
 
 - Daftar attempt try out per siswa
 - Tombol Reset (dengan confirmation popup)

@@ -73,20 +73,20 @@ New-Item -ItemType Directory -Force -Path "src/lib/stores"
 New-Item -ItemType Directory -Force -Path "src/lib/utils"
 
 # Route groups — tanda kurung aman dalam tanda kutip, tidak perlu di-escape
-New-Item -ItemType Directory -Force -Path "src/routes/(auth)/login"
-New-Item -ItemType Directory -Force -Path "src/routes/(auth)/logout"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/akun/tentor"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/akun/siswa"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/akun/wali"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/master-data/kelas"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/master-data/mapel"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/master-data/tahun-ajaran"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/assignment"
+New-Item -ItemType Directory -Force -Path "src/routes/auth/login"
+New-Item -ItemType Directory -Force -Path "src/routes/auth/logout"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/akun/tentor"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/akun/siswa"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/akun/wali"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/master-data/kelas"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/master-data/mapel"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/master-data/tahun-ajaran"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/assignment"
 
 # Placeholder folders untuk fase selanjutnya
-New-Item -ItemType Directory -Force -Path "src/routes/(tentor)/dashboard"
-New-Item -ItemType Directory -Force -Path "src/routes/(siswa)"
-New-Item -ItemType Directory -Force -Path "src/routes/(wali)"
+New-Item -ItemType Directory -Force -Path "src/routes/tentor/dashboard"
+New-Item -ItemType Directory -Force -Path "src/routes/siswa"
+New-Item -ItemType Directory -Force -Path "src/routes/wali"
 ```
 
 Verifikasi hasil:
@@ -303,7 +303,7 @@ Buat seed di `supabase/seed.sql`:
 
 ## Langkah 10 — Route Guards
 
-Buat `src/routes/(kepala-guru)/+layout.server.ts`:
+Buat `src/routes/kepala-guru/+layout.server.ts`:
 
 ```typescript
 import { redirect } from '@sveltejs/kit'
@@ -332,7 +332,7 @@ Buat hal serupa untuk route group lain sesuai aturan di `auth-roles.md`.
 
 ## Langkah 11 — Halaman Login
 
-Buat `src/routes/(auth)/login/+page.svelte` — form email + password, submit ke Supabase Auth, redirect berdasarkan role:
+Buat `src/routes/auth/login/+page.svelte` — form email + password, submit ke Supabase Auth, redirect berdasarkan role:
 
 - `kepala_guru` → `/kepala-guru/akun` (atau pilihan dashboard)
 - `tentor` → `/tentor/dashboard`
@@ -344,19 +344,19 @@ Buat `src/routes/(auth)/login/+page.svelte` — form email + password, submit ke
 Bangun di urutan ini:
 
 1. `features/master-data/` — API functions (list, create, update, soft-delete)
-2. `routes/(kepala-guru)/master-data/kelas/` — tabel + form
-3. `routes/(kepala-guru)/master-data/mapel/` — tabel + form
-4. `routes/(kepala-guru)/master-data/tahun-ajaran/` — tabel + set active
+2. `routes/kepala-guru/master-data/kelas/` — tabel + form
+3. `routes/kepala-guru/master-data/mapel/` — tabel + form
+4. `routes/kepala-guru/master-data/tahun-ajaran/` — tabel + set active
 
 ## Langkah 13 — CRUD Akun Tentor
 
 1. `features/account/` — API functions
-2. `routes/(kepala-guru)/akun/tentor/` — tabel + form (nama, email, password)
+2. `routes/kepala-guru/akun/tentor/` — tabel + form (nama, email, password)
 3. Saat buat tentor: create auth user + insert profiles row
 
 ## Langkah 14 — CRUD Akun Siswa
 
-1. `routes/(kepala-guru)/akun/siswa/` — tabel + form
+1. `routes/kepala-guru/akun/siswa/` — tabel + form
 2. Form siswa: nama, email, password, **pilih paket** (regular/privat)
 3. Jika regular: pilih kelas → insert `siswa_kelas`
 4. Jika privat: pilih tentor + mapel (bisa multi) → insert `tentor_siswa_privat`
@@ -364,13 +364,13 @@ Bangun di urutan ini:
 
 ## Langkah 15 — CRUD Akun Wali Murid
 
-1. `routes/(kepala-guru)/akun/wali/` — tabel + form
+1. `routes/kepala-guru/akun/wali/` — tabel + form
 2. Form wali: nama, email, password, **link ke anak** (multi-select dari daftar siswa)
 3. Insert `wali_siswa` per anak yang dipilih
 
 ## Langkah 16 — Assignment Tentor
 
-1. `routes/(kepala-guru)/assignment/` — UI untuk assign tentor ke kelas + mapel
+1. `routes/kepala-guru/assignment/` — UI untuk assign tentor ke kelas + mapel
 2. Insert `tentor_kelas_mapel`
 3. Tampilkan matrix: tentor × kelas × mapel
 

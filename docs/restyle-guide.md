@@ -202,7 +202,7 @@ Karena 35 halaman memegang wrapper `min-h-screen` masing-masing, urutannya penti
 
 **5a. Bangun komponen shell** — `lib/components/AppShell.svelte`: sidebar 240px navy berlabel di `lg` ke atas, drawer di bawah `lg`, area konten `bg-background` dengan padding responsif. Uji sendiri dengan konten dummy.
 
-**5b. Pasang di satu route group saja** — mulai dari `(tentor)/+layout.svelte`, yang halamannya paling sedikit. Lepas wrapper `min-h-screen` dari halaman di group itu.
+**5b. Pasang di satu folder peran saja** — mulai dari `tentor/+layout.svelte`, yang halamannya paling sedikit. Lepas wrapper `min-h-screen` dari halaman di folder itu.
 
 **5c. Uji di tiga lebar** — 375px, 768px, 1440px. Pastikan drawer buka-tutup, konten tidak terpotong, tidak ada scroll horizontal.
 
