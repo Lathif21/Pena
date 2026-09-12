@@ -148,19 +148,31 @@ Non-trivial logic (score calculation, timer expiry, tingkat filtering) leaves on
 
 ## Current Phase
 
-Phase 5 — KPI, dashboard overview, export PDF.
+Phase 5 — tinggal rekap tahun ajaran.
 
 Complete: Phase 0 (auth, master data, accounts), Phase 1 (content hierarchy,
 module upload), Phase 2 (soal, try out, penilaian), Phase 3 (sesi mengajar,
-presensi, jurnal), Phase 4 (dashboard wali murid). Restyle ke design system
-baru selesai.
+presensi, jurnal), Phase 4 (dashboard wali murid + relief person), Phase 5
+kecuali rekap tahun ajaran — KPI, konfigurasi bobot, overview harian, dan
+laporan cetak per siswa sudah jalan. Restyle ke design system baru selesai.
 
-KPI saat ini memakai data contoh di `features/kpi/data/kpi-contoh.ts` —
-ganti dengan query sungguhan, jangan menambah kolom di file itu.
+KPI dihitung dari data sungguhan. Aritmetikanya di `features/kpi/data/hitung.js`
+dengan pemeriksaan di `scripts/cek-kpi.mjs` — jalankan itu setelah menyentuh
+rumusnya.
+
+## Utang Teknis yang Diketahui
+
+- **Modul PDF masih di `static/`**, bukan Supabase Storage. Lima dari tujuh
+  modul `published` filenya hilang, dan yang tersisa bisa diunduh tanpa login.
+  `content-hierarchy.md` mensyaratkan bucket + signed URL.
+- **Skor KPI tanpa ambang minimum.** Tentor dengan satu sesi berjurnal dan nol
+  nilai mendapat skor 100 karena bobot komponen yang kosong dinormalisasi ulang.
 
 ## Deferred (Do Not Build Yet)
 
-- Relief person (form + notifikasi SMTP) — sisa Phase 4
+- Rekap tahun ajaran (pemilih tahun + arsip baca-saja) — sisa Phase 5, tunggu
+  sampai tahun ajaran kedua benar-benar ada supaya bisa diuji
+- Export massal ZIP berisi PDF per siswa — cetak satu per satu sudah cukup
 - Scheduling/booking jadwal privat — future
 - In-app chat — future
 - Multi-tenancy — on hold
