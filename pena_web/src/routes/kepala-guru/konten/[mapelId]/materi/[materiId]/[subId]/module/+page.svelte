@@ -4,7 +4,6 @@
     uploadModule,
     publishModule,
     unpublishModule,
-    getModuleUrl,
     type Module
   } from '$features/module/data/module'
   import Badge from '$lib/components/Badge.svelte'
@@ -25,11 +24,16 @@
     loading = true
     error = ''
     try {
-      modul = await getModuleBySubMateri(data.subMateri.id)
-      signedUrl = modul?.storage_path ? getModuleUrl(modul.storage_path) : ''
+      // Signed URL diterbitkan server: modul tinggal di bucket privat, dan
+      // halaman ini berjalan di browser tanpa hak untuk menandatanganinya.
+      const res = await fetch(`/api/modul/${data.subMateri.id}`)
+      if (!res.ok) throw new Error('Gagal memuat modul')
+      const body = await res.json()
+      modul = body.modul
+      signedUrl = body.url ?? ''
 
-      // A row can outlive its file (manual cleanup, failed deploy). Check rather than
-      // letting the iframe render a raw 404.
+      // Satu baris bisa hidup lebih lama dari filenya (pembersihan manual,
+      // deploy gagal). Diperiksa, bukan dibiarkan iframe merender 404.
       if (signedUrl) {
         const head = await fetch(signedUrl, { method: 'HEAD' }).catch(() => null)
         if (!head?.ok) signedUrl = ''

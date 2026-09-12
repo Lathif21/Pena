@@ -1,7 +1,6 @@
 import { deserialize } from '$app/forms'
 import { supabase } from '$lib/supabase/client'
 
-export { getModuleUrl } from './module-url'
 
 export interface Module {
   id: string
