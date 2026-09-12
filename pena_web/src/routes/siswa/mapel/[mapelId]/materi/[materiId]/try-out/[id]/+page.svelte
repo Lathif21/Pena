@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { goto } from '$app/navigation'
+  import { browser } from '$app/environment'
   import { startTryOut as apiStartTryOut, saveJawaban, submitAttempt } from '$features/question/data/attempt'
   import { onMount } from 'svelte'
   import { SvelteMap, SvelteSet } from 'svelte/reactivity'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import ProgressBar from '$lib/components/ProgressBar.svelte'
+  import { Lock } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -17,7 +22,22 @@
   // Soal whose answer never reached the server — marked in the UI.
   let gagalSimpan = new SvelteSet<string>()
   let timeRemaining = $state(data.tryOut.durasi_menit * 60)
-  let timerColor = $state('text-gray-600')
+  let timerColor = $state('text-muted-foreground')
+
+  // Di bawah md satu soal per layar; di desktop seluruh set boleh menggulung.
+  // Dipakai satu daftar soal saja, bukan dua yang saling sembunyi: dua <input
+  // radio> dengan name sama akan saling membatalkan centang meski salah satunya
+  // tersembunyi CSS.
+  const KUERI_DESKTOP = '(min-width: 768px)'
+  let desktop = $state(browser ? window.matchMedia(KUERI_DESKTOP).matches : true)
+  let indeks = $state(0)
+
+  onMount(() => {
+    const mq = window.matchMedia(KUERI_DESKTOP)
+    const ikuti = (e: MediaQueryListEvent) => (desktop = e.matches)
+    mq.addEventListener('change', ikuti)
+    return () => mq.removeEventListener('change', ikuti)
+  })
 
   onMount(() => {
     if (attemptId && !submitted) {
@@ -39,9 +59,9 @@
   })
 
   function updateTimerColor() {
-    if (timeRemaining > 300) timerColor = 'text-gray-600'
-    else if (timeRemaining > 60) timerColor = 'text-amber-600'
-    else timerColor = 'text-red-600'
+    if (timeRemaining > 300) timerColor = 'text-muted-foreground'
+    else if (timeRemaining > 60) timerColor = 'text-amber-800'
+    else timerColor = 'text-red-800'
   }
 
   function formatTime(seconds: number) {
@@ -97,165 +117,216 @@
   }
 </script>
 
-<div class="min-h-screen bg-gray-50">
-  <div class="mx-auto max-w-4xl px-4 py-8">
-    {#if data.status === 'belum_buka'}
-      <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-        <div class="text-4xl">🔒</div>
-        <h2 class="mt-4 text-2xl font-bold text-gray-900">{data.tryOut.judul}</h2>
-        <p class="mt-2 text-gray-600">Try out ini belum dibuka.</p>
-        <div class="mx-auto mt-6 max-w-sm rounded-lg bg-gray-50 p-4 text-left text-sm">
-          <div class="flex justify-between py-1">
-            <span class="text-gray-500">Dibuka</span>
-            <span class="font-medium text-gray-900">
-              {new Date(data.tryOut.waktuBuka).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
-            </span>
-          </div>
-          <div class="flex justify-between py-1">
-            <span class="text-gray-500">Durasi</span>
-            <span class="font-medium text-gray-900">{data.tryOut.durasi_menit} menit</span>
-          </div>
+<div class="mx-auto max-w-4xl">
+  {#if data.status === 'belum_buka'}
+    <Card class="p-8 text-center">
+      <Lock class="mx-auto h-8 w-8 text-muted-foreground" />
+      <h2 class="mt-4 font-serif text-2xl text-foreground">{data.tryOut.judul}</h2>
+      <p class="mt-2 text-sm text-muted-foreground">Try out ini belum dibuka.</p>
+      <dl class="mx-auto mt-6 max-w-sm rounded-lg bg-muted/30 p-4 text-left text-sm">
+        <div class="flex justify-between gap-3 py-1">
+          <dt class="text-muted-foreground">Dibuka</dt>
+          <dd class="font-mono text-foreground">
+            {new Date(data.tryOut.waktuBuka).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' })}
+          </dd>
         </div>
-        <p class="mt-4 text-xs text-gray-500">Soal baru bisa dilihat setelah waktu buka.</p>
-        <button onclick={() => goto('/siswa/dashboard')} class="mt-6 rounded-lg border border-gray-300 px-6 py-3 text-gray-700 hover:bg-gray-50">
-          Kembali ke Dashboard
-        </button>
-      </div>
-    {:else if data.status === 'terlewat'}
-      <div class="rounded-2xl border border-red-200 bg-red-50 p-8 text-center">
-        <h2 class="text-2xl font-bold text-red-800">{data.tryOut.judul}</h2>
-        <p class="mt-2 text-red-700">Waktu try out sudah berakhir dan Anda tidak mengerjakannya.</p>
-        <p class="mt-4 text-sm text-red-700">Nilai: <span class="text-2xl font-bold">0</span></p>
-        <button onclick={() => goto('/siswa/dashboard')} class="mt-6 rounded-lg border border-red-300 bg-white px-6 py-3 text-red-700 hover:bg-red-100">
-          Kembali ke Dashboard
-        </button>
-      </div>
-    {:else if !attemptId}
-      <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-        <h2 class="mb-2 text-2xl font-bold text-gray-900">{data.tryOut.judul}</h2>
-        <p class="mb-6 text-gray-600">{data.tryOut.durasi_menit} menit • {data.soal.length} soal</p>
-        <div class="mb-8 space-y-3 rounded-lg bg-amber-50 p-4 text-left">
-          <p class="font-medium text-amber-900">⚠️ Perhatian:</p>
-          <ul class="space-y-1 text-sm text-amber-800">
-            <li>• Try out ini hanya bisa dikerjakan SATU KALI</li>
-            <li>• Timer akan berjalan otomatis</li>
-            <li>• Jawaban disimpan secara otomatis</li>
-            <li>• Jika waktu habis, pekerjaan otomatis dikirim</li>
-            <li>• Jangan menutup browser di tengah pengerjaan</li>
-          </ul>
+        <div class="flex justify-between gap-3 py-1">
+          <dt class="text-muted-foreground">Durasi</dt>
+          <dd class="font-mono text-foreground">{data.tryOut.durasi_menit} menit</dd>
         </div>
-        <button onclick={startTryOut} disabled={loading} class="rounded-lg bg-primary px-8 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
-          {loading ? 'Memulai...' : 'Mulai Try Out'}
-        </button>
+      </dl>
+      <p class="mt-4 text-xs text-muted-foreground">Soal baru bisa dilihat setelah waktu buka.</p>
+      <Button variant="secondary" href="/siswa/mapel" class="mt-6">Kembali ke Mata Pelajaran</Button>
+    </Card>
+  {:else if data.status === 'terlewat'}
+    <Card class="p-8 text-center">
+      <h2 class="font-serif text-2xl text-foreground">{data.tryOut.judul}</h2>
+      <p class="mt-2 text-sm text-muted-foreground">
+        Waktu try out sudah berakhir dan Anda tidak mengerjakannya.
+      </p>
+      <p class="mt-4 text-sm text-muted-foreground">Nilai</p>
+      <p class="font-mono text-4xl text-destructive">0</p>
+      <Button variant="secondary" href="/siswa/mapel" class="mt-6">Kembali ke Mata Pelajaran</Button>
+    </Card>
+  {:else if !attemptId}
+    <Card class="p-8 text-center">
+      <h2 class="font-serif text-2xl text-foreground">{data.tryOut.judul}</h2>
+      <p class="mt-2 text-sm text-muted-foreground">
+        <span class="font-mono">{data.tryOut.durasi_menit}</span> menit ·
+        <span class="font-mono">{data.soal.length}</span> soal
+      </p>
+      <div class="mt-8 space-y-3 rounded-lg bg-amber-100 p-4 text-left">
+        <p class="font-medium text-amber-800">Perhatian:</p>
+        <ul class="space-y-1 text-sm text-amber-800">
+          <li>• Try out ini hanya bisa dikerjakan SATU KALI</li>
+          <li>• Timer akan berjalan otomatis</li>
+          <li>• Jawaban disimpan secara otomatis</li>
+          <li>• Jika waktu habis, pekerjaan otomatis dikirim</li>
+          <li>• Jangan menutup browser di tengah pengerjaan</li>
+        </ul>
       </div>
-    {:else if submitted}
-      <div class="space-y-6">
-        <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-8 text-center">
-          <h2 class="mb-2 text-2xl font-bold text-emerald-700">Selesai!</h2>
-          <div class="mb-6">
-            <div class="text-5xl font-bold text-emerald-600">{nilai}</div>
-            <p class="mt-2 text-emerald-700">dari 100</p>
-          </div>
-          <button onclick={() => goto('/siswa/dashboard')} class="rounded-lg bg-emerald-600 px-6 py-3 text-white hover:bg-emerald-700">
-            Kembali ke Dashboard
-          </button>
-        </div>
+      <Button onclick={startTryOut} disabled={loading} class="mt-8">
+        {loading ? 'Memulai...' : 'Mulai Try Out'}
+      </Button>
+    </Card>
+  {:else if submitted}
+    <div class="space-y-6">
+      <Card class="p-8 text-center">
+        <h2 class="font-serif text-2xl text-foreground">Selesai!</h2>
+        <p class="mt-4 font-mono text-5xl text-foreground">{nilai}</p>
+        <p class="mt-2 text-sm text-muted-foreground">dari <span class="font-mono">100</span></p>
+        <Button href="/siswa/mapel" class="mt-6">Kembali ke Mata Pelajaran</Button>
+      </Card>
 
-        {#if data.review}
-          <div>
-            <h3 class="mb-4 text-lg font-semibold text-gray-900">Review Jawaban</h3>
-            <div class="space-y-6">
-              {#each data.soal as soal (soal.id)}
-                {@const kunci = data.review.kunciPerSoal[soal.id]}
-                {@const dijawab = data.review.jawabanPerSoal[soal.id]}
-                <div class="rounded-2xl border border-gray-200 bg-white p-6">
-                  <div class="mb-4 flex items-start justify-between gap-4">
-                    <h4 class="text-base font-semibold text-gray-900">Soal {soal.nomor_urut}</h4>
-                    {#if dijawab === kunci}
-                      <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">Benar</span>
-                    {:else if dijawab}
-                      <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700">Salah</span>
-                    {:else}
-                      <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">Tidak dijawab</span>
-                    {/if}
-                  </div>
-                  <p class="mb-4 text-gray-900">{soal.pertanyaan}</p>
-                  <div class="space-y-2">
-                    {#each soal.pilihan as pilihan (pilihan.id)}
-                      <div
-                        class="flex items-center gap-3 rounded-lg border p-3 text-sm"
-                        class:border-emerald-300={pilihan.id === kunci}
-                        class:bg-emerald-50={pilihan.id === kunci}
-                        class:border-red-300={pilihan.id === dijawab && dijawab !== kunci}
-                        class:bg-red-50={pilihan.id === dijawab && dijawab !== kunci}
-                        class:border-gray-200={pilihan.id !== kunci && pilihan.id !== dijawab}
-                      >
-                        <span class="flex-1 text-gray-900">{pilihan.teks}</span>
-                  {#if gagalSimpan.has(soal.id) && jawaban.get(soal.id) === pilihan.id}
-                    <span class="text-xs font-medium text-destructive">belum tersimpan</span>
+      {#if data.review}
+        <div>
+          <h3 class="mb-4 font-serif text-lg text-foreground">Review Jawaban</h3>
+          <div class="space-y-6">
+            {#each data.soal as soal (soal.id)}
+              {@const kunci = data.review.kunciPerSoal[soal.id]}
+              {@const dijawab = data.review.jawabanPerSoal[soal.id]}
+              <Card>
+                <div class="mb-4 flex items-start justify-between gap-4">
+                  <h4 class="font-serif text-base text-foreground">
+                    Soal <span class="font-mono">{soal.nomor_urut}</span>
+                  </h4>
+                  {#if dijawab === kunci}
+                    <Badge tone="success">Benar</Badge>
+                  {:else if dijawab}
+                    <Badge tone="error">Salah</Badge>
+                  {:else}
+                    <span
+                      class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                    >
+                      Tidak dijawab
+                    </span>
                   {/if}
-                        {#if pilihan.id === kunci}
-                          <span class="text-xs font-medium text-emerald-700">Jawaban benar</span>
-                        {:else if pilihan.id === dijawab}
-                          <span class="text-xs font-medium text-red-700">Jawaban Anda</span>
-                        {/if}
-                      </div>
-                    {/each}
-                  </div>
                 </div>
-              {/each}
-            </div>
+                <p class="mb-4 text-foreground">{soal.pertanyaan}</p>
+                <div class="space-y-2">
+                  {#each soal.pilihan as pilihan (pilihan.id)}
+                    <div
+                      class="flex items-center gap-3 rounded-lg border p-3 text-sm {pilihan.id === kunci
+                        ? 'border-emerald-300 bg-emerald-100'
+                        : pilihan.id === dijawab
+                          ? 'border-red-300 bg-red-100'
+                          : 'border-border'}"
+                    >
+                      <span class="flex-1 text-foreground">{pilihan.teks}</span>
+                      {#if pilihan.id === kunci}
+                        <span class="text-xs font-medium text-emerald-800">Jawaban benar</span>
+                      {:else if pilihan.id === dijawab}
+                        <span class="text-xs font-medium text-red-800">Jawaban Anda</span>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              </Card>
+            {/each}
           </div>
-        {/if}
-      </div>
-    {:else}
-      <div class="mb-6 flex items-center justify-between rounded-lg bg-white p-4 shadow-sm">
-        <h1 class="text-xl font-bold text-gray-900">{data.tryOut.judul}</h1>
-        <div class="text-right">
-          <p class="text-xs text-gray-500 mb-1">Sisa Waktu</p>
-          <div class={`text-3xl font-bold font-mono ${timerColor}`}>
-            {formatTime(timeRemaining)}
-          </div>
-        </div>
-      </div>
-
-      {#if error}
-        <div class="mb-4 rounded-md bg-red-50 p-4">
-          <p class="text-sm text-red-800">{error}</p>
         </div>
       {/if}
-
-      <div class="mb-6 rounded-lg bg-white p-4">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-medium text-gray-700">{jawaban.size} dari {data.soal.length} terjawab</span>
-          <div class="h-2 w-32 rounded-full bg-gray-200">
-            <div class="h-full rounded-full bg-primary transition-all" style="width: {Math.round((jawaban.size / data.soal.length) * 100)}%"></div>
-          </div>
+    </div>
+  {:else}
+    <!-- Timer dan hitungan terjawab tetap terlihat saat menggulung. top-14 di HP
+         supaya duduk di bawah top bar AppShell, bukan menimpanya. -->
+    <div class="sticky top-14 z-20 mb-6 rounded-xl border border-border bg-card p-4 lg:top-0">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="min-w-0">
+          <h1 class="truncate font-serif text-base text-foreground">{data.tryOut.judul}</h1>
+          <p class="text-xs text-muted-foreground">
+            <span class="font-mono">{jawaban.size}</span> dari
+            <span class="font-mono">{data.soal.length}</span> terjawab
+          </p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-muted-foreground">Sisa Waktu</p>
+          <p class="font-mono text-2xl {timerColor}">{formatTime(timeRemaining)}</p>
         </div>
       </div>
+      <ProgressBar
+        value={(jawaban.size / data.soal.length) * 100}
+        showLabel={false}
+        class="mt-3"
+      />
+    </div>
 
-      <div class="space-y-6">
-        {#each data.soal as soal (soal.id)}
-          <div class="rounded-2xl border border-gray-200 bg-white p-6">
-            <h3 class="mb-4 text-lg font-semibold text-gray-900">Soal {soal.nomor_urut}</h3>
-            <p class="mb-6 text-gray-900">{soal.pertanyaan}</p>
+    {#if error}
+      <div class="mb-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
+    {/if}
+
+    <div class="space-y-6">
+      {#each data.soal as soal, i (soal.id)}
+        {#if desktop || i === indeks}
+          <Card>
+            <h3 class="mb-4 font-serif text-lg text-foreground">
+              Soal <span class="font-mono">{soal.nomor_urut}</span>
+            </h3>
+            <p class="mb-6 text-foreground">{soal.pertanyaan}</p>
             <div class="space-y-3">
               {#each soal.pilihan as pilihan (pilihan.id)}
-                <label class="flex items-center gap-3 rounded-lg border border-gray-200 p-3 cursor-pointer hover:bg-gray-50 transition-colors" class:ring-2={jawaban.get(soal.id) === pilihan.id} class:ring-primary={jawaban.get(soal.id) === pilihan.id}>
-                  <input type="radio" name="soal-{soal.id}" value={pilihan.id} checked={jawaban.get(soal.id) === pilihan.id} onchange={() => handleSelectJawaban(soal.id, pilihan.id)} class="h-4 w-4" />
-                  <span class="flex-1 text-gray-900">{pilihan.teks}</span>
+                {@const dipilih = jawaban.get(soal.id) === pilihan.id}
+                <label
+                  class="flex cursor-pointer items-center gap-3 rounded-lg border p-3 hover:bg-muted/30 {dipilih
+                    ? 'border-primary bg-secondary'
+                    : 'border-border'}"
+                >
+                  <input
+                    type="radio"
+                    name="soal-{soal.id}"
+                    value={pilihan.id}
+                    checked={dipilih}
+                    onchange={() => handleSelectJawaban(soal.id, pilihan.id)}
+                    class="h-5 w-5 shrink-0 accent-primary"
+                  />
+                  <span class="flex-1 text-foreground">{pilihan.teks}</span>
+                  {#if gagalSimpan.has(soal.id) && dipilih}
+                    <span class="text-xs font-medium text-destructive">belum tersimpan</span>
+                  {/if}
                 </label>
               {/each}
             </div>
-          </div>
-        {/each}
-      </div>
+          </Card>
+        {/if}
+      {/each}
+    </div>
 
-      <div class="mt-8 flex gap-3">
-        <button onclick={() => handleSubmit(false)} disabled={loading} class="flex-1 rounded-lg bg-primary px-6 py-3 text-white hover:bg-primary/90 disabled:opacity-50">
+    {#if desktop}
+      <div class="mt-8">
+        <Button onclick={() => handleSubmit(false)} disabled={loading} class="w-full">
           {loading ? 'Mengirim...' : 'Selesai & Kirim'}
-        </button>
+        </Button>
+      </div>
+    {:else}
+      <!-- Bar bawah menempel: tombol kirim tidak boleh tergulung keluar layar. -->
+      <div
+        class="sticky bottom-0 z-20 -mx-4 mt-6 border-t border-border bg-card p-4"
+      >
+        <div class="flex items-center gap-3">
+          <Button
+            variant="secondary"
+            onclick={() => (indeks = Math.max(0, indeks - 1))}
+            disabled={indeks === 0}
+          >
+            ←
+          </Button>
+          <span class="font-mono text-sm text-muted-foreground">
+            {indeks + 1}/{data.soal.length}
+          </span>
+          {#if indeks < data.soal.length - 1}
+            <Button
+              onclick={() => (indeks = Math.min(data.soal.length - 1, indeks + 1))}
+              class="flex-1"
+            >
+              Lanjut →
+            </Button>
+          {:else}
+            <Button onclick={() => handleSubmit(false)} disabled={loading} class="flex-1">
+              {loading ? 'Mengirim...' : 'Selesai & Kirim'}
+            </Button>
+          {/if}
+        </div>
       </div>
     {/if}
-  </div>
+  {/if}
 </div>

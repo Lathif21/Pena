@@ -1,8 +1,13 @@
 <script lang="ts">
+  import Badge from '$lib/components/Badge.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { FileText, ClipboardList, Lock, Clock, BookOpen } from 'lucide-svelte'
+
   let { data } = $props()
 
   let searchTerm = $state('')
 
+  // ponytail: pencarian di klien. Satu mapel punya puluhan materi, bukan ribuan.
   let filteredMateri = $derived.by(() => {
     const term = searchTerm.toLowerCase().trim()
     if (!term) return data.materi
@@ -22,101 +27,105 @@
   })
 </script>
 
-<div class="min-h-screen bg-gray-50">
-  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-    <div class="mb-6">
-      <a href="/siswa/mapel" class="text-sm font-medium text-primary hover:underline">
-        ← Kembali ke Mata Pelajaran
-      </a>
-      <h1 class="mt-4 text-2xl font-bold text-gray-900">{data.mapel.nama}</h1>
-      <p class="mt-1 text-sm text-gray-500">Pilih materi untuk membaca modul</p>
-    </div>
-
-    <input
-      type="text"
-      placeholder="Cari materi atau sub materi..."
-      bind:value={searchTerm}
-      class="mb-6 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none"
-    />
-
-    {#if data.materi.length === 0}
-      <div class="rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center">
-        <p class="text-sm text-gray-500">Belum ada materi yang tersedia untuk mata pelajaran ini.</p>
-      </div>
-    {:else if filteredMateri.length === 0}
-      <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-        <p class="text-sm text-gray-500">Tidak ada hasil untuk "{searchTerm}"</p>
-      </div>
-    {:else}
-      <div class="space-y-4">
-        {#each filteredMateri as materi (materi.id)}
-          <div class="rounded-2xl border border-gray-200 bg-white p-6">
-            <h2 class="text-base font-semibold text-gray-900">
-              {materi.nomor_urut}. {materi.nama}
-            </h2>
-
-            <div class="mt-4 space-y-2">
-              {#each materi.sub_materi as sub (sub.id)}
-                <a
-                  href="/siswa/mapel/{data.mapel.id}/materi/{materi.id}/{sub.id}"
-                  class="block rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-700 hover:bg-primary/5 hover:text-primary"
-                >
-                  📄 {sub.nama}
-                </a>
-              {/each}
-            </div>
-
-            {#if materi.try_out.length > 0}
-              <div class="mt-4 space-y-2 border-t border-gray-100 pt-4">
-                {#each materi.try_out as to (to.id)}
-                  {@const label =
-                    to.status === 'selesai'
-                      ? `Selesai · Nilai ${to.nilai}`
-                      : to.status === 'terbuka'
-                        ? `${to.durasi_menit} menit · sekali kerjakan`
-                        : to.status === 'belum_buka'
-                          ? `Dibuka ${new Date(to.waktu_buka).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`
-                          : 'Tidak dikerjakan · Nilai 0'}
-                  {#if to.dapatDibuka}
-                    <a
-                      href="/siswa/mapel/{data.mapel.id}/materi/{materi.id}/try-out/{to.id}"
-                      class="flex items-center justify-between gap-3 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm hover:bg-primary/10"
-                    >
-                      <span class="font-medium text-primary">📝 {to.judul}</span>
-                      <span
-                        class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                        class:bg-emerald-50={to.status === 'selesai'}
-                        class:text-emerald-700={to.status === 'selesai'}
-                        class:bg-amber-50={to.status === 'terbuka'}
-                        class:text-amber-700={to.status === 'terbuka'}
-                      >
-                        {label}
-                      </span>
-                    </a>
-                  {:else}
-                    <!-- Belum dibuka / terlewat: terlihat tapi tidak bisa dibuka, dan
-                         soalnya memang tidak pernah ikut dikirim ke browser. -->
-                    <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm">
-                      <span class="font-medium text-gray-600">
-                        {to.status === 'belum_buka' ? '🔒' : '⏳'} {to.judul}
-                      </span>
-                      <span
-                        class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                        class:bg-gray-100={to.status === 'belum_buka'}
-                        class:text-gray-700={to.status === 'belum_buka'}
-                        class:bg-red-50={to.status === 'terlewat'}
-                        class:text-red-700={to.status === 'terlewat'}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  {/if}
-                {/each}
-              </div>
-            {/if}
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
+<div class="mb-6">
+  <a href="/siswa/mapel" class="text-sm font-medium text-primary hover:underline">
+    ← Kembali ke Mata Pelajaran
+  </a>
+  <h1 class="mt-4 font-serif text-2xl text-foreground">{data.mapel.nama}</h1>
+  <p class="mt-1 text-sm text-muted-foreground">Pilih materi untuk membaca modul</p>
 </div>
+
+<input
+  type="search"
+  placeholder="Cari materi atau sub materi..."
+  bind:value={searchTerm}
+  class="mb-6 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
+/>
+
+{#if data.materi.length === 0}
+  <div class="rounded-xl border border-dashed border-border p-8 text-center">
+    <BookOpen class="mx-auto h-8 w-8 text-muted-foreground" />
+    <p class="mt-2 text-sm text-muted-foreground">
+      Belum ada materi yang tersedia untuk mata pelajaran ini.
+    </p>
+  </div>
+{:else if filteredMateri.length === 0}
+  <Card class="p-8 text-center">
+    <BookOpen class="mx-auto h-8 w-8 text-muted-foreground" />
+    <p class="mt-2 text-sm text-muted-foreground">Tidak ada hasil untuk "{searchTerm}"</p>
+  </Card>
+{:else}
+  <div class="space-y-4">
+    {#each filteredMateri as materi (materi.id)}
+      <Card>
+        <h2 class="font-serif text-base text-foreground">
+          <span class="font-mono">{materi.nomor_urut}.</span>
+          {materi.nama}
+        </h2>
+
+        <div class="mt-4 space-y-2">
+          {#each materi.sub_materi as sub (sub.id)}
+            <a
+              href="/siswa/mapel/{data.mapel.id}/materi/{materi.id}/{sub.id}"
+              class="flex items-center gap-2 rounded-lg bg-muted/30 px-4 py-3 text-sm text-foreground hover:bg-muted/50"
+            >
+              <FileText class="h-4 w-4 shrink-0 text-muted-foreground" />
+              {sub.nama}
+            </a>
+          {/each}
+        </div>
+
+        {#if materi.try_out.length > 0}
+          <div class="mt-4 space-y-2 border-t border-border pt-4">
+            {#each materi.try_out as to (to.id)}
+              {@const label =
+                to.status === 'selesai'
+                  ? `Selesai · Nilai ${to.nilai}`
+                  : to.status === 'terbuka'
+                    ? `${to.durasi_menit} menit · sekali kerjakan`
+                    : to.status === 'belum_buka'
+                      ? `Dibuka ${new Date(to.waktu_buka).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`
+                      : 'Tidak dikerjakan · Nilai 0'}
+              {#if to.dapatDibuka}
+                <a
+                  href="/siswa/mapel/{data.mapel.id}/materi/{materi.id}/try-out/{to.id}"
+                  class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border px-4 py-3 text-sm hover:bg-muted/40"
+                >
+                  <span class="flex items-center gap-2 font-medium text-primary">
+                    <ClipboardList class="h-4 w-4 shrink-0" />
+                    {to.judul}
+                  </span>
+                  <Badge tone={to.status === 'selesai' ? 'success' : 'pending'}>{label}</Badge>
+                </a>
+              {:else}
+                <!-- Belum dibuka / terlewat: terlihat tapi tidak bisa dibuka, dan
+                     soalnya memang tidak pernah ikut dikirim ke browser. -->
+                <div
+                  class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm"
+                >
+                  <span class="flex items-center gap-2 font-medium text-muted-foreground">
+                    {#if to.status === 'belum_buka'}
+                      <Lock class="h-4 w-4 shrink-0" />
+                    {:else}
+                      <Clock class="h-4 w-4 shrink-0" />
+                    {/if}
+                    {to.judul}
+                  </span>
+                  {#if to.status === 'terlewat'}
+                    <Badge tone="error">{label}</Badge>
+                  {:else}
+                    <span
+                      class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                    >
+                      {label}
+                    </span>
+                  {/if}
+                </div>
+              {/if}
+            {/each}
+          </div>
+        {/if}
+      </Card>
+    {/each}
+  </div>
+{/if}

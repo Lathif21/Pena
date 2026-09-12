@@ -1,6 +1,12 @@
 <script lang="ts">
-  import { goto, invalidateAll } from '$app/navigation'
+  import { invalidateAll } from '$app/navigation'
   import { listMapelByKelas, openSesi, replaceFoto, type Pilihan } from '$features/attendance/data/sesi'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+
+  const gayaField =
+    'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none disabled:opacity-50'
 
   let { data } = $props()
 
@@ -68,66 +74,62 @@
 </script>
 
 <div class="mx-auto max-w-2xl">
-  <button onclick={() => goto('/tentor/dashboard')} class="mb-4 text-sm font-medium text-primary hover:underline">
-    ← Kembali ke Dashboard
-  </button>
-  <h1 class="text-2xl font-bold text-gray-900">Presensi Diri</h1>
-  <p class="mt-1 text-sm text-gray-500">
+  <h1 class="font-serif text-2xl text-foreground">Presensi Diri</h1>
+  <p class="mt-1 text-sm text-muted-foreground">
     Unggah foto dari Timestamp Camera Free. Foto inilah catatan kehadiran Anda.
   </p>
 
   {#if error}
-    <div class="mt-4 rounded-md bg-red-50 p-4"><p class="text-sm text-red-800">{error}</p></div>
+    <div class="mt-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
   {/if}
 
   {#if data.sesiAktif}
-    <div class="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-      <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
-        Sesi berjalan
-      </span>
-      <h2 class="mt-3 text-base font-semibold text-gray-900">
+    <Card class="mt-6">
+      <Badge tone="success">Sesi berjalan</Badge>
+      <h2 class="mt-3 font-serif text-base text-foreground">
         {data.sesiAktif.kelasNama} · {data.sesiAktif.mapelNama}
       </h2>
       <dl class="mt-3 space-y-1 text-sm">
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Diunggah sistem</dt>
-          <dd class="font-medium text-gray-900">{waktu(data.sesiAktif.uploadedAt)}</dd>
+        <div class="flex justify-between gap-3">
+          <dt class="text-muted-foreground">Diunggah sistem</dt>
+          <dd class="font-mono text-foreground">{waktu(data.sesiAktif.uploadedAt)}</dd>
         </div>
-        <div class="flex justify-between">
-          <dt class="text-gray-500">Sesi dimulai</dt>
-          <dd class="font-medium text-gray-900">{waktu(data.sesiAktif.startedAt)}</dd>
+        <div class="flex justify-between gap-3">
+          <dt class="text-muted-foreground">Sesi dimulai</dt>
+          <dd class="font-mono text-foreground">{waktu(data.sesiAktif.startedAt)}</dd>
         </div>
       </dl>
 
       {#if data.sesiAktif.fotoUrl}
-        <img src={data.sesiAktif.fotoUrl} alt="Foto presensi" class="mt-4 w-full rounded-lg border border-emerald-200" />
-        <p class="mt-2 text-xs text-gray-500">
-          Waktu dan lokasi yang terbakar di foto dibaca langsung oleh Kepala Guru — sistem tidak mengurainya.
+        <img
+          src={data.sesiAktif.fotoUrl}
+          alt="Foto presensi"
+          class="mt-4 w-full rounded-lg border border-border"
+        />
+        <p class="mt-2 text-xs text-muted-foreground">
+          Waktu dan lokasi yang terbakar di foto dibaca langsung oleh Kepala Guru — sistem tidak
+          mengurainya.
         </p>
       {/if}
 
-      <div class="mt-4 flex gap-3">
-        <button onclick={() => goto('/tentor/presensi/murid')} class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-          Lanjut Presensi Murid
-        </button>
-      </div>
-    </div>
+      <Button href="/tentor/presensi/murid" class="mt-4">Lanjut Presensi Murid</Button>
+    </Card>
   {/if}
 
-  <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-6">
-    <h2 class="text-base font-semibold text-gray-900">
+  <Card class="mt-6">
+    <h2 class="font-serif text-base text-foreground">
       {data.sesiAktif ? 'Ganti Foto Presensi' : 'Mulai Sesi'}
     </h2>
 
     {#if !data.sesiAktif}
       <div class="mt-4 grid gap-4 sm:grid-cols-2">
         <div>
-          <label for="kelas" class="block text-sm font-medium text-gray-700">Kelas</label>
+          <label for="kelas" class="block text-sm font-medium text-foreground">Kelas</label>
           <select
             id="kelas"
             value={kelasId}
             onchange={(e) => pilihKelas((e.currentTarget as HTMLSelectElement).value)}
-            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 pr-8 text-sm"
+            class="{gayaField} pr-8"
           >
             <option value="">Pilih kelas...</option>
             {#each data.kelas as k (k.id)}
@@ -135,17 +137,17 @@
             {/each}
           </select>
           {#if data.kelas.length === 0}
-            <p class="mt-1 text-xs text-amber-700">Anda belum diassign ke kelas mana pun.</p>
+            <p class="mt-1 text-xs text-amber-800">Anda belum diassign ke kelas mana pun.</p>
           {/if}
         </div>
 
         <div>
-          <label for="mapel" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
+          <label for="mapel" class="block text-sm font-medium text-foreground">Mata Pelajaran</label>
           <select
             id="mapel"
             bind:value={mapelId}
             disabled={!kelasId || memuatMapel}
-            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 pr-8 text-sm disabled:bg-gray-50"
+            class="{gayaField} pr-8"
           >
             <option value="">{memuatMapel ? 'Memuat...' : 'Pilih mapel...'}</option>
             {#each mapelOptions as m (m.id)}
@@ -157,27 +159,31 @@
     {/if}
 
     <div class="mt-4">
-      <label for="foto" class="block text-sm font-medium text-gray-700">Foto Presensi</label>
+      <label for="foto" class="block text-sm font-medium text-foreground">Foto Presensi</label>
+      <!-- accept sengaja jpeg/png, bukan image/*: bucket presensi-foto hanya
+           menerima dua MIME itu, jadi HEIC bawaan iPhone akan ditolak server
+           setelah menunggu unggahan. Ini tetap file input biasa, jadi galeri HP
+           tetap terbuka — yang dilarang design-system adalah zona drag-and-drop. -->
       <input
         id="foto"
         type="file"
         accept="image/jpeg,image/png"
         onchange={pilihFile}
-        class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground"
       />
-      <p class="mt-1 text-xs text-gray-500">JPG atau PNG, maksimal 5MB.</p>
+      <p class="mt-1 text-xs text-muted-foreground">JPG atau PNG, maksimal 5MB.</p>
     </div>
 
     {#if preview}
-      <img src={preview} alt="Pratinjau foto" class="mt-4 w-full rounded-lg border border-gray-200" />
+      <img src={preview} alt="Pratinjau foto" class="mt-4 w-full rounded-lg border border-border" />
     {/if}
 
-    <button
+    <Button
       onclick={submit}
       disabled={loading || !file || (!data.sesiAktif && (!kelasId || !mapelId))}
-      class="mt-4 rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary/90 disabled:opacity-50"
+      class="mt-4 w-full sm:w-auto"
     >
       {loading ? 'Menyimpan...' : data.sesiAktif ? 'Ganti Foto' : 'Submit & Mulai Sesi'}
-    </button>
-  </div>
+    </Button>
+  </Card>
 </div>

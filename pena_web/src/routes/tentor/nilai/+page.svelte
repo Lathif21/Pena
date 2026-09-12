@@ -1,5 +1,18 @@
 <script lang="ts">
   import { goto } from '$app/navigation'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import Table from '$lib/components/Table.svelte'
+  import Th from '$lib/components/Th.svelte'
+  import Td from '$lib/components/Td.svelte'
+  import { GraduationCap } from 'lucide-svelte'
+
+  const gayaField =
+    'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 pr-8 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none disabled:opacity-50'
+
+  // Ambang warna rata-rata: hijau >= 80, kuning 60-79, merah < 60.
+  const nada = (n: number) => (n >= 80 ? 'success' : n >= 60 ? 'pending' : 'error')
 
   let { data } = $props()
 
@@ -16,27 +29,27 @@
     new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })
 </script>
 
-<div class="mx-auto max-w-7xl">
-  <div class="mb-8 flex items-center justify-between">
+<div class="mx-auto max-w-[1200px]">
+  <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>
-      <h1 class="text-2xl font-bold text-gray-900">Nilai Siswa</h1>
-      <p class="mt-1 text-sm text-gray-600">Lihat nilai e-learning dan nilai manual per siswa</p>
+      <h1 class="font-serif text-2xl text-foreground">Nilai Siswa</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        Lihat nilai e-learning dan nilai manual per siswa
+      </p>
     </div>
-    <button onclick={() => goto('/tentor/nilai/input')} class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary/90">
-      + Input Nilai Manual
-    </button>
+    <Button href="/tentor/nilai/input">+ Input Nilai Manual</Button>
   </div>
 
-  <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Filter</h2>
-    <div class="grid grid-cols-2 gap-4">
+  <Card class="mb-6">
+    <h2 class="mb-4 font-serif text-lg text-foreground">Filter</h2>
+    <div class="grid gap-4 sm:grid-cols-2">
       <div>
-        <label for="mapel" class="block text-sm font-medium text-gray-700">Mata Pelajaran</label>
+        <label for="mapel" class="block text-sm font-medium text-foreground">Mata Pelajaran</label>
         <select
           id="mapel"
           value={data.mapelId}
           onchange={(e) => applyFilter((e.currentTarget as HTMLSelectElement).value, '')}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2"
+          class={gayaField}
         >
           <option value="">Pilih Mapel...</option>
           {#each data.mapel as m (m.id)}
@@ -45,13 +58,13 @@
         </select>
       </div>
       <div>
-        <label for="kelas" class="block text-sm font-medium text-gray-700">Kelas (Opsional)</label>
+        <label for="kelas" class="block text-sm font-medium text-foreground">Kelas (Opsional)</label>
         <select
           id="kelas"
           value={data.kelasId}
           disabled={!data.mapelId}
           onchange={(e) => applyFilter(data.mapelId, (e.currentTarget as HTMLSelectElement).value)}
-          class="mt-1 block w-full rounded-md border border-gray-300 px-3 pr-8 py-2 disabled:bg-gray-50"
+          class={gayaField}
         >
           <option value="">Semua Kelas</option>
           {#each data.kelas as k (k.id)}
@@ -60,92 +73,126 @@
         </select>
       </div>
     </div>
-  </div>
+  </Card>
 
   {#if !data.mapelId}
-    <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-      <p class="text-gray-600">Pilih mapel untuk melihat nilai siswa</p>
-    </div>
+    <Card class="p-8 text-center">
+      <GraduationCap class="mx-auto h-8 w-8 text-muted-foreground" />
+      <p class="mt-2 text-sm text-muted-foreground">Pilih mapel untuk melihat nilai siswa</p>
+    </Card>
   {:else if data.siswa.length === 0}
-    <div class="rounded-2xl border border-gray-200 bg-white p-8 text-center">
-      <p class="text-gray-600">Belum ada siswa untuk filter ini</p>
-    </div>
+    <Card class="p-8 text-center">
+      <GraduationCap class="mx-auto h-8 w-8 text-muted-foreground" />
+      <p class="mt-2 text-sm text-muted-foreground">Belum ada siswa untuk filter ini</p>
+    </Card>
   {:else}
-    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-      <div class="text-center">
-        <p class="mb-1 text-sm font-medium text-emerald-700">Rata-rata Kelas</p>
-        <div class="text-3xl font-bold text-emerald-600">{data.rataRataKelas}</div>
-      </div>
+    <Card class="mb-6 text-center">
+      <p class="text-sm text-muted-foreground">Rata-rata Kelas</p>
+      <p class="mt-1 font-mono text-3xl text-foreground">{data.rataRataKelas}</p>
+    </Card>
+
+    <!-- Empat kolom bermakna — di bawah md jadi tumpukan card. -->
+    <div class="space-y-3 md:hidden">
+      {#each data.siswa as siswa (siswa.id)}
+        <Card>
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <p class="truncate font-medium text-foreground">{siswa.nama}</p>
+              <p class="font-mono text-xs text-muted-foreground">{siswa.nis}</p>
+            </div>
+            {#if siswa.rataRata === null}
+              <Badge tone="pending">Belum ada nilai</Badge>
+            {:else}
+              <Badge tone={nada(siswa.rataRata)}>{siswa.rataRata}</Badge>
+            {/if}
+          </div>
+
+          {#if siswa.nilaiTryOut.length > 0}
+            <p class="mt-3 text-xs text-muted-foreground">Try out</p>
+            <div class="mt-1 space-y-1">
+              {#each siswa.nilaiTryOut as n}
+                <div class="flex justify-between gap-3 text-sm">
+                  <span class="min-w-0 truncate text-foreground">{n.judul}</span>
+                  <span class="font-mono text-foreground">{n.nilai}</span>
+                </div>
+              {/each}
+            </div>
+          {/if}
+
+          {#if siswa.nilaiManual.length > 0}
+            <p class="mt-3 text-xs text-muted-foreground">Nilai manual</p>
+            <div class="mt-1 space-y-1">
+              {#each siswa.nilaiManual as n}
+                <div class="flex justify-between gap-3 text-sm">
+                  <span class="min-w-0 truncate text-foreground">
+                    {n.judul}
+                    <span class="text-muted-foreground">({n.tipe})</span>
+                  </span>
+                  <span class="font-mono text-foreground">{n.nilai}</span>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </Card>
+      {/each}
     </div>
 
-    <div class="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead>
-            <tr class="border-b border-gray-200 bg-gray-50">
-              <th class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Nama Siswa</th>
-              <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Try Out</th>
-              <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Nilai Manual</th>
-              <th class="px-6 py-3 text-center text-sm font-semibold text-gray-900">Rata-rata</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each data.siswa as siswa (siswa.id)}
-              <tr class="border-b border-gray-100 hover:bg-gray-50">
-                <td class="px-6 py-4 text-sm">
-                  <span class="block font-medium text-gray-900">{siswa.nama}</span>
-                  <span class="text-xs text-gray-500">{siswa.nis}</span>
-                </td>
-                <td class="px-6 py-4 text-center">
-                  {#if siswa.nilaiTryOut.length > 0}
-                    <div class="flex flex-col items-center gap-1">
-                      {#each siswa.nilaiTryOut as n}
-                        <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                          {n.nilai}
-                          <span class="font-normal text-blue-600">{n.judul}</span>
+    <div class="hidden md:block">
+      <Table>
+        {#snippet head()}
+          <Th>Nama Siswa</Th>
+          <Th>Try Out</Th>
+          <Th>Nilai Manual</Th>
+          <Th>Rata-rata</Th>
+        {/snippet}
+        {#snippet body()}
+          {#each data.siswa as siswa (siswa.id)}
+            <tr class="border-b border-border hover:bg-muted/30">
+              <Td>
+                <span class="block font-medium text-foreground">{siswa.nama}</span>
+                <span class="font-mono text-xs text-muted-foreground">{siswa.nis}</span>
+              </Td>
+              <Td>
+                {#if siswa.nilaiTryOut.length > 0}
+                  <div class="flex flex-col gap-1">
+                    {#each siswa.nilaiTryOut as n}
+                      <span class="text-xs">
+                        <span class="font-mono font-medium text-foreground">{n.nilai}</span>
+                        <span class="text-muted-foreground"> · {n.judul}</span>
+                      </span>
+                    {/each}
+                  </div>
+                {:else}
+                  <span class="text-muted-foreground">—</span>
+                {/if}
+              </Td>
+              <Td>
+                {#if siswa.nilaiManual.length > 0}
+                  <div class="flex flex-col gap-1">
+                    {#each siswa.nilaiManual as n}
+                      <span class="text-xs">
+                        <span class="font-mono font-medium text-foreground">{n.nilai}</span>
+                        <span class="text-muted-foreground">
+                          · {n.judul} ({n.tipe}, {tanggalPendek(n.tanggal)})
                         </span>
-                      {/each}
-                    </div>
-                  {:else}
-                    <span class="text-gray-400">—</span>
-                  {/if}
-                </td>
-                <td class="px-6 py-4 text-center">
-                  {#if siswa.nilaiManual.length > 0}
-                    <div class="flex flex-col gap-1">
-                      {#each siswa.nilaiManual as n}
-                        <div class="text-xs">
-                          <span class="font-medium text-gray-900">{n.nilai}</span>
-                          <span class="text-gray-500"> · {n.judul} ({n.tipe}, {tanggalPendek(n.tanggal)})</span>
-                        </div>
-                      {/each}
-                    </div>
-                  {:else}
-                    <span class="text-gray-400">—</span>
-                  {/if}
-                </td>
-                <td class="px-6 py-4 text-center">
-                  {#if siswa.rataRata === null}
-                    <span class="text-gray-400">Belum ada nilai</span>
-                  {:else}
-                    <span
-                      class="inline-flex items-center justify-center rounded-full px-3 py-1 text-sm font-bold"
-                      class:bg-emerald-50={siswa.rataRata >= 80}
-                      class:text-emerald-700={siswa.rataRata >= 80}
-                      class:bg-amber-50={siswa.rataRata >= 60 && siswa.rataRata < 80}
-                      class:text-amber-700={siswa.rataRata >= 60 && siswa.rataRata < 80}
-                      class:bg-red-50={siswa.rataRata < 60}
-                      class:text-red-700={siswa.rataRata < 60}
-                    >
-                      {siswa.rataRata}
-                    </span>
-                  {/if}
-                </td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
+                      </span>
+                    {/each}
+                  </div>
+                {:else}
+                  <span class="text-muted-foreground">—</span>
+                {/if}
+              </Td>
+              <Td>
+                {#if siswa.rataRata === null}
+                  <span class="text-xs text-muted-foreground">Belum ada nilai</span>
+                {:else}
+                  <Badge tone={nada(siswa.rataRata)}>{siswa.rataRata}</Badge>
+                {/if}
+              </Td>
+            </tr>
+          {/each}
+        {/snippet}
+      </Table>
     </div>
   {/if}
 </div>

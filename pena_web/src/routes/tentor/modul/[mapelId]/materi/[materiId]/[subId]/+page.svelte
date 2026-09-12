@@ -1,4 +1,8 @@
 <script lang="ts">
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { FileX } from 'lucide-svelte'
+
   let { data } = $props()
 
   let fullscreen = $state(false)
@@ -10,28 +14,26 @@
       <a href="/tentor/modul" class="text-sm font-medium text-primary hover:underline">
         ← Kembali ke Modul
       </a>
-      <h1 class="mt-4 text-2xl font-bold text-gray-900">{data.subMateri.nama}</h1>
+      <h1 class="mt-4 font-serif text-2xl text-foreground">{data.subMateri.nama}</h1>
     </div>
 
-    <button
-      onclick={() => (fullscreen = !fullscreen)}
-      class="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-    >
+    <Button variant="secondary" onclick={() => (fullscreen = !fullscreen)}>
       {fullscreen ? 'Perkecil' : 'Layar Penuh'}
-    </button>
+    </Button>
   </div>
 
   {#if data.signedUrl}
-    <div class="rounded-2xl border border-gray-200 bg-white p-4">
+    <Card class="p-4">
       <iframe
         src={data.signedUrl}
         title={data.subMateri.nama}
-        class="w-full rounded-lg border border-gray-100 {fullscreen ? 'h-[90vh]' : 'h-[70vh]'}"
+        class="w-full rounded-lg border border-border {fullscreen ? 'h-[90vh]' : 'h-[70vh]'}"
       ></iframe>
-    </div>
+    </Card>
   {:else}
-    <div class="rounded-2xl border-2 border-dashed border-gray-200 p-8 text-center">
-      <p class="text-sm text-gray-500">Modul tidak dapat dimuat.</p>
+    <div class="rounded-xl border border-dashed border-border p-8 text-center">
+      <FileX class="mx-auto h-8 w-8 text-muted-foreground" />
+      <p class="mt-2 text-sm text-muted-foreground">Modul tidak dapat dimuat.</p>
     </div>
   {/if}
 </div>
