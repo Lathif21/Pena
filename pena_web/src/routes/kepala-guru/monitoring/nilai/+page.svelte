@@ -5,7 +5,10 @@
   import Table from '$lib/components/Table.svelte'
   import Th from '$lib/components/Th.svelte'
   import Td from '$lib/components/Td.svelte'
-  import { GraduationCap } from 'lucide-svelte'
+  import Button from '$lib/components/Button.svelte'
+  import { GraduationCap, Download } from 'lucide-svelte'
+  import { keCsv, namaBerkas } from '$lib/utils/csv'
+  import { hariIni } from '$lib/utils/tanggal'
 
   let { data } = $props()
 
@@ -34,6 +37,53 @@
 
   // Di bawah 70 ditandai supaya KG bisa langsung melihat siapa yang tertinggal.
   const AMBANG = 70
+
+  // Kolom export mengikuti yang ditampilkan tabel, ditambah paket dan jumlah
+  // nilai — dua hal yang di layar hanya jadi keterangan kecil tapi berguna saat
+  // datanya diolah di spreadsheet.
+  const KOLOM = [
+    { kunci: 'nama', judul: 'Nama' },
+    { kunci: 'nis', judul: 'NIS' },
+    { kunci: 'kelas', judul: 'Kelas' },
+    { kunci: 'paket', judul: 'Paket' },
+    { kunci: 'jumlahTryOut', judul: 'Jumlah Try Out' },
+    { kunci: 'rataTryOut', judul: 'Rata-rata Try Out' },
+    { kunci: 'jumlahManual', judul: 'Jumlah Nilai Manual' },
+    { kunci: 'rataManual', judul: 'Rata-rata Nilai Manual' },
+    { kunci: 'rataGabungan', judul: 'Rata-rata Gabungan' }
+  ]
+
+  function ekspor() {
+    // Sumbernya `terlihat`, bukan data.siswa: filter kelas dan pencarian
+    // berjalan di klien, jadi hanya array inilah yang benar-benar mewakili apa
+    // yang sedang dilihat kepala guru.
+    const baris = terlihat.map((s) => ({
+      nama: s.nama,
+      nis: s.nis,
+      kelas: s.kelasNama || 'Privat',
+      paket: s.paket === 'privat' ? 'Privat' : 'Regular',
+      jumlahTryOut: s.jumlahTryOut,
+      rataTryOut: s.rataTryOut,
+      jumlahManual: s.jumlahManual,
+      rataManual: s.rataManual,
+      rataGabungan: s.rataGabungan
+    }))
+
+    const berkas = namaBerkas(
+      'nilai-siswa',
+      // Filternya ikut ke nama berkas, supaya file yang sudah tersimpan tetap
+      // bisa dijelaskan tanpa dibuka.
+      [kelasPilihan || 'semua-kelas', cari.trim() ? `cari-${cari.trim()}` : null],
+      hariIni()
+    )
+
+    const url = URL.createObjectURL(new Blob([keCsv(baris, KOLOM)], { type: 'text/csv;charset=utf-8' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = berkas
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const gayaField =
     'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none'
@@ -65,7 +115,7 @@
 </div>
 
 <Card class="mt-6">
-  <div class="grid gap-4 sm:grid-cols-2">
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
     <div>
       <label for="kelas" class="block text-sm font-medium text-foreground">Kelas</label>
       <select id="kelas" bind:value={kelasPilihan} class="{gayaField} pr-8">
@@ -79,7 +129,22 @@
       <label for="cari" class="block text-sm font-medium text-foreground">Cari nama atau NIS</label>
       <input id="cari" type="search" bind:value={cari} placeholder="Ketik nama…" class={gayaField} />
     </div>
+    <div class="flex items-end">
+      <Button
+        variant="secondary"
+        onclick={ekspor}
+        disabled={terlihat.length === 0}
+        class="w-full lg:w-auto"
+      >
+        <Download class="mr-2 h-4 w-4" />
+        Export ({terlihat.length})
+      </Button>
+    </div>
   </div>
+  <p class="mt-3 text-xs text-muted-foreground">
+    Export berisi tepat apa yang sedang tampil — <span class="font-mono">{terlihat.length}</span>
+    siswa sesuai filter di atas, bukan seluruh data.
+  </p>
 </Card>
 
 {#if data.mapel.some((m) => m.rata !== null)}
