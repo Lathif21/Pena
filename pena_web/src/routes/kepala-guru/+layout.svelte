@@ -8,6 +8,7 @@
     ClipboardList,
     Camera,
     GraduationCap,
+    ChartNoAxesColumn,
     NotebookPen
   } from 'lucide-svelte'
 
@@ -46,7 +47,8 @@
     },
     { href: '/kepala-guru/monitoring/presensi', label: 'Absensi Tentor', icon: Camera },
     { href: '/kepala-guru/monitoring/jurnal', label: 'Jurnal Mengajar', icon: NotebookPen },
-    { href: '/kepala-guru/monitoring/nilai', label: 'Nilai Siswa', icon: GraduationCap }
+    { href: '/kepala-guru/monitoring/nilai', label: 'Nilai Siswa', icon: GraduationCap },
+    { href: '/kepala-guru/kpi', label: 'KPI Tentor', icon: ChartNoAxesColumn }
   ]
 </script>
 

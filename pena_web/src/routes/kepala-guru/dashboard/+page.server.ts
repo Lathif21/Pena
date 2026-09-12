@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
+import { hariIni, periodeBulanan } from '$lib/utils/tanggal'
 
 export async function load({ cookies, parent }) {
   const supabase = createSupabaseServerClient(cookies)
@@ -101,8 +102,29 @@ export async function load({ cookies, parent }) {
     diBawahAmbang: semuaNilai.filter((n) => n < 70).length
   }
 
+  // KPI dibaca dari snapshot, tidak dihitung di sini: dashboard dibuka jauh
+  // lebih sering daripada KPI berubah, dan perhitungannya menyentuh banyak
+  // tabel. Halaman KPI yang membuat snapshot-nya.
+  const { mulai } = periodeBulanan(hariIni())
+  const { data: kpiRows } = await supabase
+    .from('kpi_snapshot')
+    .select('skor, nilai_gain, nilai_jurnal, jumlah_sesi, tentor:tentor_id(nama_lengkap)')
+    .eq('periode_mulai', mulai)
+    .eq('tahun_ajaran_id', parentData.profile.tahun_ajaran_id)
+    .is('deleted_at', null)
+    .order('skor', { ascending: false })
+
+  const kpi = (kpiRows ?? []).map((k: any) => ({
+    nama: k.tentor?.nama_lengkap ?? '(tanpa nama)',
+    skor: Number(k.skor),
+    gain: k.nilai_gain === null ? null : Number(k.nilai_gain),
+    jurnal: k.nilai_jurnal === null ? null : Number(k.nilai_jurnal),
+    jumlahSesi: k.jumlah_sesi
+  }))
+
   return {
     ...parentData,
+    kpi,
     stats: { mapel, kelas, siswa, tentor, materi },
     absensiHariIni,
     jurnalTerbaru,

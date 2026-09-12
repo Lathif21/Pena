@@ -2,7 +2,6 @@
   import Badge from '$lib/components/Badge.svelte'
   import Card from '$lib/components/Card.svelte'
   import ProgressBar from '$lib/components/ProgressBar.svelte'
-  import { kpiContoh } from '$features/kpi/data/kpi-contoh'
   import {
     Users,
     GraduationCap,
@@ -14,7 +13,8 @@
     RotateCcw,
     ClipboardList,
     Presentation,
-    Camera
+    Camera,
+    ChartNoAxesColumn
   } from 'lucide-svelte'
 
   let { data } = $props()
@@ -229,28 +229,41 @@
   </Card>
 
   <Card>
-    <div class="mb-2 flex items-baseline justify-between gap-3 border-l-2 border-accent pl-3">
+    <div class="mb-4 flex items-baseline justify-between gap-3 border-l-2 border-accent pl-3">
       <h2 class="font-serif text-lg text-foreground">KPI Tentor</h2>
-      <Badge tone="pending">Data contoh</Badge>
+      <a href="/kepala-guru/kpi" class="text-xs font-medium text-primary hover:underline">
+        Lihat semua
+      </a>
     </div>
-    <p class="mb-4 text-xs text-muted-foreground">
-      Angka di bawah ini belum dihitung dari data asli — nama pun fiktif. Perhitungan KPI
-      sesungguhnya masuk di Fase 5.
-    </p>
 
-    <div class="space-y-3">
-      {#each kpiContoh as k (k.nama)}
-        <div>
-          <div class="flex items-baseline justify-between gap-3 text-sm">
-            <span class="text-foreground">{k.nama}</span>
-            <span class="font-mono text-xs text-muted-foreground">
-              hadir {k.kehadiran}% · jurnal {k.jurnal}% · nilai {k.rataNilaiSiswa}
-            </span>
+    {#if data.kpi.length === 0}
+      <div class="py-8 text-center">
+        <ChartNoAxesColumn class="mx-auto h-8 w-8 text-muted-foreground" />
+        <p class="mt-2 text-sm text-muted-foreground">
+          Belum ada snapshot untuk bulan ini. Buka halaman KPI untuk menghitungnya.
+        </p>
+      </div>
+    {:else}
+      <div class="space-y-3">
+        {#each data.kpi as k (k.nama)}
+          <div>
+            <div class="flex items-baseline justify-between gap-3 text-sm">
+              <span class="text-foreground">{k.nama}</span>
+              <span class="font-mono text-xs text-muted-foreground">
+                {#if k.gain === null && k.jurnal === null}
+                  belum ada data
+                {:else}
+                  gain {k.gain === null ? '—' : Math.round(k.gain * 100) + '%'} · jurnal
+                  {k.jurnal === null ? '—' : Math.round(k.jurnal * 100) + '%'} ·
+                  <span class="font-mono">{k.jumlahSesi}</span> sesi
+                {/if}
+              </span>
+            </div>
+            <ProgressBar value={k.skor} />
           </div>
-          <ProgressBar value={k.skor} />
-        </div>
-      {/each}
-    </div>
+        {/each}
+      </div>
+    {/if}
   </Card>
 </div>
 
