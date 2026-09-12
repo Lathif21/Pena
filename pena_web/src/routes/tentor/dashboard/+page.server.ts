@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
+import { reliefHariIniLengkap } from '$features/relief/data/relief.server'
 
 export async function load({ cookies, parent }) {
   const supabase = createSupabaseServerClient(cookies)
@@ -40,8 +41,12 @@ export async function load({ cookies, parent }) {
     .is('deleted_at', null)
     .order('ended_at', { ascending: false })
 
+  // Relief yang ditugaskan ke tentor ini hari ini — izinnya habis lewat tengah malam.
+  const reliefUntukSaya = await reliefHariIniLengkap(supabase, tentorId)
+
   return {
     ...parentData,
+    reliefUntukSaya,
     sesiAktif: sesi
       ? {
           id: sesi.id,

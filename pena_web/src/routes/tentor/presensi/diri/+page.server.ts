@@ -1,6 +1,7 @@
 import { error as svelteError } from '@sveltejs/kit'
 import { createSupabaseServerClient } from '$lib/supabase/server'
 import { signedUrl } from '$features/attendance/data/sesi.server'
+import { reliefHariIniLengkap } from '$features/relief/data/relief.server'
 
 export async function load({ cookies, parent }) {
   const supabase = createSupabaseServerClient(cookies)
@@ -21,7 +22,17 @@ export async function load({ cookies, parent }) {
     const k = row.kelas
     if (k && !k.deleted_at) unik.set(k.id, { id: k.id, nama: k.nama })
   }
-  const kelas = [...unik.values()].sort((a, b) => a.nama.localeCompare(b.nama))
+  // Kelas relief hari ini ikut masuk dropdown, ditandai supaya tentor tahu itu
+  // bukan kelasnya sendiri. Izin di baliknya habis lewat tengah malam, jadi
+  // besok kelas ini hilang sendiri tanpa ada yang mencabutnya.
+  const relief = await reliefHariIniLengkap(supabase, tentorId)
+
+  const kelas = [
+    ...[...unik.values()].map((k) => ({ ...k, relief: false })),
+    ...relief
+      .filter((r) => !unik.has(r.kelasId))
+      .map((r) => ({ id: r.kelasId, nama: r.kelasNama, relief: true }))
+  ].sort((a, b) => a.nama.localeCompare(b.nama))
 
   const { data: sesi } = await supabase
     .from('sesi_mengajar')
@@ -39,6 +50,7 @@ export async function load({ cookies, parent }) {
   return {
     ...parentData,
     kelas,
+    relief,
     sesiAktif: sesi
       ? {
           id: sesi.id,

@@ -134,3 +134,46 @@ export async function kirimNotifikasi(
     return pesan
   }
 }
+
+export interface ReliefLengkap {
+  id: string
+  kelasId: string
+  kelasNama: string
+  mapelId: string
+  mapelNama: string
+  task: string
+  tentorAsliNama: string
+}
+
+/**
+ * Relief aktif hari ini untuk pengganti ini, lengkap dengan nama-nama.
+ *
+ * Memakai client milik request (bukan admin) karena ini dipanggil dari `load`,
+ * dan datanya memang milik pemanggil sendiri. Otorisasi pembukaan sesi tetap
+ * lewat `adaReliefAktif`, yang berjalan di endpoint dengan hak admin.
+ */
+export async function reliefHariIniLengkap(
+  supabase: { from: (t: string) => any },
+  penggantiId: string
+): Promise<ReliefLengkap[]> {
+  const { data } = await supabase
+    .from('relief')
+    .select(`
+      id, task, kelas_id, mapel_id,
+      kelas:kelas_id(nama), mapel:mapel_id(nama), tentorAsli:tentor_asli_id(nama_lengkap)
+    `)
+    .eq('pengganti_id', penggantiId)
+    .eq('tanggal', hariIni())
+    .eq('status', 'aktif')
+    .is('deleted_at', null)
+
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    kelasId: r.kelas_id,
+    kelasNama: r.kelas?.nama ?? '',
+    mapelId: r.mapel_id,
+    mapelNama: r.mapel?.nama ?? '',
+    task: r.task,
+    tentorAsliNama: r.tentorAsli?.nama_lengkap ?? '(tanpa nama)'
+  }))
+}
