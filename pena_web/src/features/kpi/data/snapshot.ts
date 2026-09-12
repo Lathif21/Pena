@@ -20,7 +20,11 @@ export async function konfigBerlaku(tahunAjaranId: string, pada: string) {
     .eq('tahun_ajaran_id', tahunAjaranId)
     .lte('valid_from', pada)
     .is('deleted_at', null)
+    // created_at ikut jadi pengurut: dua config dengan valid_from sama —
+    // misalnya kepala guru mengubah bobot dua kali dalam sehari — akan dipilih
+    // secara acak oleh Postgres tanpa pengurut kedua ini.
     .order('valid_from', { ascending: false })
+    .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle()
 
