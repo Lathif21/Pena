@@ -68,11 +68,22 @@
   <Card class="mb-6 border-l-2 border-l-accent">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <Badge tone="info">Relief hari ini</Badge>
+        {#if r.sesi?.status === 'closed'}
+          <Badge tone="success">Relief selesai</Badge>
+        {:else if r.sesi?.status === 'open'}
+          <Badge tone="pending">Relief sedang berjalan</Badge>
+        {:else}
+          <Badge tone="info">Relief hari ini</Badge>
+        {/if}
         <h2 class="mt-2 font-serif text-base text-foreground">{r.kelasNama} · {r.mapelNama}</h2>
         <p class="mt-1 text-sm text-muted-foreground">Menggantikan {r.tentorAsliNama}</p>
       </div>
-      <Button href="/tentor/presensi/diri">Mulai Sesi Relief</Button>
+      <!-- Tombol mulai hanya muncul kalau sesinya belum ada. Sesi yang sedang
+           berjalan diurus kartu sesi aktif di bawah, dan sesi yang sudah
+           ditutup tidak boleh dibuka lagi — satu relief satu sesi. -->
+      {#if !r.sesi}
+        <Button href="/tentor/presensi/diri">Mulai Sesi Relief</Button>
+      {/if}
     </div>
 
     <div class="mt-3 rounded-lg bg-muted/30 p-3">

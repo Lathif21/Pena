@@ -25,7 +25,11 @@ export async function load({ cookies, parent }) {
   // Kelas relief hari ini ikut masuk dropdown, ditandai supaya tentor tahu itu
   // bukan kelasnya sendiri. Izin di baliknya habis lewat tengah malam, jadi
   // besok kelas ini hilang sendiri tanpa ada yang mencabutnya.
-  const relief = await reliefHariIniLengkap(supabase, tentorId)
+  // Relief yang sesinya sudah ditutup dikeluarkan: menawarkan kelasnya lagi
+  // mengundang sesi kedua untuk relief yang sama, dan itu presensi ganda.
+  const relief = (await reliefHariIniLengkap(supabase, tentorId)).filter(
+    (r) => r.sesi?.status !== 'closed'
+  )
 
   const kelas = [
     ...[...unik.values()].map((k) => ({ ...k, relief: false })),

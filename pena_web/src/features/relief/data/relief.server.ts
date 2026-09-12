@@ -53,35 +53,54 @@ export async function reliefHariIni(penggantiId: string): Promise<ReliefAktif[]>
   return (data ?? []) as ReliefAktif[]
 }
 
+export interface SesiRelief {
+  id: string
+  status: 'open' | 'closed'
+}
+
 /**
- * Sudah adakah sesi yang dibuka lewat relief ini?
+ * Sesi yang dibuka lewat relief ini, kalau ada.
  *
- * Dipakai pembatalan: setelah pengganti membuka sesi, membatalkan relief akan
- * meninggalkan sesi itu tanpa dasar otorisasi. `sesi_mengajar` tidak menyimpan
- * relief_id, jadi kecocokannya lewat pengganti + kelas + mapel + tanggal —
- * kombinasi yang sama dengan yang dipakai saat mengizinkan sesi itu dibuka.
+ * `sesi_mengajar` tidak menyimpan relief_id, jadi kecocokannya lewat
+ * pengganti + kelas + mapel + tanggal — kombinasi yang sama dengan yang dipakai
+ * saat mengizinkan sesi itu dibuka.
+ *
+ * Statusnya, bukan hanya ada-tidaknya: banner dashboard perlu membedakan "belum
+ * mulai", "sedang berjalan", dan "sudah selesai".
  */
-export async function adaSesiLewatRelief(relief: {
+export async function sesiUntukRelief(relief: {
   pengganti_id: string
   kelas_id: string
   mapel_id: string
   tanggal: string
-}): Promise<boolean> {
+}): Promise<SesiRelief | null> {
   const mulai = new Date(`${relief.tanggal}T00:00:00+07:00`)
   const habis = new Date(mulai.getTime() + 24 * 60 * 60 * 1000)
 
   const { data } = await supabaseAdmin
     .from('sesi_mengajar')
-    .select('id')
+    .select('id, status')
     .eq('tentor_id', relief.pengganti_id)
     .eq('kelas_id', relief.kelas_id)
     .eq('mapel_id', relief.mapel_id)
     .gte('started_at', mulai.toISOString())
     .lt('started_at', habis.toISOString())
     .is('deleted_at', null)
+    .order('started_at', { ascending: false })
     .limit(1)
+    .maybeSingle()
 
-  return (data ?? []).length > 0
+  return (data as SesiRelief) ?? null
+}
+
+/** Dipakai pembatalan: relief terkunci begitu penggantinya membuka sesi. */
+export async function adaSesiLewatRelief(relief: {
+  pengganti_id: string
+  kelas_id: string
+  mapel_id: string
+  tanggal: string
+}): Promise<boolean> {
+  return (await sesiUntukRelief(relief)) !== null
 }
 
 /**
@@ -137,6 +156,8 @@ export async function kirimNotifikasi(
 
 export interface ReliefLengkap {
   id: string
+  /** Sesi yang sudah dibuka lewat relief ini — null kalau belum mulai. */
+  sesi: SesiRelief | null
   kelasId: string
   kelasNama: string
   mapelId: string
@@ -167,13 +188,21 @@ export async function reliefHariIniLengkap(
     .eq('status', 'aktif')
     .is('deleted_at', null)
 
-  return (data ?? []).map((r: any) => ({
-    id: r.id,
-    kelasId: r.kelas_id,
-    kelasNama: r.kelas?.nama ?? '',
-    mapelId: r.mapel_id,
-    mapelNama: r.mapel?.nama ?? '',
-    task: r.task,
-    tentorAsliNama: r.tentorAsli?.nama_lengkap ?? '(tanpa nama)'
-  }))
+  return await Promise.all(
+    (data ?? []).map(async (r: any) => ({
+      id: r.id,
+      sesi: await sesiUntukRelief({
+        pengganti_id: penggantiId,
+        kelas_id: r.kelas_id,
+        mapel_id: r.mapel_id,
+        tanggal: hariIni()
+      }),
+      kelasId: r.kelas_id,
+      kelasNama: r.kelas?.nama ?? '',
+      mapelId: r.mapel_id,
+      mapelNama: r.mapel?.nama ?? '',
+      task: r.task,
+      tentorAsliNama: r.tentorAsli?.nama_lengkap ?? '(tanpa nama)'
+    }))
+  )
 }
