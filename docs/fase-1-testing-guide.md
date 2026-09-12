@@ -88,7 +88,7 @@ Complete test checklist for content hierarchy (materi → sub materi → module 
 
 ## Test Set 2: Sub Materi CRUD
 
-**Route:** `(kepala-guru)/konten/[mapelId]/materi/[materiId]`
+**Route:** `kepala-guru/konten/[mapelId]/materi/[materiId]`
 
 *(Once routes are created, same test structure as Set 1)*
 
@@ -106,7 +106,7 @@ Complete test checklist for content hierarchy (materi → sub materi → module 
 
 ## Test Set 3: Module Upload & Publish
 
-**Route:** `(kepala-guru)/konten/.../sub-materi/[subMateriId]/module`
+**Route:** `kepala-guru/konten/.../sub-materi/[subMateriId]/module`
 
 ### TC-3.1: Upload PDF (Create Draft Module)
 
@@ -174,7 +174,7 @@ Complete test checklist for content hierarchy (materi → sub materi → module 
 
 ## Test Set 4: Student Module Viewing (MVP)
 
-**Route:** `(siswa)/mapel/[mapelId]`
+**Route:** `siswa/mapel/[mapelId]`
 
 ### TC-4.1: Siswa Sees Only Published Content
 
@@ -219,7 +219,7 @@ Complete test checklist for content hierarchy (materi → sub materi → module 
 
 ## Test Set 5: Tentor Module Viewing
 
-**Route:** `(tentor)/modul`
+**Route:** `tentor/modul`
 
 ### TC-5.1: Tentor Sees Only Their Mapel
 

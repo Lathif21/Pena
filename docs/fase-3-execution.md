@@ -5,7 +5,9 @@ Cara pakai: buka Claude Code di folder `pena/`, minta ikuti langkah-langkah ini.
 
 Prasyarat: Fase 2 selesai — soal, try out, nilai manual sudah jalan.
 
-> **Terminal: PowerShell.** Jangan campur sintaks Bash (`mkdir -p`, `{a,b}`). Untuk folder route, tulis kurung siku **tanpa escape** dan bungkus path dalam tanda kutip — `"src/routes/(tentor)/presensi/diri"`. Escape backslash (`\[id\]`) menghasilkan nama folder rusak; ini penyebab masalah route di Fase 2.
+> **Terminal: PowerShell.** Jangan campur sintaks Bash (`mkdir -p`, `{a,b}`). Bungkus path dalam tanda kutip, dan tulis kurung siku segmen dinamis **tanpa escape** — `"src/routes/siswa/mapel/[mapelId]"`. Escape backslash (`\[id\]`) menghasilkan nama folder rusak; ini penyebab masalah route di Fase 2.
+>
+> Folder route ditulis biasa (`tentor/`, `kepala-guru/`), bukan route group berkurung — lihat `.claude/rules/structure-web.md`.
 
 **Commit setiap selesai satu langkah.** `git add . ; git commit -m "feat: <langkah>"`
 
@@ -86,12 +88,12 @@ New-Item -ItemType Directory -Force -Path "src/features/journal/components"
 New-Item -ItemType Directory -Force -Path "src/features/journal/data"
 New-Item -ItemType Directory -Force -Path "src/features/session/data"
 
-New-Item -ItemType Directory -Force -Path "src/routes/(tentor)/presensi/diri"
-New-Item -ItemType Directory -Force -Path "src/routes/(tentor)/presensi/murid"
-New-Item -ItemType Directory -Force -Path "src/routes/(tentor)/jurnal"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/monitoring/presensi"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/monitoring/jurnal"
-New-Item -ItemType Directory -Force -Path "src/routes/(kepala-guru)/monitoring/sesi"
+New-Item -ItemType Directory -Force -Path "src/routes/tentor/presensi/diri"
+New-Item -ItemType Directory -Force -Path "src/routes/tentor/presensi/murid"
+New-Item -ItemType Directory -Force -Path "src/routes/tentor/jurnal"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/monitoring/presensi"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/monitoring/jurnal"
+New-Item -ItemType Directory -Force -Path "src/routes/kepala-guru/monitoring/sesi"
 
 New-Item -ItemType Directory -Force -Path "src/routes/api/sesi"
 New-Item -ItemType Directory -Force -Path "src/routes/api/presensi-murid"
@@ -134,7 +136,7 @@ Endpoint `/api/sesi/[id]/close`: cek kepemilikan, panggil RPC, terjemahkan excep
 
 ## Langkah 10 — UI Tentor: Dashboard
 
-`(tentor)/dashboard/+page.svelte`
+`tentor/dashboard/+page.svelte`
 
 Referensi visual: `docs/design-reference/Tentor_Dashboard.png`.
 
@@ -145,7 +147,7 @@ Referensi visual: `docs/design-reference/Tentor_Dashboard.png`.
 
 ## Langkah 11 — UI Tentor: Presensi Diri
 
-`(tentor)/presensi/diri/+page.svelte`
+`tentor/presensi/diri/+page.svelte`
 
 - Dropdown kelas → dropdown mapel (terfilter `mapel_kelas`)
 - File input foto, preview sebelum submit
@@ -153,7 +155,7 @@ Referensi visual: `docs/design-reference/Tentor_Dashboard.png`.
 
 ## Langkah 12 — UI Tentor: Presensi Murid
 
-`(tentor)/presensi/murid/+page.svelte`
+`tentor/presensi/murid/+page.svelte`
 
 - Kalau belum ada sesi aktif: pesan "Submit presensi diri dulu" + link
 - Tabel siswa dari kelas sesi aktif, checkbox default tercentang
@@ -161,7 +163,7 @@ Referensi visual: `docs/design-reference/Tentor_Dashboard.png`.
 
 ## Langkah 13 — UI Tentor: Jurnal Mengajar
 
-`(tentor)/jurnal/+page.svelte`
+`tentor/jurnal/+page.svelte`
 
 - Dropdown materi (dari mapel sesi aktif)
 - Textarea deskripsi
@@ -174,7 +176,7 @@ Setelah konfirmasi: panggil `/api/sesi/[id]/close`, redirect ke dashboard.
 
 ## Langkah 15 — UI KG: Monitoring Presensi Tentor
 
-`(kepala-guru)/monitoring/presensi/+page.svelte`
+`kepala-guru/monitoring/presensi/+page.svelte`
 
 - Filter tanggal dan tentor
 - Tabel: tentor, kelas, mapel, foto thumbnail (klik perbesar), `uploaded_at`
@@ -182,7 +184,7 @@ Setelah konfirmasi: panggil `/api/sesi/[id]/close`, redirect ke dashboard.
 
 ## Langkah 16 — UI KG: Monitoring Jurnal
 
-`(kepala-guru)/monitoring/jurnal/+page.svelte`
+`kepala-guru/monitoring/jurnal/+page.svelte`
 
 - Daftar jurnal submitted, filter tentor dan tanggal
 - Isi: materi, deskripsi, tanggal sesi
@@ -190,7 +192,7 @@ Setelah konfirmasi: panggil `/api/sesi/[id]/close`, redirect ke dashboard.
 
 ## Langkah 17 — UI KG: Monitoring Sesi
 
-`(kepala-guru)/monitoring/sesi/+page.svelte`
+`kepala-guru/monitoring/sesi/+page.svelte`
 
 Ringkasan per sesi closed: presensi tentor (foto), presensi murid (hadir dari total), jurnal, nilai manual hari itu.
 
