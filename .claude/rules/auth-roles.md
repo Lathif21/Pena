@@ -1,11 +1,11 @@
 ---
 paths:
   - "**/features/auth/**"
-  - "**/routes/(auth)/**"
-  - "**/routes/(kepala-guru)/**"
-  - "**/routes/(tentor)/**"
-  - "**/routes/(siswa)/**"
-  - "**/routes/(wali)/**"
+  - "**/routes/auth/**"
+  - "**/routes/kepala-guru/**"
+  - "**/routes/tentor/**"
+  - "**/routes/siswa/**"
+  - "**/routes/wali/**"
   - "supabase/migrations/**"
 ---
 

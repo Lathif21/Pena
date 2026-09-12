@@ -1,9 +1,9 @@
 ---
 paths:
   - "**/features/module/**"
-  - "**/routes/(kepala-guru)/konten/**"
-  - "**/routes/(siswa)/mapel/**"
-  - "**/routes/(tentor)/modul/**"
+  - "**/routes/kepala-guru/konten/**"
+  - "**/routes/siswa/mapel/**"
+  - "**/routes/tentor/modul/**"
   - "supabase/migrations/**"
 ---
 
