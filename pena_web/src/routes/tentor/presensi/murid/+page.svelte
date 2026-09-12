@@ -5,7 +5,7 @@
   import Badge from '$lib/components/Badge.svelte'
   import Button from '$lib/components/Button.svelte'
   import Card from '$lib/components/Card.svelte'
-  import { CalendarX } from 'lucide-svelte'
+  import { CalendarX, NotebookPen, House } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -67,10 +67,32 @@
     {#if error}
       <div class="mt-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
     {/if}
+    <!-- Setelah presensi tersimpan, tentor butuh tahu langkah berikutnya —
+         tanpa ini dia harus menebak sendiri jalan kembali untuk menutup sesi. -->
     {#if message}
-      <div class="mt-4 rounded-lg bg-emerald-100 p-4">
+      <Card class="mt-4 border-l-2 border-l-accent">
         <p class="text-sm text-emerald-800">✓ {message}</p>
-      </div>
+        {#if data.adaJurnal}
+          <p class="mt-2 text-sm text-muted-foreground">
+            Jurnal sudah terisi. Sesi bisa ditutup dari dashboard.
+          </p>
+          <Button href="/tentor/dashboard" class="mt-3">
+            <House class="mr-2 h-4 w-4" />
+            Ke Dashboard & Selesaikan Sesi
+          </Button>
+        {:else}
+          <p class="mt-2 text-sm text-muted-foreground">
+            Isi jurnal mengajar dulu — Selesai Mengajar terkunci sampai jurnalnya ada.
+          </p>
+          <div class="mt-3 flex flex-wrap gap-3">
+            <Button href="/tentor/jurnal">
+              <NotebookPen class="mr-2 h-4 w-4" />
+              Isi Jurnal Mengajar
+            </Button>
+            <Button variant="secondary" href="/tentor/dashboard">Ke Dashboard</Button>
+          </div>
+        {/if}
+      </Card>
     {/if}
 
     <Card class="mt-6">

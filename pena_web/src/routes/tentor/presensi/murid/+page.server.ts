@@ -21,7 +21,19 @@ export async function load({ cookies, parent }) {
   // menyatu jadi `{} | Record<...>` dan halaman tidak bisa mengindeksnya.
   const kosong: Record<string, boolean> = {}
 
-  if (!sesi) return { ...parentData, sesiAktif: null, siswa: [], tersimpan: kosong }
+  if (!sesi) {
+    return { ...parentData, sesiAktif: null, siswa: [], tersimpan: kosong, adaJurnal: false }
+  }
+
+  // Selesai Mengajar diblokir sampai jurnal ada, jadi langkah lanjutan setelah
+  // presensi tersimpan bergantung pada ini: ke jurnal dulu, atau sudah boleh
+  // ke dashboard untuk menutup sesi.
+  const { data: jurnal } = await supabase
+    .from('jurnal_mengajar')
+    .select('id')
+    .eq('sesi_id', sesi.id)
+    .is('deleted_at', null)
+    .maybeSingle()
 
   const { data: anggota } = await supabase
     .from('siswa_kelas')
@@ -53,6 +65,7 @@ export async function load({ cookies, parent }) {
       mapelNama: (sesi as any).mapel?.nama ?? ''
     },
     siswa,
+    adaJurnal: !!jurnal,
     tersimpan: Object.fromEntries(
       (presensi ?? []).map((p: any) => [p.siswa_detail_id, p.is_hadir])
     ) as Record<string, boolean>
