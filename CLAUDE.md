@@ -160,14 +160,21 @@ KPI dihitung dari data sungguhan. Aritmetikanya di `features/kpi/data/hitung.js`
 dengan pemeriksaan di `scripts/cek-kpi.mjs` — jalankan itu setelah menyentuh
 rumusnya.
 
+## Storage
+
+Kedua bucket (`presensi-foto`, `modul-pdf`) **tidak punya policy RLS sama
+sekali**, dan itu disengaja. Seluruh akses storage memakai `supabaseAdmin`
+(service_role) yang melewati RLS, dan pembacaan oleh pengguna memakai signed URL
+yang diotorisasi tanda tangannya. Role `anon` dan `authenticated` tidak pernah
+butuh izin di sini.
+
+Jangan menambahkan policy "biar aman": policy yang memberi izin ke
+`authenticated` justru membuka bucket untuk semua user yang login — itu
+kerentanan yang sudah pernah terjadi dan diperbaiki di migration
+`lock_storage_buckets`.
+
 ## Utang Teknis yang Diketahui
 
-- **Policy bucket `presensi-foto` terlalu longgar.** Ketiga policy-nya hanya
-  memeriksa `bucket_id`, jadi setiap user terautentikasi — termasuk siswa —
-  bisa membaca dan menulis objek apa pun di sana. Komentar di migration-nya
-  menjanjikan pemeriksaan kepemilikan yang tidak pernah ditulis. Belum bisa
-  dieksploitasi lewat UI karena pembacaan memakai signed URL, tapi uji 7.10 di
-  `fase-3-testing-guide.md` akan gagal.
 - **Lima modul perlu diunggah ulang.** Saat modul dipindah ke Supabase Storage,
   lima baris `published` ternyata filenya sudah hilang dan diturunkan ke
   `draft`. Tidak ada yang bisa dipulihkan — kepala guru harus mengunggah ulang.
