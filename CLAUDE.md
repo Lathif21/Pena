@@ -162,11 +162,12 @@ rumusnya.
 
 ## Utang Teknis yang Diketahui
 
-- **Modul PDF masih di `static/`**, bukan Supabase Storage. Lima dari tujuh
-  modul `published` filenya hilang, dan yang tersisa bisa diunduh tanpa login.
-  `content-hierarchy.md` mensyaratkan bucket + signed URL.
-- **Skor KPI tanpa ambang minimum.** Tentor dengan satu sesi berjurnal dan nol
-  nilai mendapat skor 100 karena bobot komponen yang kosong dinormalisasi ulang.
+- **Lima modul perlu diunggah ulang.** Saat modul dipindah ke Supabase Storage,
+  lima baris `published` ternyata filenya sudah hilang dan diturunkan ke
+  `draft`. Tidak ada yang bisa dipulihkan — kepala guru harus mengunggah ulang.
+- **Deploy Vercel masih 404.** Root Directory di Vercel belum diarahkan ke
+  `pena_web/`, dan variabel environment (termasuk `SMTP_*`) belum diisi di sana.
+  `$env/static/private` menggagalkan build kalau variabelnya tidak ada.
 
 ## Deferred (Do Not Build Yet)
 
