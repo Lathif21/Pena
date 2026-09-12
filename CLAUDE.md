@@ -162,12 +162,18 @@ rumusnya.
 
 ## Utang Teknis yang Diketahui
 
+- **Policy bucket `presensi-foto` terlalu longgar.** Ketiga policy-nya hanya
+  memeriksa `bucket_id`, jadi setiap user terautentikasi — termasuk siswa —
+  bisa membaca dan menulis objek apa pun di sana. Komentar di migration-nya
+  menjanjikan pemeriksaan kepemilikan yang tidak pernah ditulis. Belum bisa
+  dieksploitasi lewat UI karena pembacaan memakai signed URL, tapi uji 7.10 di
+  `fase-3-testing-guide.md` akan gagal.
 - **Lima modul perlu diunggah ulang.** Saat modul dipindah ke Supabase Storage,
   lima baris `published` ternyata filenya sudah hilang dan diturunkan ke
   `draft`. Tidak ada yang bisa dipulihkan — kepala guru harus mengunggah ulang.
-- **Deploy Vercel masih 404.** Root Directory di Vercel belum diarahkan ke
-  `pena_web/`, dan variabel environment (termasuk `SMTP_*`) belum diisi di sana.
-  `$env/static/private` menggagalkan build kalau variabelnya tidak ada.
+- **`/siswa/nilai` belum ada.** Nav siswa hanya memuat 2 dari 5 item yang
+  didaftarkan `design-system.md`; Latihan Soal dan Ujian sengaja dimasuki lewat
+  sub materi, tapi Nilai Saya memang belum pernah dibangun (sisa Fase 2).
 
 ## Deferred (Do Not Build Yet)
 
