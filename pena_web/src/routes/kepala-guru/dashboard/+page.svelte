@@ -14,7 +14,8 @@
     ClipboardList,
     Presentation,
     Camera,
-    ChartNoAxesColumn
+    ChartNoAxesColumn,
+    UserRoundX
   } from 'lucide-svelte'
 
   let { data } = $props()
@@ -116,6 +117,92 @@
     </a>
   {/each}
 </div>
+
+<!-- Ringkasan harian. Semua batasnya WIB, bukan waktu server. -->
+<div class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <Card>
+    <div class="flex items-baseline justify-between gap-2">
+      <p class="text-sm text-muted-foreground">Presensi tentor</p>
+      <Camera class="h-4 w-4 text-muted-foreground" />
+    </div>
+    <p class="mt-2 font-mono text-2xl text-foreground">
+      {data.overview.tentorHadir}<span class="text-base text-muted-foreground"
+        >/{data.overview.tentorTotal}</span
+      >
+    </p>
+    <p class="mt-1 text-xs text-muted-foreground">tentor sudah unggah foto hari ini</p>
+  </Card>
+
+  <Card>
+    <div class="flex items-baseline justify-between gap-2">
+      <p class="text-sm text-muted-foreground">Sesi selesai</p>
+      <ClipboardList class="h-4 w-4 text-muted-foreground" />
+    </div>
+    <p class="mt-2 font-mono text-2xl text-foreground">
+      {data.overview.sesiSelesai}<span class="text-base text-muted-foreground"
+        >/{data.overview.sesiTotal}</span
+      >
+    </p>
+    <p class="mt-1 text-xs text-muted-foreground">dari sesi yang dibuka hari ini</p>
+  </Card>
+
+  <Card>
+    <div class="flex items-baseline justify-between gap-2">
+      <p class="text-sm text-muted-foreground">Jurnal masuk</p>
+      <NotebookPen class="h-4 w-4 text-muted-foreground" />
+    </div>
+    <p class="mt-2 font-mono text-2xl text-foreground">{data.overview.jurnalMasuk}</p>
+    <p class="mt-1 text-xs text-muted-foreground">tersubmit dalam 7 hari terakhir</p>
+  </Card>
+
+  <Card>
+    <div class="flex items-baseline justify-between gap-2">
+      <p class="text-sm text-muted-foreground">Relief hari ini</p>
+      <UserRoundX class="h-4 w-4 text-muted-foreground" />
+    </div>
+    <p class="mt-2 font-mono text-2xl text-foreground">{data.overview.relief.length}</p>
+    {#if data.overview.relief.length > 0}
+      <p class="mt-1 text-xs text-muted-foreground">
+        {data.overview.relief[0].penggantiNama} menggantikan {data.overview.relief[0]
+          .tentorAsliNama}{data.overview.relief.length > 1
+          ? ` +${data.overview.relief.length - 1} lagi`
+          : ''}
+      </p>
+    {:else}
+      <p class="mt-1 text-xs text-muted-foreground">tidak ada penggantian</p>
+    {/if}
+  </Card>
+</div>
+
+{#if data.overview.tryOut.length > 0}
+  <Card class="mb-6">
+    <div class="mb-3 flex items-baseline justify-between gap-3 border-l-2 border-accent pl-3">
+      <h2 class="font-serif text-lg text-foreground">Try Out Tujuh Hari ke Depan</h2>
+      <span class="font-mono text-xs text-muted-foreground">{data.overview.tryOut.length}</span>
+    </div>
+    <div class="divide-y divide-border">
+      {#each data.overview.tryOut as t (t.id)}
+        <div class="flex flex-wrap items-center justify-between gap-3 py-2">
+          <div>
+            <p class="text-sm font-medium text-foreground">{t.judul}</p>
+            <p class="text-xs text-muted-foreground">{t.mapelNama}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            {#if t.tipe !== 'biasa'}
+              <Badge tone="info">{t.tipe === 'pre_test' ? 'Pre-Test' : 'Post-Test'}</Badge>
+            {/if}
+            <span class="font-mono text-xs text-muted-foreground">
+              {new Date(t.waktuBuka).toLocaleString('id-ID', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+              })}
+            </span>
+          </div>
+        </div>
+      {/each}
+    </div>
+  </Card>
+{/if}
 
 <div class="mb-6 grid gap-6 lg:grid-cols-2">
   <Card>

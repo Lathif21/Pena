@@ -16,9 +16,11 @@ export async function load({ cookies, parent }) {
 
   const [mapel, kelas, siswa, tentor, materi] = counts.map(r => r.count ?? 0)
 
-  // Rentang hari ini di waktu server. Sesi disimpan sebagai timestamptz.
-  const mulaiHariIni = new Date()
-  mulaiHariIni.setHours(0, 0, 0, 0)
+  // Batas hari mengikuti WIB, bukan waktu server. Server UTC menggeser
+  // pergantian hari ke pukul 07:00 WIB, jadi sesi pagi akan terhitung sebagai
+  // "kemarin" sepanjang jam sibuk bimbel.
+  const tanggalIni = hariIni()
+  const mulaiHariIni = new Date(`${tanggalIni}T00:00:00+07:00`)
   const habisHariIni = new Date(mulaiHariIni.getTime() + 24 * 60 * 60 * 1000)
 
   const { data: sesiRows } = await supabase
@@ -102,6 +104,60 @@ export async function load({ cookies, parent }) {
     diBawahAmbang: semuaNilai.filter((n) => n < 70).length
   }
 
+  // --- Widget overview (Langkah 8) -----------------------------------------
+  const tujuhHari = new Date(mulaiHariIni.getTime() + 7 * 24 * 60 * 60 * 1000)
+
+  const [{ data: tryOutRows }, { data: reliefRows }, { count: jurnalMasuk }] = await Promise.all([
+    supabase
+      .from('try_out')
+      .select('id, judul, waktu_buka, tipe_test, materi:materi_id(nama, mapel:mapel_id(nama))')
+      .eq('status', 'published')
+      .gte('waktu_buka', mulaiHariIni.toISOString())
+      .lt('waktu_buka', tujuhHari.toISOString())
+      .is('deleted_at', null)
+      .order('waktu_buka'),
+    supabase
+      .from('relief')
+      .select('id, task, tentorAsli:tentor_asli_id(nama_lengkap), pengganti:pengganti_id(nama_lengkap), kelas:kelas_id(nama), mapel:mapel_id(nama)')
+      .eq('tanggal', tanggalIni)
+      .eq('status', 'aktif')
+      .is('deleted_at', null),
+    // Jurnal yang masuk sepekan terakhir. Bukan "belum direview": tidak ada
+    // status review di skema, dan sesi-mengajar.md memang melarang tombol
+    // setujui/tolak — sistem mencatat, kepala guru menilai sendiri.
+    supabase
+      .from('jurnal_mengajar')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'submitted')
+      .gte('submitted_at', new Date(mulaiHariIni.getTime() - 6 * 24 * 60 * 60 * 1000).toISOString())
+      .is('deleted_at', null)
+  ])
+
+  const overview = {
+    tanggal: tanggalIni,
+    tentorTotal: tentor,
+    tentorHadir: new Set(
+      (sesiRows ?? []).filter((s: any) => s.foto_path).map((s: any) => s.tentor?.nama_lengkap)
+    ).size,
+    sesiSelesai: (sesiRows ?? []).filter((s: any) => s.status === 'closed').length,
+    sesiTotal: (sesiRows ?? []).length,
+    jurnalMasuk: jurnalMasuk ?? 0,
+    tryOut: (tryOutRows ?? []).map((t: any) => ({
+      id: t.id,
+      judul: t.judul,
+      waktuBuka: t.waktu_buka,
+      tipe: t.tipe_test,
+      mapelNama: t.materi?.mapel?.nama ?? ''
+    })),
+    relief: (reliefRows ?? []).map((r: any) => ({
+      id: r.id,
+      tentorAsliNama: r.tentorAsli?.nama_lengkap ?? '',
+      penggantiNama: r.pengganti?.nama_lengkap ?? '',
+      kelasNama: r.kelas?.nama ?? '',
+      mapelNama: r.mapel?.nama ?? ''
+    }))
+  }
+
   // KPI dibaca dari snapshot, tidak dihitung di sini: dashboard dibuka jauh
   // lebih sering daripada KPI berubah, dan perhitungannya menyentuh banyak
   // tabel. Halaman KPI yang membuat snapshot-nya.
@@ -124,6 +180,7 @@ export async function load({ cookies, parent }) {
 
   return {
     ...parentData,
+    overview,
     kpi,
     stats: { mapel, kelas, siswa, tentor, materi },
     absensiHariIni,
