@@ -97,6 +97,7 @@ Detailed rules in `.claude/rules/`. Loaded when touching related files.
 - Visual design → `.claude/rules/design-system.md`
 - Content hierarchy (materi/sub materi/module) → `.claude/rules/content-hierarchy.md`
 - Soal & penilaian → `.claude/rules/soal-grading.md`
+- Sesi mengajar (presensi, jurnal, selesai mengajar) → `.claude/rules/sesi-mengajar.md`
 
 ## Working Practices
 
@@ -104,6 +105,9 @@ Detailed rules in `.claude/rules/`. Loaded when touching related files.
 - Solo developer, part-time. Favor boring, reviewable solutions over clever ones.
 - Feature-first folder structure. One feature = one folder.
 - Separate git commits per file.
+- Jangan membuat file laporan status (`*-complete.md`, `*-status.md`,
+  `*-final.md`) setelah menyelesaikan pekerjaan. Progres dicatat lewat commit
+  git. Dokumen per fase cukup dua: execution guide dan testing guide.
 
 ## Build the Laziest Thing That Works
 
@@ -137,15 +141,19 @@ Non-trivial logic (score calculation, timer expiry, tingkat filtering) leaves on
 
 ## Current Phase
 
-Phase 2 — soal & penilaian: PG question builder, latihan (unlimited retries), try out (timed, single attempt, scheduled), auto-grading, manual grade input by tentor.
+Phase 5 — KPI, dashboard overview, export PDF.
 
-Complete: Phase 0 (auth, master data, accounts), Phase 1 (content hierarchy, module upload, draft/publish).
+Complete: Phase 0 (auth, master data, accounts), Phase 1 (content hierarchy,
+module upload), Phase 2 (soal, try out, penilaian), Phase 3 (sesi mengajar,
+presensi, jurnal), Phase 4 (dashboard wali murid). Restyle ke design system
+baru selesai.
+
+KPI saat ini memakai data contoh di `features/kpi/data/kpi-contoh.ts` —
+ganti dengan query sungguhan, jangan menambah kolom di file itu.
 
 ## Deferred (Do Not Build Yet)
 
-- Sesi mengajar (presensi, jurnal, selesai mengajar) — Phase 3
-- Dashboard wali murid & relief person — Phase 4
-- KPI, dashboard overview, export PDF — Phase 5
+- Relief person (form + notifikasi SMTP) — sisa Phase 4
 - Scheduling/booking jadwal privat — future
 - In-app chat — future
 - Multi-tenancy — on hold
