@@ -1,7 +1,10 @@
 <script lang="ts">
-  import { goto, invalidateAll } from '$app/navigation'
-  import { enhance } from '$app/forms'
+  import { invalidateAll } from '$app/navigation'
   import { closeSesi } from '$features/session/data/close-sesi'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { Camera, ClipboardCheck, NotebookPen, PencilLine, BookOpen } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -18,11 +21,11 @@
   })
 
   const menu = [
-    { label: 'Presensi Diri', ikon: '📸', href: '/tentor/presensi/diri' },
-    { label: 'Presensi Murid', ikon: '✅', href: '/tentor/presensi/murid' },
-    { label: 'Jurnal Mengajar', ikon: '📓', href: '/tentor/jurnal' },
-    { label: 'Input Nilai', ikon: '📝', href: '/tentor/nilai' },
-    { label: 'Lihat Modul', ikon: '📖', href: '/tentor/modul' }
+    { label: 'Presensi Diri', ikon: Camera, href: '/tentor/presensi/diri' },
+    { label: 'Presensi Murid', ikon: ClipboardCheck, href: '/tentor/presensi/murid' },
+    { label: 'Jurnal Mengajar', ikon: NotebookPen, href: '/tentor/jurnal' },
+    { label: 'Input Nilai', ikon: PencilLine, href: '/tentor/nilai' },
+    { label: 'Lihat Modul', ikon: BookOpen, href: '/tentor/modul' }
   ]
 
   async function selesaikan() {
@@ -46,117 +49,94 @@
   }
 </script>
 
-<div class="mx-auto max-w-4xl">
-  <div class="mb-8 flex items-start justify-between gap-4">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900">{sapaan}, {data.user.nama_lengkap}</h1>
-      <p class="mt-1 text-sm text-gray-500">Dashboard Tentor</p>
-    </div>
-    <form method="POST" action="?/logout" use:enhance>
-      <button type="submit" class="rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-medium text-destructive hover:bg-red-50">
-        Logout
-      </button>
-    </form>
-  </div>
+<div class="mb-8">
+  <h1 class="font-serif text-2xl text-foreground">{sapaan}, {data.user.nama_lengkap}</h1>
+  <p class="mt-1 text-sm text-muted-foreground">Dashboard Tentor</p>
+</div>
 
-  {#if error}
-    <div class="mb-4 rounded-md bg-red-50 p-4"><p class="text-sm text-red-800">{error}</p></div>
-  {/if}
+{#if error}
+  <div class="mb-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
+{/if}
 
-  <!-- Status sesi hari ini -->
-  {#if data.sesiAktif}
-    <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-6">
-      <div class="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <span class="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-700">
-            Sedang berjalan
-          </span>
-          <h2 class="mt-2 text-base font-semibold text-gray-900">
-            {data.sesiAktif.kelasNama} · {data.sesiAktif.mapelNama}
-          </h2>
-          <p class="mt-1 text-xs text-gray-500">Dimulai {jam(data.sesiAktif.startedAt)}</p>
-        </div>
-        <button
-          onclick={() => (konfirmasi = true)}
-          disabled={!data.sesiAktif.adaJurnal || menutup}
-          class="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-        >
-          Selesai Mengajar
-        </button>
-      </div>
-      {#if !data.sesiAktif.adaJurnal}
-        <p class="mt-3 text-sm text-amber-800">
-          Isi <a href="/tentor/jurnal" class="font-medium underline">jurnal mengajar</a> dulu sebelum menyelesaikan sesi.
+{#if data.sesiAktif}
+  <Card class="mb-6">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <Badge tone="success">Sedang berjalan</Badge>
+        <h2 class="mt-2 font-serif text-base text-foreground">
+          {data.sesiAktif.kelasNama} · {data.sesiAktif.mapelNama}
+        </h2>
+        <p class="mt-1 text-xs text-muted-foreground">
+          Dimulai <span class="font-mono">{jam(data.sesiAktif.startedAt)}</span>
         </p>
-      {/if}
-    </div>
-  {:else}
-    <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-      <h2 class="text-base font-semibold text-gray-900">Belum ada sesi berjalan</h2>
-      <p class="mt-1 text-sm text-gray-500">
-        Mulai dengan mengunggah foto presensi diri — itu yang membuka sesi.
-      </p>
-      <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-        Mulai Sesi
-      </button>
-    </div>
-  {/if}
-
-  {#if data.selesaiHariIni.length > 0}
-    <div class="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-      <h2 class="mb-3 text-base font-semibold text-gray-900">Selesai hari ini</h2>
-      <div class="divide-y divide-gray-100">
-        {#each data.selesaiHariIni as s (s.id)}
-          <div class="flex items-center justify-between py-2">
-            <span class="text-sm text-gray-900">{s.kelasNama} · {s.mapelNama}</span>
-            <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-              Selesai {s.endedAt ? jam(s.endedAt) : ''}
-            </span>
-          </div>
-        {/each}
       </div>
+      <Button onclick={() => (konfirmasi = true)} disabled={!data.sesiAktif.adaJurnal || menutup}>
+        Selesai Mengajar
+      </Button>
     </div>
-  {/if}
+    {#if !data.sesiAktif.adaJurnal}
+      <p class="mt-3 text-sm text-muted-foreground">
+        Isi <a href="/tentor/jurnal" class="font-medium text-primary hover:underline">jurnal mengajar</a>
+        dulu sebelum menyelesaikan sesi.
+      </p>
+    {/if}
+  </Card>
+{:else}
+  <Card class="mb-6">
+    <h2 class="font-serif text-base text-foreground">Belum ada sesi berjalan</h2>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Mulai dengan mengunggah foto presensi diri — itu yang membuka sesi.
+    </p>
+    <Button href="/tentor/presensi/diri" class="mt-4">Mulai Sesi</Button>
+  </Card>
+{/if}
 
-  <div class="rounded-2xl border border-gray-200 bg-white p-6">
-    <h2 class="mb-4 text-lg font-semibold text-gray-900">Menu</h2>
-    <div class="grid gap-2 sm:grid-cols-2">
-      {#each menu as m (m.href)}
-        <button
-          onclick={() => goto(m.href)}
-          class="flex items-center gap-3 rounded-lg bg-primary/5 px-4 py-3 text-left text-sm font-medium text-primary hover:bg-primary/10"
-        >
-          <span>{m.ikon}</span>
-          <span>{m.label}</span>
-        </button>
+{#if data.selesaiHariIni.length > 0}
+  <Card class="mb-6">
+    <h2 class="mb-3 font-serif text-base text-foreground">Selesai hari ini</h2>
+    <div class="divide-y divide-border">
+      {#each data.selesaiHariIni as s (s.id)}
+        <div class="flex items-center justify-between gap-3 py-2">
+          <span class="text-sm text-foreground">{s.kelasNama} · {s.mapelNama}</span>
+          <Badge tone="success">
+            Selesai <span class="font-mono">{s.endedAt ? jam(s.endedAt) : ''}</span>
+          </Badge>
+        </div>
       {/each}
     </div>
+  </Card>
+{/if}
+
+<Card>
+  <h2 class="mb-4 font-serif text-lg text-foreground">Menu</h2>
+  <div class="grid gap-2 sm:grid-cols-2">
+    {#each menu as m (m.href)}
+      <a
+        href={m.href}
+        class="flex items-center gap-3 rounded-lg border border-border px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/40"
+      >
+        <m.ikon class="h-4 w-4 shrink-0 text-muted-foreground" />
+        {m.label}
+      </a>
+    {/each}
   </div>
-</div>
+</Card>
 
 <!-- Langkah 14: konfirmasi wajib sebelum sesi dikunci -->
 {#if konfirmasi}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-      <h3 class="text-base font-semibold text-gray-900">Yakin selesai mengajar?</h3>
-      <p class="mt-2 text-sm text-gray-600">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-foreground/50 p-4">
+    <div class="w-full max-w-sm rounded-xl border border-border bg-card p-5">
+      <h3 class="font-serif text-base text-foreground">Yakin selesai mengajar?</h3>
+      <p class="mt-2 text-sm text-muted-foreground">
         Presensi dan jurnal akan dikunci. Sesi yang sudah ditutup tidak bisa dibuka lagi.
       </p>
       <div class="mt-6 flex gap-3">
-        <button
-          onclick={selesaikan}
-          disabled={menutup}
-          class="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-        >
+        <Button onclick={selesaikan} disabled={menutup} class="flex-1">
           {menutup ? 'Memproses...' : 'Ya, Selesai'}
-        </button>
-        <button
-          onclick={() => (konfirmasi = false)}
-          disabled={menutup}
-          class="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
+        </Button>
+        <Button variant="secondary" onclick={() => (konfirmasi = false)} disabled={menutup} class="flex-1">
           Batal
-        </button>
+        </Button>
       </div>
     </div>
   </div>

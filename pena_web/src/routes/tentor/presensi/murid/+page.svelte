@@ -1,7 +1,11 @@
 <script lang="ts">
-  import { goto, invalidateAll } from '$app/navigation'
+  import { invalidateAll } from '$app/navigation'
   import { SvelteMap } from 'svelte/reactivity'
   import { savePresensi } from '$features/attendance/data/presensi-murid'
+  import Badge from '$lib/components/Badge.svelte'
+  import Button from '$lib/components/Button.svelte'
+  import Card from '$lib/components/Card.svelte'
+  import { CalendarX } from 'lucide-svelte'
 
   let { data } = $props()
 
@@ -40,81 +44,74 @@
 </script>
 
 <div class="mx-auto max-w-3xl">
-  <button onclick={() => goto('/tentor/dashboard')} class="mb-4 text-sm font-medium text-primary hover:underline">
-    ← Kembali ke Dashboard
-  </button>
-  <h1 class="text-2xl font-bold text-gray-900">Presensi Murid</h1>
+  <h1 class="font-serif text-2xl text-foreground">Presensi Murid</h1>
 
   {#if !data.sesiAktif}
-    <div class="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-8 text-center">
-      <p class="font-medium text-amber-900">Submit presensi diri dulu</p>
-      <p class="mt-2 text-sm text-amber-800">
+    <Card class="mt-6 p-8 text-center">
+      <CalendarX class="mx-auto h-8 w-8 text-muted-foreground" />
+      <p class="mt-2 font-medium text-foreground">Submit presensi diri dulu</p>
+      <p class="mt-2 text-sm text-muted-foreground">
         Presensi murid baru terbuka setelah Anda mengunggah foto presensi dan sesi dimulai.
       </p>
-      <button onclick={() => goto('/tentor/presensi/diri')} class="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-        Ke Presensi Diri
-      </button>
-    </div>
+      <Button href="/tentor/presensi/diri" class="mt-4">Ke Presensi Diri</Button>
+    </Card>
   {:else}
-    <p class="mt-1 text-sm text-gray-500">
+    <p class="mt-1 text-sm text-muted-foreground">
       {data.sesiAktif.kelasNama} · {data.sesiAktif.mapelNama}
     </p>
 
     {#if error}
-      <div class="mt-4 rounded-md bg-red-50 p-4"><p class="text-sm text-red-800">{error}</p></div>
+      <div class="mt-4 rounded-lg bg-red-100 p-4"><p class="text-sm text-red-800">{error}</p></div>
     {/if}
     {#if message}
-      <div class="mt-4 rounded-md bg-emerald-50 p-4"><p class="text-sm text-emerald-800">✓ {message}</p></div>
+      <div class="mt-4 rounded-lg bg-emerald-100 p-4">
+        <p class="text-sm text-emerald-800">✓ {message}</p>
+      </div>
     {/if}
 
-    <div class="mt-6 rounded-2xl border border-gray-200 bg-white p-6">
+    <Card class="mt-6">
       {#if data.siswa.length === 0}
-        <p class="text-center text-sm text-gray-500">
-          Belum ada siswa reguler terdaftar di kelas ini. Siswa privat memang tidak pernah muncul di presensi.
+        <p class="text-center text-sm text-muted-foreground">
+          Belum ada siswa reguler terdaftar di kelas ini. Siswa privat memang tidak pernah muncul di
+          presensi.
         </p>
       {:else}
-        <div class="mb-4 flex items-baseline justify-between">
-          <h2 class="text-base font-semibold text-gray-900">Daftar Siswa ({data.siswa.length})</h2>
-          <span class="text-sm text-gray-500">{jumlahHadir} hadir</span>
+        <div class="mb-4 flex items-baseline justify-between gap-3">
+          <h2 class="font-serif text-base text-foreground">
+            Daftar Siswa (<span class="font-mono">{data.siswa.length}</span>)
+          </h2>
+          <span class="text-sm text-muted-foreground">
+            <span class="font-mono">{jumlahHadir}</span> hadir
+          </span>
         </div>
 
-        <div class="divide-y divide-gray-100">
+        <div class="divide-y divide-border">
           {#each data.siswa as s (s.siswa_detail_id)}
-            <label class="flex cursor-pointer items-center gap-3 py-3 hover:bg-gray-50">
+            {@const ini = hadir.get(s.siswa_detail_id) ?? true}
+            <!-- Seluruh baris jadi target sentuh; py-3 + tinggi isi sudah lewat 44px. -->
+            <label class="flex cursor-pointer items-center gap-3 py-3 hover:bg-muted/30">
               <input
                 type="checkbox"
-                checked={hadir.get(s.siswa_detail_id) ?? true}
+                checked={ini}
                 onchange={(e) => hadir.set(s.siswa_detail_id, e.currentTarget.checked)}
-                class="h-4 w-4 rounded border-gray-300"
+                class="h-5 w-5 shrink-0 rounded border-border accent-primary"
               />
-              <span class="flex-1">
-                <span class="block text-sm font-medium text-gray-900">{s.nama_lengkap}</span>
-                <span class="block text-xs text-gray-500">{s.nis}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-medium text-foreground">{s.nama_lengkap}</span>
+                <span class="block font-mono text-xs text-muted-foreground">{s.nis}</span>
               </span>
-              <span
-                class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
-                class:bg-emerald-50={hadir.get(s.siswa_detail_id) ?? true}
-                class:text-emerald-700={hadir.get(s.siswa_detail_id) ?? true}
-                class:bg-red-50={!(hadir.get(s.siswa_detail_id) ?? true)}
-                class:text-red-700={!(hadir.get(s.siswa_detail_id) ?? true)}
-              >
-                {(hadir.get(s.siswa_detail_id) ?? true) ? 'Hadir' : 'Tidak hadir'}
-              </span>
+              <Badge tone={ini ? 'success' : 'error'}>{ini ? 'Hadir' : 'Tidak hadir'}</Badge>
             </label>
           {/each}
         </div>
 
-        <button
-          onclick={simpan}
-          disabled={loading}
-          class="mt-6 w-full rounded-lg bg-primary px-4 py-3 font-medium text-white hover:bg-primary/90 disabled:opacity-50"
-        >
+        <Button onclick={simpan} disabled={loading} class="mt-6 w-full">
           {loading ? 'Menyimpan...' : 'Simpan Presensi'}
-        </button>
-        <p class="mt-2 text-center text-xs text-gray-500">
+        </Button>
+        <p class="mt-2 text-center text-xs text-muted-foreground">
           Masih bisa dikoreksi selama sesi belum diselesaikan.
         </p>
       {/if}
-    </div>
+    </Card>
   {/if}
 </div>
