@@ -1,15 +1,22 @@
 <script lang="ts">
   import type { Component, Snippet } from 'svelte'
   import { page } from '$app/state'
-  import { Menu, X, LogOut } from 'lucide-svelte'
+  import { Menu, X, LogOut, ChevronDown } from 'lucide-svelte'
+
+  interface SubItem {
+    href: string
+    label: string
+  }
 
   interface NavItem {
-    href: string
+    /** Kosong kalau item ini hanya pembuka dropdown — yang punya tujuan anaknya. */
+    href?: string
     label: string
     icon: Component
     /** Prefix penanda aktif kalau berbeda dari href — dipakai saat satu item
         menaungi beberapa halaman sejajar (mis. akun siswa/tentor/wali). */
     match?: string
+    items?: SubItem[]
   }
 
   interface Props {
@@ -25,10 +32,20 @@
 
   // Prefix, bukan sama persis — supaya sub-route seperti /tentor/nilai/input
   // tetap menyalakan item "Input Nilai".
-  const aktif = (item: NavItem) => {
-    const dasar = item.match ?? item.href
-    return page.url.pathname === dasar || page.url.pathname.startsWith(dasar + '/')
-  }
+  const cocok = (dasar: string) =>
+    page.url.pathname === dasar || page.url.pathname.startsWith(dasar + '/')
+
+  // Dropdown menyala lewat anaknya: anggotanya tersebar di beberapa prefix
+  // (assignment/, monitoring/sesi, monitoring/attempt), jadi satu prefix induk
+  // tidak cukup dan malah ikut menyalakan menu tetangga.
+  const aktif = (item: NavItem) =>
+    item.items
+      ? item.items.some((sub) => cocok(sub.href))
+      : cocok(item.match ?? item.href ?? '')
+
+  // Kunci per label. Nilai undefined = belum disentuh, biarkan halaman aktif
+  // yang menentukan — dropdown yang memuat halaman terbuka membuka sendiri.
+  let dibuka = $state<Record<string, boolean>>({})
 
   const inisial = $derived(
     nama
@@ -87,17 +104,48 @@
     </div>
 
     <nav class="flex-1 space-y-1 overflow-y-auto p-3">
-      {#each nav as item (item.href)}
+      {#each nav as item (item.label)}
         {@const ini = aktif(item)}
-        <a
-          href={item.href}
-          class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm {ini
-            ? 'border-r-2 border-accent bg-sidebar-accent font-semibold'
-            : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60'}"
-        >
-          <item.icon class="h-4 w-4 shrink-0" />
-          {item.label}
-        </a>
+        {#if item.items}
+          {@const buka = dibuka[item.label] ?? ini}
+          <button
+            onclick={() => (dibuka[item.label] = !buka)}
+            aria-expanded={buka}
+            class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm {ini
+              ? 'font-semibold'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60'}"
+          >
+            <item.icon class="h-4 w-4 shrink-0" />
+            <span class="flex-1 text-left">{item.label}</span>
+            <ChevronDown
+              class="h-4 w-4 shrink-0 transition-transform duration-200 {buka ? 'rotate-180' : ''}"
+            />
+          </button>
+          {#if buka}
+            <div class="space-y-1">
+              {#each item.items as sub (sub.href)}
+                <a
+                  href={sub.href}
+                  class="flex items-center rounded-lg py-2.5 pr-3 pl-10 text-sm {cocok(sub.href)
+                    ? 'border-r-2 border-accent bg-sidebar-accent font-semibold'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60'}"
+                >
+                  {sub.label}
+                </a>
+              {/each}
+            </div>
+          {/if}
+        {:else}
+          <a
+            href={item.href}
+            class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm {ini
+              ? 'border-r-2 border-accent bg-sidebar-accent font-semibold'
+              : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60'}"
+          >
+            <item.icon class="h-4 w-4 shrink-0" />
+            {item.label}
+          </a>
+        {/if}
       {/each}
     </nav>
 
