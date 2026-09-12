@@ -89,6 +89,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Input Nilai Manual · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-4xl">
   <div class="mb-6">
     <a href="/tentor/nilai" class="text-sm font-medium text-primary hover:underline">← Kembali</a>

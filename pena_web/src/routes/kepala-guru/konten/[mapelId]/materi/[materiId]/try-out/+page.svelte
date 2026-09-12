@@ -122,6 +122,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>{data.materi.nama} — Try Out · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <a
     href="/kepala-guru/konten/{data.mapel.id}/materi"

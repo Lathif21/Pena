@@ -17,6 +17,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Monitoring Sesi · Pena</title>
+</svelte:head>
+
 <h1 class="font-serif text-2xl text-foreground">Monitoring Sesi</h1>
 <p class="mt-1 text-sm text-muted-foreground">Ringkasan sesi yang sudah diselesaikan.</p>
 

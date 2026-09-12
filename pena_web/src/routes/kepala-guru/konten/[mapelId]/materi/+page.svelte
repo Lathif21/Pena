@@ -4,6 +4,10 @@
   let { data } = $props()
 </script>
 
+<svelte:head>
+  <title>{data.mapel.nama} — Materi · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <a href="/kepala-guru/konten" class="text-sm font-medium text-primary hover:underline">
     ← Kembali ke Kelola Konten

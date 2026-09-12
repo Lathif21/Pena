@@ -117,6 +117,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>{data.tryOut.judul} · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-4xl">
   {#if data.status === 'belum_buka'}
     <Card class="p-8 text-center">

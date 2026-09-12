@@ -35,6 +35,10 @@
     'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none'
 </script>
 
+<svelte:head>
+  <title>Monitoring Presensi Tentor · Pena</title>
+</svelte:head>
+
 <h1 class="font-serif text-2xl text-foreground">Monitoring Presensi Tentor</h1>
 <p class="mt-1 text-sm text-muted-foreground">
   Foto dari Timestamp Camera memuat waktu dan lokasi. Bandingkan dengan waktu unggah sistem.

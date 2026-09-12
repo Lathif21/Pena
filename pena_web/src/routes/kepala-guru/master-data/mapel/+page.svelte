@@ -4,6 +4,10 @@
   let { data } = $props()
 </script>
 
+<svelte:head>
+  <title>Mata Pelajaran · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Mata Pelajaran</h1>
   <p class="mt-1 text-sm text-muted-foreground">Kelola mata pelajaran dan kelas yang memakainya</p>

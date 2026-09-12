@@ -83,6 +83,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Presensi Diri · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-2xl">
   <h1 class="font-serif text-2xl text-foreground">Presensi Diri</h1>
   <p class="mt-1 text-sm text-muted-foreground">

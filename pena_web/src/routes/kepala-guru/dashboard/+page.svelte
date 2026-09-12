@@ -93,6 +93,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Beranda · Pena</title>
+</svelte:head>
+
 <div class="mb-8 flex flex-wrap items-baseline justify-between gap-2">
   <h1 class="font-serif text-3xl text-foreground">{sapaan}, {data.profile.nama_lengkap}</h1>
   <p class="text-sm text-muted-foreground">{hariIni}</p>

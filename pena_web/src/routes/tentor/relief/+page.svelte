@@ -92,6 +92,10 @@
     'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none disabled:opacity-50'
 </script>
 
+<svelte:head>
+  <title>Relief · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Relief</h1>
   <p class="mt-1 text-sm text-muted-foreground">

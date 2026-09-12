@@ -45,6 +45,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Reset Attempt Try Out · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Reset Attempt Try Out</h1>
   <p class="mt-1 text-sm text-muted-foreground">Kelola dan reset attempt siswa untuk try out</p>

@@ -8,6 +8,10 @@
   let fullscreen = $state(false)
 </script>
 
+<svelte:head>
+  <title>{data.subMateri.nama} · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-5xl">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>

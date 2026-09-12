@@ -9,6 +9,10 @@
     'block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none'
 </script>
 
+<svelte:head>
+  <title>Masuk · Pena</title>
+</svelte:head>
+
 <div class="flex min-h-screen items-center justify-center bg-background px-4 py-8">
   <div class="w-full max-w-md">
     <div class="rounded-xl border border-border bg-card p-8">

@@ -13,6 +13,10 @@
   })
 </script>
 
+<svelte:head>
+  <title>Beranda · Pena</title>
+</svelte:head>
+
 <div class="mb-8">
   <h1 class="font-serif text-2xl text-foreground">{sapaan}, {data.profile.nama_lengkap}</h1>
   <p class="mt-1 text-sm text-muted-foreground">Dashboard Siswa</p>

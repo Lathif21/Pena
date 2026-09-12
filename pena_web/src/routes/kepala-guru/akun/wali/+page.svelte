@@ -5,6 +5,10 @@
   let { data } = $props()
 </script>
 
+<svelte:head>
+  <title>Akun Wali Murid · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Akun Wali Murid</h1>
   <p class="mt-1 text-sm text-muted-foreground">Kelola akun wali murid</p>

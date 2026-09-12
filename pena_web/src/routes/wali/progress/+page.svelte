@@ -8,6 +8,10 @@
   let { data } = $props()
 </script>
 
+<svelte:head>
+  <title>Progress Nilai · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Progress Nilai</h1>
   <p class="mt-1 text-sm text-muted-foreground">

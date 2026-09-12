@@ -5,6 +5,10 @@
   let { data } = $props()
 </script>
 
+<svelte:head>
+  <title>{data.materi.nama} — Sub Materi · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <a
     href="/kepala-guru/konten/{data.mapel.id}/materi"

@@ -43,6 +43,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Presensi Murid · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-3xl">
   <h1 class="font-serif text-2xl text-foreground">Presensi Murid</h1>
 

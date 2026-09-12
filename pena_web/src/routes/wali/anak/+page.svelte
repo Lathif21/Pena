@@ -17,6 +17,10 @@
     iso ? new Date(iso).toLocaleDateString('id-ID', { dateStyle: 'medium' }) : '—'
 </script>
 
+<svelte:head>
+  <title>Absensi Anak · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Absensi Anak</h1>
   <p class="mt-1 text-sm text-muted-foreground">Kehadiran di setiap pertemuan yang tercatat</p>

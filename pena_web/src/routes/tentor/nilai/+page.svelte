@@ -29,6 +29,10 @@
     new Date(iso).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })
 </script>
 
+<svelte:head>
+  <title>Nilai Siswa · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-[1200px]">
   <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
     <div>

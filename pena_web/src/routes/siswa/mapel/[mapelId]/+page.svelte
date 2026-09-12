@@ -27,6 +27,10 @@
   })
 </script>
 
+<svelte:head>
+  <title>{data.mapel.nama} · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <a href="/siswa/mapel" class="text-sm font-medium text-primary hover:underline">
     ← Kembali ke Mata Pelajaran

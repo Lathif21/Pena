@@ -71,6 +71,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Latihan: {data.subMateri.nama} · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-4xl">
   <div class="mb-6">
     <a href={kembaliUrl} class="text-sm font-medium text-primary hover:underline">← Kembali</a>

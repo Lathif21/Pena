@@ -39,6 +39,10 @@
     'mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none'
 </script>
 
+<svelte:head>
+  <title>Overview Nilai Siswa · Pena</title>
+</svelte:head>
+
 <h1 class="font-serif text-2xl text-foreground">Overview Nilai Siswa</h1>
 <p class="mt-1 text-sm text-muted-foreground">
   Rata-rata dari try out dan nilai manual. Latihan soal tidak dihitung — latihan boleh diulang

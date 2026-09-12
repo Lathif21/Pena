@@ -7,6 +7,10 @@
   let selectedTahunAjaranId = $state(data.activeTahunAjaranId)
 </script>
 
+<svelte:head>
+  <title>Assignment Tentor · Pena</title>
+</svelte:head>
+
 <div class="mb-6">
   <h1 class="font-serif text-2xl text-foreground">Assignment Tentor</h1>
   <p class="mt-1 text-sm text-muted-foreground">Tugaskan tentor ke kelas dan mata pelajaran</p>

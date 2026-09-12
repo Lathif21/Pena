@@ -41,6 +41,10 @@
   }
 </script>
 
+<svelte:head>
+  <title>Modul Pembelajaran · Pena</title>
+</svelte:head>
+
 <div class="mx-auto max-w-5xl">
   <div class="mb-6">
     <h1 class="font-serif text-2xl text-foreground">Modul Pembelajaran</h1>
