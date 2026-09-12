@@ -164,7 +164,7 @@ export async function load({ cookies, parent }) {
   const { mulai } = periodeBulanan(hariIni())
   const { data: kpiRows } = await supabase
     .from('kpi_snapshot')
-    .select('skor, nilai_gain, nilai_jurnal, jumlah_sesi, tentor:tentor_id(nama_lengkap)')
+    .select('skor, nilai_gain, nilai_jurnal, jumlah_sesi, jumlah_siswa_dinilai, tentor:tentor_id(nama_lengkap)')
     .eq('periode_mulai', mulai)
     .eq('tahun_ajaran_id', parentData.profile.tahun_ajaran_id)
     .is('deleted_at', null)
@@ -175,7 +175,8 @@ export async function load({ cookies, parent }) {
     skor: Number(k.skor),
     gain: k.nilai_gain === null ? null : Number(k.nilai_gain),
     jurnal: k.nilai_jurnal === null ? null : Number(k.nilai_jurnal),
-    jumlahSesi: k.jumlah_sesi
+    jumlahSesi: k.jumlah_sesi,
+    jumlahSiswaDinilai: k.jumlah_siswa_dinilai
   }))
 
   return {

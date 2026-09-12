@@ -91,3 +91,26 @@ export function skorKpi(gain, jurnal, bobotGain, bobotJurnal) {
   const tertimbang = bagian.reduce((t, [n, b]) => t + n * b, 0)
   return Math.round((tertimbang / totalBobot) * 100 * 100) / 100
 }
+
+/**
+ * Ambang minimum sebelum skor layak ditampilkan sebagai angka.
+ *
+ * Tanpa ini, tentor dengan satu sesi berjurnal dan nol nilai mendapat skor 100
+ * — tertinggi di daftar — karena bobot komponen yang kosong dinormalisasi
+ * ulang. Normalisasi itu benar (jangan menghukum data yang belum ada), tapi
+ * efek sampingnya memberi imbalan pada data yang sedikit.
+ *
+ * Tiga dan tiga: di bawah itu rata-rata Normalized Gain tidak bermakna, dan
+ * persentase jurnal dari satu sesi hanya bisa 0% atau 100%.
+ */
+export const MIN_SISWA = 3
+export const MIN_SESI = 3
+
+/**
+ * @param {number} jumlahSiswaDinilai
+ * @param {number} jumlahSesi
+ * @returns {boolean}
+ */
+export function cukupData(jumlahSiswaDinilai, jumlahSesi) {
+  return jumlahSiswaDinilai >= MIN_SISWA && jumlahSesi >= MIN_SESI
+}

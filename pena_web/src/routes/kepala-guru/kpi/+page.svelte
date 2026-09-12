@@ -7,6 +7,7 @@
   import Th from '$lib/components/Th.svelte'
   import Td from '$lib/components/Td.svelte'
   import { RotateCcw, Settings2, ChartNoAxesColumn } from 'lucide-svelte'
+  import { cukupData, MIN_SISWA, MIN_SESI } from '$features/kpi/data/hitung.js'
 
   let { data } = $props()
 
@@ -20,6 +21,11 @@
   // Tentor tanpa satu pun komponen belum bisa dinilai. Skor nol menyiratkan
   // kegagalan, padahal belum ada yang diukur.
   const belumAdaData = (t: (typeof data.tentor)[number]) => t.gain === null && t.jurnal === null
+
+  // Di atas itu ada keadaan kedua: datanya ada tapi terlalu sedikit untuk
+  // menghasilkan angka yang layak dibandingkan antar tentor.
+  const belumLengkap = (t: (typeof data.tentor)[number]) =>
+    !belumAdaData(t) && !cukupData(t.jumlahSiswaDinilai, t.jumlahSesi)
 </script>
 
 <svelte:head>
@@ -69,11 +75,13 @@
           <p class="font-medium text-foreground">{t.nama}</p>
           {#if belumAdaData(t)}
             <Badge tone="pending">Belum ada data</Badge>
+          {:else if belumLengkap(t)}
+            <Badge tone="pending">Belum lengkap</Badge>
           {:else}
             <span class="font-mono text-2xl text-foreground">{t.skor}</span>
           {/if}
         </div>
-        {#if !belumAdaData(t)}
+        {#if !belumAdaData(t) && !belumLengkap(t)}
           <ProgressBar value={t.skor} showLabel={false} class="mt-2" />
         {/if}
         <dl class="mt-3 space-y-1 text-sm">
@@ -135,6 +143,8 @@
             <Td>
               {#if belumAdaData(t)}
                 <Badge tone="pending">Belum ada data</Badge>
+              {:else if belumLengkap(t)}
+                <Badge tone="pending">Belum lengkap</Badge>
               {:else}
                 <div class="flex items-center gap-3">
                   <ProgressBar value={t.skor} showLabel={false} class="w-20" />
@@ -152,5 +162,11 @@
     Progress nilai memakai Normalized Gain: <span class="font-mono">(post − pre) / (100 − pre)</span
     >. Siswa tanpa pre atau post, dan siswa yang pre-nya sudah 100, dikecualikan dari rata-rata —
     bukan dihitung nol. Latihan soal tidak pernah ikut.
+  </p>
+
+  <p class="mt-2 text-xs text-muted-foreground">
+    Skor baru ditampilkan setelah ada minimal <span class="font-mono">{MIN_SISWA}</span> siswa
+    dinilai dan <span class="font-mono">{MIN_SESI}</span> sesi. Di bawah itu angkanya tidak
+    sebanding antar tentor — persentase jurnal dari satu sesi hanya bisa 0% atau 100%.
   </p>
 {/if}

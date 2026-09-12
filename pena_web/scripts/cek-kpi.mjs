@@ -70,3 +70,13 @@ assert.equal(skorKpi(null, null, 60, 40), 0, 'dua-duanya null: 0, UI yang menand
 dekat(skorKpi(0.5, 1, 50, 50), 75, 'bobot 50/50')
 
 console.log('OK — rumus KPI cocok dengan tabel kasus uji di fase-5-execution.md')
+
+// --- Ambang minimum ----------------------------------------------------------
+const { cukupData, MIN_SISWA, MIN_SESI } = await import('../src/features/kpi/data/hitung.js')
+assert.equal(cukupData(4, 4), true, 'data lengkap lolos')
+assert.equal(cukupData(MIN_SISWA, MIN_SESI), true, 'tepat di ambang lolos')
+// Kasus yang jadi alasan ambang ini ada: satu sesi berjurnal, nol nilai.
+assert.equal(cukupData(0, 1), false, 'satu sesi tanpa nilai tidak boleh berskor')
+assert.equal(cukupData(2, 10), false, 'banyak sesi tapi nilai kurang tetap belum layak')
+assert.equal(cukupData(10, 2), false, 'banyak nilai tapi sesi kurang tetap belum layak')
+console.log('OK — ambang minimum skor KPI')

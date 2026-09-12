@@ -2,6 +2,7 @@
   import Badge from '$lib/components/Badge.svelte'
   import Card from '$lib/components/Card.svelte'
   import ProgressBar from '$lib/components/ProgressBar.svelte'
+  import { cukupData } from '$features/kpi/data/hitung.js'
   import {
     Users,
     GraduationCap,
@@ -339,6 +340,8 @@
               <span class="font-mono text-xs text-muted-foreground">
                 {#if k.gain === null && k.jurnal === null}
                   belum ada data
+                {:else if !cukupData(k.jumlahSiswaDinilai, k.jumlahSesi)}
+                  belum lengkap · <span class="font-mono">{k.jumlahSesi}</span> sesi
                 {:else}
                   gain {k.gain === null ? '—' : Math.round(k.gain * 100) + '%'} · jurnal
                   {k.jurnal === null ? '—' : Math.round(k.jurnal * 100) + '%'} ·
@@ -346,7 +349,9 @@
                 {/if}
               </span>
             </div>
-            <ProgressBar value={k.skor} />
+            {#if cukupData(k.jumlahSiswaDinilai, k.jumlahSesi)}
+              <ProgressBar value={k.skor} />
+            {/if}
           </div>
         {/each}
       </div>

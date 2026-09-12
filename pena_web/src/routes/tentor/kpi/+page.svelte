@@ -3,6 +3,7 @@
   import Card from '$lib/components/Card.svelte'
   import ProgressBar from '$lib/components/ProgressBar.svelte'
   import { ChartNoAxesColumn } from 'lucide-svelte'
+  import { cukupData, MIN_SISWA, MIN_SESI } from '$features/kpi/data/hitung.js'
 
   let { data } = $props()
 
@@ -12,6 +13,9 @@
     new Date(`${iso}T00:00:00+07:00`).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })
 
   let belumAdaData = $derived(data.kpi.gain === null && data.kpi.jurnal === null)
+  let belumLengkap = $derived(
+    !belumAdaData && !cukupData(data.kpi.jumlahSiswaDinilai, data.kpi.jumlahSesi)
+  )
 </script>
 
 <svelte:head>
@@ -32,6 +36,15 @@
       <Badge tone="pending">Belum ada data</Badge>
       <p class="mt-3 text-sm text-muted-foreground">
         Bulan ini belum ada sesi mengajar maupun pasangan nilai pre/post yang bisa dihitung.
+      </p>
+    </div>
+  {:else if belumLengkap}
+    <div class="py-8 text-center">
+      <Badge tone="pending">Belum lengkap</Badge>
+      <p class="mt-3 text-sm text-muted-foreground">
+        Skor muncul setelah ada minimal <span class="font-mono">{MIN_SISWA}</span> siswa dengan
+        nilai pre dan post, serta <span class="font-mono">{MIN_SESI}</span> sesi mengajar bulan ini.
+        Rinciannya tetap bisa dilihat di bawah.
       </p>
     </div>
   {:else}
