@@ -1,15 +1,22 @@
 import { error as svelteError } from '@sveltejs/kit'
 import { supabaseAdmin } from '$lib/supabase/admin.server'
+import {
+  BUCKET_MODUL,
+  hapusBerkas,
+  simpanBerkas,
+  urlBertandaTangan
+} from '$lib/storage/berkas.server'
+import type { Module } from './module'
 
 /**
- * Modul PDF di Supabase Storage, bukan di `static/`.
+ * Modul PDF di direktori unggahan VPS, bukan di `static/`.
  *
  * Apa pun di `static/` disajikan publik tanpa autentikasi, dan modul adalah
- * konten internal — content-hierarchy.md mensyaratkan bucket privat plus signed
- * URL. Menulis ke filesystem juga tidak bertahan di hosting serverless: tiap
- * invocation dapat disk baru, jadi file yang diunggah hari ini hilang besok.
+ * konten internal — content-hierarchy.md mensyaratkan penyimpanan privat plus
+ * signed URL. Direktorinya juga di luar folder aplikasi, jadi redeploy tidak
+ * pernah menghapus unggahan.
  */
-const BUCKET = 'modul-pdf'
+const BUCKET = BUCKET_MODUL
 const MAX_BYTES = 20 * 1024 * 1024
 
 export function validateModul(file: unknown): asserts file is File {
@@ -26,15 +33,15 @@ export function modulPath(subId: string) {
 }
 
 export async function unggahModul(path: string, file: File) {
-  const { error } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(path, file, { contentType: 'application/pdf', upsert: false })
-
-  if (error) throw svelteError(500, `Gagal mengunggah modul: ${error.message}`)
+  try {
+    await simpanBerkas(BUCKET, path, file)
+  } catch (e) {
+    throw svelteError(500, `Gagal mengunggah modul: ${(e as Error).message}`)
+  }
 }
 
 export async function hapusModul(path: string) {
-  await supabaseAdmin.storage.from(BUCKET).remove([path])
+  await hapusBerkas(BUCKET, path)
 }
 
 /**
@@ -44,6 +51,17 @@ export async function hapusModul(path: string) {
  * ikut kedaluwarsa dengan sendirinya.
  */
 export async function signedModuleUrl(path: string, detik = 600) {
-  const { data } = await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path, detik)
-  return data?.signedUrl ?? null
+  return urlBertandaTangan(BUCKET, path, detik)
+}
+
+export async function getModuleBySubMateri(subMateriId: string) {
+  const { data, error } = await supabaseAdmin
+    .from('module')
+    .select('id, sub_materi_id, status, storage_path, published_at, created_at, deleted_at')
+    .eq('sub_materi_id', subMateriId)
+    .is('deleted_at', null)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as Module | null
 }
