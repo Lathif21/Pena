@@ -34,3 +34,6 @@ yarn-error.log*
 
 # Misc
 .turbo/
+
+# Kredensial VPS — jangan pernah masuk repo (repo ini publik di GitHub)
+docs/design-reference/vps.md
