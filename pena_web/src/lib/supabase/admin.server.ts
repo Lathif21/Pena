@@ -1,12 +1,12 @@
-import { createClient } from '@supabase/supabase-js'
-import { PUBLIC_SUPABASE_URL } from '$env/static/public'
-import { SUPABASE_SERVICE_ROLE_KEY } from '$env/static/private'
+import { createDb } from '$lib/db/postgrest.server'
 
 /**
- * Service-role client. Bypasses RLS and can create auth users, so it must never
- * reach the browser — the `.server.ts` suffix makes SvelteKit enforce that.
- * Only use it behind a verified `kepala_guru` check.
+ * Akses database tanpa batasan, untuk kode server yang sudah memverifikasi
+ * peran pemanggilnya sendiri. Namanya dipertahankan supaya 90-an file yang
+ * memakainya tidak perlu diubah saat pindah dari Supabase ke PostgreSQL.
+ *
+ * Tidak ada lagi service_role key: PostgREST di loopback tidak memakai kunci
+ * sama sekali. Suffix `.server.ts` tetap dipakai supaya SvelteKit menolak
+ * mengimpornya dari kode browser.
  */
-export const supabaseAdmin = createClient(PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false }
-})
+export const supabaseAdmin = createDb()
