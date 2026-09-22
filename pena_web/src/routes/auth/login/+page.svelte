@@ -1,9 +1,11 @@
 <script lang="ts">
   import { enhance } from '$app/forms'
+  import { Eye, EyeOff } from 'lucide-svelte'
   import Button from '$lib/components/Button.svelte'
 
   let loading = $state(false)
   let error = $state('')
+  let passwordTerlihat = $state(false)
 
   const gayaField =
     'block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none'
@@ -66,14 +68,32 @@
           <label for="password" class="mb-2 block text-sm font-medium text-foreground">
             Password
           </label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            required
-            class={gayaField}
-            placeholder="••••••••"
-          />
+          <div class="relative">
+            <!-- pr-12 memberi ruang untuk tombolnya, supaya password yang panjang
+                 tidak tertutup ikon. -->
+            <input
+              id="password"
+              type={passwordTerlihat ? 'text' : 'password'}
+              name="password"
+              required
+              class="{gayaField} pr-12"
+              placeholder="••••••••"
+            />
+            <button
+              type="button"
+              onclick={() => (passwordTerlihat = !passwordTerlihat)}
+              aria-label={passwordTerlihat ? 'Sembunyikan password' : 'Tampilkan password'}
+              aria-pressed={passwordTerlihat}
+              aria-controls="password"
+              class="absolute inset-y-0 right-0 flex min-h-11 min-w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted/40 hover:text-foreground focus:ring-1 focus:ring-ring focus:outline-none"
+            >
+              {#if passwordTerlihat}
+                <EyeOff class="h-4 w-4" />
+              {:else}
+                <Eye class="h-4 w-4" />
+              {/if}
+            </button>
+          </div>
         </div>
 
         <Button type="submit" disabled={loading} class="mt-6 w-full">
