@@ -1,4 +1,5 @@
 import { supabaseAdmin } from '$lib/supabase/admin.server'
+import { hashPassword } from '$lib/auth/password.server'
 
 export { isKepalaGuru } from '$lib/supabase/guard.server'
 
@@ -11,21 +12,21 @@ export interface NewAccount {
 }
 
 /**
- * Creates the auth user and its profile row together. If the profile insert fails
- * the auth user is deleted again — otherwise the email stays permanently taken by
+ * Creates the login user and its profile row together. If the profile insert fails
+ * the login user is deleted again — otherwise the email stays permanently taken by
  * an account that cannot log in anywhere.
  */
 export async function createAccount(account: NewAccount) {
-  const { data: created, error: authError } = await supabaseAdmin.auth.admin.createUser({
-    email: account.email,
-    password: account.password,
-    email_confirm: true
-  })
+  const { data: created, error: authError } = await supabaseAdmin
+    .from('app_users')
+    .insert({ email: account.email, password_hash: await hashPassword(account.password) })
+    .select('id')
+    .single()
 
-  if (authError || !created.user) throw new Error(authError?.message ?? 'Gagal membuat akun')
+  if (authError || !created) throw new Error(authError?.message ?? 'Gagal membuat akun')
 
   const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-    id: created.user.id,
+    id: created.id,
     role: account.role,
     nama_lengkap: account.nama_lengkap,
     email: account.email,
@@ -33,11 +34,11 @@ export async function createAccount(account: NewAccount) {
   })
 
   if (profileError) {
-    await supabaseAdmin.auth.admin.deleteUser(created.user.id).catch(() => {})
+    await supabaseAdmin.from('app_users').delete().eq('id', created.id)
     throw new Error(profileError.message)
   }
 
-  return created.user.id
+  return created.id as string
 }
 
 /**
@@ -48,7 +49,7 @@ export async function createAccount(account: NewAccount) {
 export async function rollbackAccount(profileId: string) {
   try {
     await supabaseAdmin.from('profiles').delete().eq('id', profileId)
-    await supabaseAdmin.auth.admin.deleteUser(profileId)
+    await supabaseAdmin.from('app_users').delete().eq('id', profileId)
   } catch {
     // Rollback is best-effort — the original failure is what gets reported.
   }
@@ -56,7 +57,7 @@ export async function rollbackAccount(profileId: string) {
 
 /** Keeps the login email in sync with the profile email. */
 export async function updateAccountEmail(profileId: string, email: string) {
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(profileId, { email })
+  const { error } = await supabaseAdmin.from('app_users').update({ email }).eq('id', profileId)
   if (error) throw new Error(error.message)
 }
 
