@@ -176,7 +176,6 @@
                 <div class="flex items-start justify-between gap-3">
                   <div class="min-w-0">
                     <p class="truncate text-sm font-medium text-foreground">{siswa.nama_lengkap}</p>
-                    <p class="font-mono text-xs text-muted-foreground">{siswa.nis}</p>
                   </div>
                   <span class="shrink-0 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
                     {siswa.kelas}
@@ -237,7 +236,6 @@
                   <tr class="border-b border-border hover:bg-muted/30">
                     <Td>
                       <span class="block text-foreground">{siswa.nama_lengkap}</span>
-                      <span class="font-mono text-xs text-muted-foreground">{siswa.nis}</span>
                     </Td>
                     <Td>
                       <span class="rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-foreground">

@@ -102,7 +102,6 @@
           <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
               <p class="truncate font-medium text-foreground">{siswa.nama}</p>
-              <p class="font-mono text-xs text-muted-foreground">{siswa.nis}</p>
             </div>
             {#if siswa.rataRata === null}
               <Badge tone="pending">Belum ada nilai</Badge>
@@ -154,7 +153,6 @@
             <tr class="border-b border-border hover:bg-muted/30">
               <Td>
                 <span class="block font-medium text-foreground">{siswa.nama}</span>
-                <span class="font-mono text-xs text-muted-foreground">{siswa.nis}</span>
               </Td>
               <Td>
                 {#if siswa.nilaiTryOut.length > 0}

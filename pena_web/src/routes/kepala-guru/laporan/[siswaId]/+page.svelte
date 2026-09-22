@@ -42,10 +42,6 @@
       <dd class="font-medium text-foreground">{data.siswa.nama}</dd>
     </div>
     <div class="flex justify-between gap-3 border-b border-border py-1">
-      <dt class="text-muted-foreground">NIS</dt>
-      <dd class="font-mono text-foreground">{data.siswa.nis}</dd>
-    </div>
-    <div class="flex justify-between gap-3 border-b border-border py-1">
       <dt class="text-muted-foreground">Kelas</dt>
       <dd class="text-foreground">{data.siswa.kelasNama || 'Privat'}</dd>
     </div>

@@ -2,7 +2,6 @@ import { panggil } from '$lib/api/panggil'
 
 export interface SiswaPresensi {
   siswa_detail_id: string
-  nis: string
   nama_lengkap: string
 }
 

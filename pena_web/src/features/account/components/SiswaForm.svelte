@@ -11,7 +11,6 @@
       id: string
       nama_lengkap: string
       email: string
-      nis: string
       paket: 'regular' | 'privat'
       kelas_id?: string
       tentor_mapel?: Array<{ tentor_id: string; mapel_id: string }>
@@ -23,7 +22,6 @@
   let nama_lengkap = $state(editingSiswa?.nama_lengkap || '')
   let email = $state(editingSiswa?.email || '')
   let password = $state('')
-  let nis = $state(editingSiswa?.nis || '')
   let paket = $state<'regular' | 'privat'>(editingSiswa?.paket || 'regular')
   let kelas_id = $state(editingSiswa?.kelas_id || '')
   let selectedTentorMapel = $state<Array<{ tentor_id: string; mapel_id: string }>>(
@@ -56,10 +54,6 @@
     } finally {
       loadingData = false
     }
-  }
-
-  function generateNIS() {
-    nis = Math.random().toString().slice(2, 10)
   }
 
   loadData()
@@ -138,31 +132,6 @@
           />
         </div>
       {/if}
-
-      <div class="flex space-x-2">
-        <div class="flex-1">
-          <label for="nis" class="block text-sm font-medium text-foreground">
-            NIS
-          </label>
-          <input
-            id="nis"
-            name="nis"
-            type="text"
-            required
-            bind:value={nis}
-            class="mt-1 block w-full rounded-lg border border-transparent bg-input-background px-3 py-2.5 pr-8 text-sm text-foreground focus:border-ring focus:ring-1 focus:ring-ring focus:outline-none"
-          />
-        </div>
-        <div class="flex items-end">
-          <button
-            type="button"
-            onclick={generateNIS}
-            class="rounded-lg bg-muted px-3 py-2 text-sm hover:bg-muted/40"
-          >
-            Generate
-          </button>
-        </div>
-      </div>
 
       <!-- Kelas is editable when creating a regular siswa and whenever editing, so KG
            can move a student between kelas without recreating the account. -->

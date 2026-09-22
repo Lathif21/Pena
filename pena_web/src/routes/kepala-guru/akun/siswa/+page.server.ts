@@ -25,7 +25,6 @@ export async function load({ cookies, parent }) {
       deleted_at,
       siswa_detail:siswa_detail(
         id,
-        nis,
         paket,
         siswa_kelas(kelas_id, deleted_at, kelas:kelas_id(id, nama)),
         tentor_siswa_privat(tentor_id, mapel_id, deleted_at)
@@ -51,7 +50,6 @@ export async function load({ cookies, parent }) {
       siswa_detail_id: detail?.id || '',
       nama_lengkap: profile.nama_lengkap,
       email: profile.email,
-      nis: detail?.nis || '',
       paket: detail?.paket || 'regular',
       kelas_id: enrolment?.kelas_id || '',
       kelas_nama: enrolment?.kelas?.nama || '',
@@ -150,7 +148,6 @@ export const actions = {
       'nama_lengkap',
       'email',
       'password',
-      'nis',
       'paket',
       'tahun_ajaran_id'
     ])
@@ -189,7 +186,7 @@ export const actions = {
 
     const { data: detail, error: detailError } = await supabaseAdmin
       .from('siswa_detail')
-      .insert({ profile_id: profileId, nis: String(form.get('nis')).trim(), paket })
+      .insert({ profile_id: profileId, paket })
       .select('id')
       .single()
 
@@ -235,7 +232,7 @@ export const actions = {
     if (profile?.role !== 'kepala_guru') return fail(403, { error: 'Tidak diizinkan' })
 
     const form = await request.formData()
-    const missing = requiredFields(form, ['siswa_id', 'nama_lengkap', 'email', 'nis'])
+    const missing = requiredFields(form, ['siswa_id', 'nama_lengkap', 'email'])
     if (missing) return fail(400, { error: missing })
 
     const siswaId = String(form.get('siswa_id'))
@@ -255,12 +252,13 @@ export const actions = {
 
     if (profileError) return fail(400, { error: pesanRamah(profileError, 'Gagal menyimpan. Coba lagi sebentar.') })
 
+    // Dibaca, bukan diubah: siswa_detail tidak lagi punya kolom yang bisa
+    // disunting dari form ini, tapi id dan paket-nya masih dipakai logika kelas.
     const { data: detail, error: detailError } = await supabaseAdmin
       .from('siswa_detail')
-      .update({ nis: String(form.get('nis')).trim() })
+      .select('id, paket')
       .eq('profile_id', siswaId)
       .is('deleted_at', null)
-      .select('id, paket')
       .single()
 
     if (detailError || !detail) {

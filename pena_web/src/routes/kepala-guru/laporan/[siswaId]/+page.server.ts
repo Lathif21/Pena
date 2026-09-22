@@ -17,7 +17,7 @@ export async function load({ cookies, parent, params }) {
   const { data: siswa } = await supabase
     .from('siswa_detail')
     .select(`
-      id, nis, paket,
+      id, paket,
       profile:profile_id(nama_lengkap, email),
       siswa_kelas(deleted_at, kelas:kelas_id(nama))
     `)
@@ -46,8 +46,7 @@ export async function load({ cookies, parent, params }) {
       id: siswa.id,
       nama: (siswa as any).profile?.nama_lengkap ?? '(tanpa nama)',
       email: (siswa as any).profile?.email ?? '',
-      nis: siswa.nis,
-      paket: siswa.paket,
+        paket: siswa.paket,
       kelasNama: enrolment?.kelas?.nama ?? ''
     },
     nilai,

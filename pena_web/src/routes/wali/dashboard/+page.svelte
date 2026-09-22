@@ -35,9 +35,7 @@
     {#each data.anak as a (a.siswaDetailId)}
       <Card>
         <h2 class="font-serif text-base text-foreground">{a.nama}</h2>
-        <p class="mt-1 text-sm text-muted-foreground">
-          <span class="font-mono">{a.nis}</span> · {a.kelasNama || 'Privat'}
-        </p>
+        <p class="mt-1 text-sm text-muted-foreground">{a.kelasNama || 'Privat'}</p>
 
         <div class="mt-4">
           <div class="flex items-baseline justify-between gap-3 text-sm">

@@ -89,10 +89,6 @@
         </div>
         <dl class="mt-3 space-y-1 text-sm">
           <div class="flex justify-between gap-3">
-            <dt class="text-muted-foreground">NIS</dt>
-            <dd class="font-mono text-foreground">{item.nis}</dd>
-          </div>
-          <div class="flex justify-between gap-3">
             <dt class="text-muted-foreground">Kelas</dt>
             <dd class="text-foreground">{item.kelas_nama ?? 'Belum ada kelas'}</dd>
           </div>
@@ -114,7 +110,6 @@
       {#snippet head()}
         <Th>Nama</Th>
         <Th>Email</Th>
-        <Th>NIS</Th>
         <Th>Kelas</Th>
         <Th>Paket</Th>
         <Th>Aksi</Th>
@@ -124,7 +119,6 @@
           <tr class="border-b border-border">
             <Td>{item.nama_lengkap}</Td>
             <Td>{item.email}</Td>
-            <Td numeric>{item.nis}</Td>
             <Td>
               {#if item.kelas_nama}
                 <span

@@ -40,9 +40,7 @@
     <div class="flex flex-wrap items-baseline justify-between gap-3">
       <div>
         <h2 class="font-serif text-base text-foreground">{data.terpilih.nama}</h2>
-        <p class="text-sm text-muted-foreground">
-          <span class="font-mono">{data.terpilih.nis}</span> · {data.terpilih.kelasNama || 'Privat'}
-        </p>
+        <p class="text-sm text-muted-foreground">{data.terpilih.kelasNama || 'Privat'}</p>
       </div>
       <div class="text-right">
         <p class="text-xs text-muted-foreground">Kehadiran</p>

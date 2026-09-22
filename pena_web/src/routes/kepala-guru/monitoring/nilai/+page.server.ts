@@ -3,7 +3,6 @@ import { createSupabaseServerClient } from '$lib/supabase/server'
 interface NilaiRingkas {
   siswaDetailId: string
   nama: string
-  nis: string
   kelasNama: string
   paket: string
   tryOut: number[]
@@ -22,7 +21,7 @@ export async function load({ cookies, parent }) {
     .select(`
       id, nama_lengkap,
       siswa_detail:siswa_detail(
-        id, nis, paket,
+        id, paket,
         siswa_kelas(deleted_at, kelas:kelas_id(nama))
       )
     `)
@@ -64,7 +63,6 @@ export async function load({ cookies, parent }) {
     perSiswa.set(detail.id, {
       siswaDetailId: detail.id,
       nama: p.nama_lengkap,
-      nis: detail.nis ?? '',
       kelasNama: enrolment?.kelas?.nama ?? '',
       paket: detail.paket ?? 'regular',
       tryOut: [],
@@ -98,7 +96,6 @@ export async function load({ cookies, parent }) {
     return {
       siswaDetailId: s.siswaDetailId,
       nama: s.nama,
-      nis: s.nis,
       kelasNama: s.kelasNama,
       paket: s.paket,
       jumlahTryOut: s.tryOut.length,

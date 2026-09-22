@@ -37,7 +37,7 @@ export async function load({ cookies, parent }) {
 
   const { data: anggota } = await supabase
     .from('siswa_kelas')
-    .select('siswa_detail:siswa_detail_id(id, nis, deleted_at, profiles:profile_id(nama_lengkap))')
+    .select('siswa_detail:siswa_detail_id(id, deleted_at, profiles:profile_id(nama_lengkap))')
     .eq('kelas_id', sesi.kelas_id)
     .is('deleted_at', null)
 
@@ -47,7 +47,6 @@ export async function load({ cookies, parent }) {
     .filter((s) => s && !s.deleted_at)
     .map((s) => ({
       siswa_detail_id: s.id,
-      nis: s.nis,
       nama_lengkap: s.profiles?.nama_lengkap ?? '(tanpa nama)'
     }))
     .sort((a, b) => a.nama_lengkap.localeCompare(b.nama_lengkap))

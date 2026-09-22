@@ -21,8 +21,7 @@
     data.siswa.filter((s) => {
       const cocokKelas = !kelasPilihan || s.kelasNama === kelasPilihan
       const kunci = cari.trim().toLowerCase()
-      const cocokCari =
-        !kunci || s.nama.toLowerCase().includes(kunci) || s.nis.toLowerCase().includes(kunci)
+      const cocokCari = !kunci || s.nama.toLowerCase().includes(kunci)
       return cocokKelas && cocokCari
     })
   )
@@ -43,7 +42,6 @@
   // datanya diolah di spreadsheet.
   const KOLOM = [
     { kunci: 'nama', judul: 'Nama' },
-    { kunci: 'nis', judul: 'NIS' },
     { kunci: 'kelas', judul: 'Kelas' },
     { kunci: 'paket', judul: 'Paket' },
     { kunci: 'jumlahTryOut', judul: 'Jumlah Try Out' },
@@ -59,7 +57,6 @@
     // yang sedang dilihat kepala guru.
     const baris = terlihat.map((s) => ({
       nama: s.nama,
-      nis: s.nis,
       kelas: s.kelasNama || 'Privat',
       paket: s.paket === 'privat' ? 'Privat' : 'Regular',
       jumlahTryOut: s.jumlahTryOut,
@@ -126,7 +123,7 @@
       </select>
     </div>
     <div>
-      <label for="cari" class="block text-sm font-medium text-foreground">Cari nama atau NIS</label>
+      <label for="cari" class="block text-sm font-medium text-foreground">Cari nama</label>
       <input id="cari" type="search" bind:value={cari} placeholder="Ketik nama…" class={gayaField} />
     </div>
     <div class="flex items-end">
@@ -179,9 +176,7 @@
         <div class="flex items-start justify-between gap-3">
           <div>
             <p class="font-medium text-foreground">{s.nama}</p>
-            <p class="text-sm text-muted-foreground">
-              <span class="font-mono">{s.nis}</span> · {s.kelasNama || 'Privat'}
-            </p>
+            <p class="text-sm text-muted-foreground">{s.kelasNama || 'Privat'}</p>
           </div>
           {#if s.rataGabungan === null}
             <Badge tone="pending">Belum ada nilai</Badge>
@@ -217,7 +212,6 @@
     <Table>
       {#snippet head()}
         <Th>Siswa</Th>
-        <Th>NIS</Th>
         <Th>Kelas</Th>
         <Th>Try Out</Th>
         <Th>Nilai Manual</Th>
@@ -228,7 +222,6 @@
         {#each terlihat as s (s.siswaDetailId)}
           <tr class="border-b border-border hover:bg-muted/30">
             <Td class="font-medium">{s.nama}</Td>
-            <Td numeric class="text-muted-foreground">{s.nis}</Td>
             <Td class="text-muted-foreground">{s.kelasNama || 'Privat'}</Td>
             <Td numeric>
               {s.rataTryOut ?? '—'}

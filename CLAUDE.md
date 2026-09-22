@@ -89,7 +89,6 @@ Use Indonesian domain terms in code, not translations.
 - `wali_murid` — parent/guardian
 - `paket` — student package (regular/privat)
 - `kelas` — class · `tahun_ajaran` — academic year
-- `NIS` — student identification number
 
 ## Key Workflows
 

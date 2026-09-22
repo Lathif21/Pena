@@ -11,7 +11,7 @@ export async function listSiswa() {
       email,
       created_at,
       deleted_at,
-      siswa_detail:siswa_detail(id, nis, paket)
+      siswa_detail:siswa_detail(id, paket)
     `)
     .eq('role', 'siswa')
     .is('deleted_at', null)
@@ -24,7 +24,6 @@ export async function listSiswa() {
     siswa_detail_id: profile.siswa_detail?.[0]?.id || '',
     nama_lengkap: profile.nama_lengkap,
     email: profile.email,
-    nis: profile.siswa_detail?.[0]?.nis || '',
     paket: profile.siswa_detail?.[0]?.paket || 'regular',
     created_at: profile.created_at,
     deleted_at: profile.deleted_at
@@ -35,7 +34,6 @@ export async function createSiswa(
   nama_lengkap: string,
   email: string,
   password: string,
-  nis: string,
   paket: 'regular' | 'privat',
   tahun_ajaran_id: string,
   kelas_id?: string,
@@ -56,11 +54,11 @@ export async function createSiswa(
   })
 
   // Mulai dari sini setiap kegagalan menarik akunnya kembali: siswa tanpa
-  // siswa_detail tidak bisa dipakai di mana pun, dan NIS-nya ikut terkunci.
+  // siswa_detail tidak bisa dipakai di mana pun.
   try {
     const { data: siswaDetail, error: detailError } = await supabase
       .from('siswa_detail')
-      .insert({ profile_id: profileId, nis, paket })
+      .insert({ profile_id: profileId, paket })
       .select()
       .single()
 

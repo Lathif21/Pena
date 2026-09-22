@@ -387,7 +387,6 @@ CREATE TABLE public.sessions (
 CREATE TABLE public.siswa_detail (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     profile_id uuid NOT NULL,
-    nis text NOT NULL,
     paket text NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     deleted_at timestamp with time zone,
@@ -708,14 +707,6 @@ ALTER TABLE ONLY public.sesi_mengajar
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_pkey PRIMARY KEY (token);
-
-
---
--- Name: siswa_detail siswa_detail_nis_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.siswa_detail
-    ADD CONSTRAINT siswa_detail_nis_key UNIQUE (nis);
 
 
 --

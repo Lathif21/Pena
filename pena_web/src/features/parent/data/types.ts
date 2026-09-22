@@ -9,7 +9,6 @@
 export interface Anak {
   siswaDetailId: string
   nama: string
-  nis: string
   kelasNama: string
   paket: string
 }

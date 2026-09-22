@@ -17,7 +17,7 @@ export async function listAnak(supabase: Db, waliId: string): Promise<Anak[]> {
     .select(`
       siswa_detail_id,
       siswa_detail:siswa_detail_id(
-        id, nis, paket,
+        id, paket,
         profile:profile_id(nama_lengkap),
         siswa_kelas(deleted_at, kelas:kelas_id(nama))
       )
@@ -34,8 +34,7 @@ export async function listAnak(supabase: Db, waliId: string): Promise<Anak[]> {
       return {
         siswaDetailId: detail.id,
         nama: detail.profile?.nama_lengkap ?? '(tanpa nama)',
-        nis: detail.nis ?? '',
-        kelasNama: enrolment?.kelas?.nama ?? '',
+            kelasNama: enrolment?.kelas?.nama ?? '',
         paket: detail.paket ?? 'regular'
       }
     })

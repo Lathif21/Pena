@@ -87,7 +87,7 @@ export async function load({ cookies, parent, url }) {
 
   const { data: siswaRows } = await supabase
     .from('siswa_detail')
-    .select('id, nis, profiles:profile_id(nama_lengkap)')
+    .select('id, profiles:profile_id(nama_lengkap)')
     .in('id', ids)
     .is('deleted_at', null)
 
@@ -141,8 +141,7 @@ export async function load({ cookies, parent, url }) {
 
       return {
         id: s.id,
-        nis: s.nis,
-        nama: s.profiles?.nama_lengkap ?? '(tanpa nama)',
+          nama: s.profiles?.nama_lengkap ?? '(tanpa nama)',
         nilaiTryOut,
         nilaiManual,
         rataRata

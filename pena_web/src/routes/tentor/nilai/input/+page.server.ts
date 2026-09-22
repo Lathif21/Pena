@@ -73,14 +73,13 @@ export async function load({ cookies, parent, url }) {
 
   const { data: siswaRows } = await supabase
     .from('siswa_detail')
-    .select('id, nis, profiles:profile_id(nama_lengkap)')
+    .select('id, profiles:profile_id(nama_lengkap)')
     .in('id', [...kelasPerSiswa.keys()])
     .is('deleted_at', null)
 
   const siswa = (siswaRows ?? [])
     .map((s: any) => ({
       siswa_detail_id: s.id,
-      nis: s.nis,
       nama_lengkap: s.profiles?.nama_lengkap ?? '(tanpa nama)',
       kelas: kelasPerSiswa.get(s.id) ?? ''
     }))

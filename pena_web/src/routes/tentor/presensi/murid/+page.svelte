@@ -125,7 +125,6 @@
               />
               <span class="min-w-0 flex-1">
                 <span class="block truncate text-sm font-medium text-foreground">{s.nama_lengkap}</span>
-                <span class="block font-mono text-xs text-muted-foreground">{s.nis}</span>
               </span>
               <Badge tone={ini ? 'success' : 'error'}>{ini ? 'Hadir' : 'Tidak hadir'}</Badge>
             </label>
