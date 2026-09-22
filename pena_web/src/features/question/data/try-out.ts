@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface TryOut {
   id: string
@@ -69,23 +69,9 @@ export function deleteTryOut(tryOutId: string) {
 }
 
 export async function getTryOut(tryOutId: string): Promise<TryOut | null> {
-  const { data, error } = await supabase
-    .from('try_out')
-    .select('*')
-    .eq('id', tryOutId)
-    .is('deleted_at', null)
-    .single()
-
-  if (error) throw error
-  return data
+  return panggil<TryOut | null>('/api/konten/try-out', 'getTryOut', tryOutId)
 }
 
 export async function getTryOutKelas(tryOutId: string): Promise<string[]> {
-  const { data, error } = await supabase
-    .from('try_out_kelas')
-    .select('kelas_id')
-    .eq('try_out_id', tryOutId)
-
-  if (error) throw error
-  return data?.map(d => d.kelas_id) || []
+  return panggil<string[]>('/api/konten/try-out', 'getTryOutKelas', tryOutId)
 }

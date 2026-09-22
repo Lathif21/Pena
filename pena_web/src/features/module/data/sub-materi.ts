@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface SubMateri {
   id: string
@@ -9,53 +9,18 @@ export interface SubMateri {
   deleted_at: string | null
 }
 
-export async function listSubMateri(materiId: string) {
-  const { data, error } = await supabase
-    .from('sub_materi')
-    .select('id, materi_id, nama, nomor_urut, created_at, deleted_at')
-    .eq('materi_id', materiId)
-    .is('deleted_at', null)
-    .order('nomor_urut')
-
-  if (error) throw error
-  return data as SubMateri[]
+export async function listSubMateri(materiId: string): Promise<SubMateri[]> {
+  return panggil<SubMateri[]>('/api/konten/sub-materi', 'listSubMateri', materiId)
 }
 
-export async function createSubMateri(materiId: string, nama: string, nomorUrut: number) {
-  const { data, error } = await supabase
-    .from('sub_materi')
-    .insert({
-      materi_id: materiId,
-      nama,
-      nomor_urut: nomorUrut
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as SubMateri
+export async function createSubMateri(materiId: string, nama: string, nomorUrut: number): Promise<SubMateri> {
+  return panggil<SubMateri>('/api/konten/sub-materi', 'createSubMateri', materiId, nama, nomorUrut)
 }
 
-export async function updateSubMateri(id: string, nama: string, nomorUrut: number) {
-  const { data, error } = await supabase
-    .from('sub_materi')
-    .update({
-      nama,
-      nomor_urut: nomorUrut
-    })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as SubMateri
+export async function updateSubMateri(id: string, nama: string, nomorUrut: number): Promise<SubMateri> {
+  return panggil<SubMateri>('/api/konten/sub-materi', 'updateSubMateri', id, nama, nomorUrut)
 }
 
-export async function softDeleteSubMateri(id: string) {
-  const { error } = await supabase
-    .from('sub_materi')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
-
-  if (error) throw error
+export async function softDeleteSubMateri(id: string): Promise<void> {
+  return panggil<void>('/api/konten/sub-materi', 'softDeleteSubMateri', id)
 }

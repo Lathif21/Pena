@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface NilaiManual {
   id: string
@@ -43,14 +43,5 @@ export async function createNilaiManual(
 }
 
 export async function listNilaiManual(siswaDetailId: string, mapelId: string): Promise<NilaiManual[]> {
-  const { data, error } = await supabase
-    .from('nilai_manual')
-    .select('*')
-    .eq('siswa_detail_id', siswaDetailId)
-    .eq('mapel_id', mapelId)
-    .is('deleted_at', null)
-    .order('tanggal', { ascending: false })
-
-  if (error) throw error
-  return data || []
+  return panggil<NilaiManual[]>('/api/nilai/manual', 'listNilaiManual', siswaDetailId, mapelId)
 }

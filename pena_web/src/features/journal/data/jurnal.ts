@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface Jurnal {
   id: string
@@ -15,29 +15,12 @@ export interface MateriPilihan {
   nomor_urut: number
 }
 
-/** Materi milik mapel sesi aktif — bukan seluruh materi di bimbel. */
 export async function listMateriByMapel(mapelId: string): Promise<MateriPilihan[]> {
-  const { data, error } = await supabase
-    .from('materi')
-    .select('id, nama, nomor_urut')
-    .eq('mapel_id', mapelId)
-    .is('deleted_at', null)
-    .order('nomor_urut')
-
-  if (error) throw error
-  return data ?? []
+  return panggil<MateriPilihan[]>('/api/jurnal/data', 'listMateriByMapel', mapelId)
 }
 
 export async function getJurnalBySesi(sesiId: string): Promise<Jurnal | null> {
-  const { data, error } = await supabase
-    .from('jurnal_mengajar')
-    .select('*')
-    .eq('sesi_id', sesiId)
-    .is('deleted_at', null)
-    .maybeSingle()
-
-  if (error) throw error
-  return data
+  return panggil<Jurnal | null>('/api/jurnal/data', 'getJurnalBySesi', sesiId)
 }
 
 /**

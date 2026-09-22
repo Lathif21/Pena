@@ -2,6 +2,7 @@
   import { pesanRamah } from '$lib/utils/pesan'
   import { enhance } from '$app/forms'
   import { listSiswa, type Siswa } from '../data/siswa'
+  import { listSiswaIdsForWali } from '../data/wali'
   import { listTahunAjaran, type TahunAjaran } from '$features/master-data/data/tahun-ajaran'
 
   interface Props {
@@ -51,14 +52,7 @@
 
   async function loadWaliSiswa(waliId: string) {
     try {
-      const { supabase } = await import('$lib/supabase/client')
-      const { data, error: err } = await supabase
-        .from('wali_siswa')
-        .select('siswa_detail_id')
-        .eq('wali_id', waliId)
-
-      if (err) throw err
-      selectedSiswaIds = data.map((row: any) => row.siswa_detail_id)
+      selectedSiswaIds = await listSiswaIdsForWali(waliId)
     } catch (err) {
       console.error('Gagal memuat data anak wali:', err)
     }

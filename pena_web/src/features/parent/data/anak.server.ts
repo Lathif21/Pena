@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js'
+import type { Db } from '$lib/db/postgrest.server'
 import type { Anak, Titik, NilaiAnak, KehadiranAnak } from './types'
 
 export type { Anak, Titik, NilaiAnak, KehadiranAnak }
@@ -11,7 +11,7 @@ export type { Anak, Titik, NilaiAnak, KehadiranAnak }
  * di /wali wajib lewat sini dan hanya boleh mengerjakan id yang dikembalikannya
  * — jangan pernah percaya id anak yang datang dari query string.
  */
-export async function listAnak(supabase: SupabaseClient, waliId: string): Promise<Anak[]> {
+export async function listAnak(supabase: Db, waliId: string): Promise<Anak[]> {
   const { data } = await supabase
     .from('wali_siswa')
     .select(`
@@ -63,7 +63,7 @@ const rata = (angka: number[]) =>
  * sebanding, dan CLAUDE.md menyatakan latihan tidak pernah masuk progress wali.
  */
 export async function nilaiAnak(
-  supabase: SupabaseClient,
+  supabase: Db,
   siswaDetailId: string
 ): Promise<NilaiAnak> {
   const [{ data: attemptRows }, { data: manualRows }] = await Promise.all([
@@ -125,7 +125,7 @@ export async function nilaiAnak(
 
 /** Kehadiran satu anak. Siswa privat tidak punya presensi sama sekali. */
 export async function kehadiranAnak(
-  supabase: SupabaseClient,
+  supabase: Db,
   siswaDetailId: string
 ): Promise<KehadiranAnak> {
   const { data } = await supabase

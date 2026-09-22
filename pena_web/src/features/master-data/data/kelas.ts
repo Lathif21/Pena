@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface Kelas {
   id: string
@@ -7,45 +7,18 @@ export interface Kelas {
   deleted_at: string | null
 }
 
-export async function listKelas() {
-  const { data, error } = await supabase
-    .from('kelas')
-    .select('*')
-    .is('deleted_at', null)
-    .order('nama')
-
-  if (error) throw error
-  return data as Kelas[]
+export async function listKelas(): Promise<Kelas[]> {
+  return panggil<Kelas[]>('/api/master/kelas', 'listKelas')
 }
 
-export async function createKelas(nama: string) {
-  const { data, error } = await supabase
-    .from('kelas')
-    .insert([{ nama }])
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Kelas
+export async function createKelas(nama: string): Promise<Kelas> {
+  return panggil<Kelas>('/api/master/kelas', 'createKelas', nama)
 }
 
-export async function updateKelas(id: string, nama: string) {
-  const { data, error } = await supabase
-    .from('kelas')
-    .update({ nama })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Kelas
+export async function updateKelas(id: string, nama: string): Promise<Kelas> {
+  return panggil<Kelas>('/api/master/kelas', 'updateKelas', id, nama)
 }
 
-export async function deleteKelas(id: string) {
-  const { error } = await supabase
-    .from('kelas')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
-
-  if (error) throw error
+export async function deleteKelas(id: string): Promise<void> {
+  return panggil<void>('/api/master/kelas', 'deleteKelas', id)
 }

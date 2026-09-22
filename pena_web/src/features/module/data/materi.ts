@@ -1,4 +1,4 @@
-import { supabase } from '$lib/supabase/client'
+import { panggil } from '$lib/api/panggil'
 
 export interface Materi {
   id: string
@@ -9,53 +9,18 @@ export interface Materi {
   deleted_at: string | null
 }
 
-export async function listMateri(mapelId: string) {
-  const { data, error } = await supabase
-    .from('materi')
-    .select('id, mapel_id, nama, nomor_urut, created_at, deleted_at')
-    .eq('mapel_id', mapelId)
-    .is('deleted_at', null)
-    .order('nomor_urut')
-
-  if (error) throw error
-  return data as Materi[]
+export async function listMateri(mapelId: string): Promise<Materi[]> {
+  return panggil<Materi[]>('/api/konten/materi', 'listMateri', mapelId)
 }
 
-export async function createMateri(mapelId: string, nama: string, nomorUrut: number) {
-  const { data, error } = await supabase
-    .from('materi')
-    .insert({
-      mapel_id: mapelId,
-      nama,
-      nomor_urut: nomorUrut
-    })
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Materi
+export async function createMateri(mapelId: string, nama: string, nomorUrut: number): Promise<Materi> {
+  return panggil<Materi>('/api/konten/materi', 'createMateri', mapelId, nama, nomorUrut)
 }
 
-export async function updateMateri(id: string, nama: string, nomorUrut: number) {
-  const { data, error } = await supabase
-    .from('materi')
-    .update({
-      nama,
-      nomor_urut: nomorUrut
-    })
-    .eq('id', id)
-    .select()
-    .single()
-
-  if (error) throw error
-  return data as Materi
+export async function updateMateri(id: string, nama: string, nomorUrut: number): Promise<Materi> {
+  return panggil<Materi>('/api/konten/materi', 'updateMateri', id, nama, nomorUrut)
 }
 
-export async function softDeleteMateri(id: string) {
-  const { error } = await supabase
-    .from('materi')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', id)
-
-  if (error) throw error
+export async function softDeleteMateri(id: string): Promise<void> {
+  return panggil<void>('/api/konten/materi', 'softDeleteMateri', id)
 }

@@ -1,6 +1,5 @@
+import { panggil } from '$lib/api/panggil'
 import { deserialize } from '$app/forms'
-import { supabase } from '$lib/supabase/client'
-
 
 export interface Module {
   id: string
@@ -13,16 +12,8 @@ export interface Module {
   deleted_at: string | null
 }
 
-export async function getModuleBySubMateri(subMateriId: string) {
-  const { data, error } = await supabase
-    .from('module')
-    .select('id, sub_materi_id, status, storage_path, published_at, created_at, deleted_at')
-    .eq('sub_materi_id', subMateriId)
-    .is('deleted_at', null)
-    .maybeSingle()
-
-  if (error) throw error
-  return data as Module | null
+export async function getModuleBySubMateri(subMateriId: string): Promise<Module | null> {
+  return panggil<Module | null>('/api/konten/module', 'getModuleBySubMateri', subMateriId)
 }
 
 /** Uploads via the server endpoint, which writes the file into static/uploads/pdfs. */
