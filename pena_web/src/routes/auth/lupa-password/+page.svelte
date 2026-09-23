@@ -76,7 +76,7 @@
         <div>
           <label for="kode" class="mb-2 block text-sm font-medium text-foreground">Kode dari email</label>
           <input id="kode" name="kode" required inputmode="numeric" autocomplete="one-time-code"
-            pattern="[0-9]{6}" maxlength="6" title="6 angka dari email"
+            pattern={'[0-9]{6}'} maxlength="6" title="6 angka dari email"
             class="{gayaField} font-mono tracking-[0.3em]" placeholder="000000" />
         </div>
         <div>
