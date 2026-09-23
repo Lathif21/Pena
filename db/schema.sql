@@ -10,7 +10,8 @@
 -- sumber kebenaran. Tiga di antaranya (bucket storage) tidak ikut ke sini:
 -- berkas sekarang di disk, dan seluruh RLS memang hanya ada di file-file itu.
 --
--- app_users dan sessions menggantikan auth.users milik Supabase.
+-- app_users dan sessions menggantikan auth.users milik Supabase. reset_password
+-- menyimpan kode lupa password (hash scrypt, bukan kodenya).
 --
 -- PostgreSQL database dump
 --
@@ -381,6 +382,21 @@ CREATE TABLE public.sessions (
 
 
 --
+-- Name: reset_password; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.reset_password (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_id uuid NOT NULL,
+    kode_hash text NOT NULL,
+    percobaan integer DEFAULT 0 NOT NULL,
+    expires_at timestamp with time zone NOT NULL,
+    used_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: siswa_detail; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -707,6 +723,14 @@ ALTER TABLE ONLY public.sesi_mengajar
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_pkey PRIMARY KEY (token);
+
+
+--
+-- Name: reset_password reset_password_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reset_password
+    ADD CONSTRAINT reset_password_pkey PRIMARY KEY (id);
 
 
 --
@@ -1071,6 +1095,13 @@ CREATE INDEX idx_sessions_expires ON public.sessions USING btree (expires_at);
 --
 
 CREATE INDEX idx_sessions_user ON public.sessions USING btree (user_id);
+
+
+--
+-- Name: idx_reset_password_user; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_reset_password_user ON public.reset_password USING btree (user_id, created_at DESC);
 
 
 --
@@ -1522,6 +1553,14 @@ ALTER TABLE ONLY public.sesi_mengajar
 
 ALTER TABLE ONLY public.sessions
     ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.app_users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: reset_password reset_password_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reset_password
+    ADD CONSTRAINT reset_password_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.app_users(id) ON DELETE CASCADE;
 
 
 --
