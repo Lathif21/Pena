@@ -2,6 +2,7 @@
   import { enhance } from '$app/forms'
   import { Eye, EyeOff } from 'lucide-svelte'
   import Button from '$lib/components/Button.svelte'
+  import { page } from '$app/state'
 
   let loading = $state(false)
   let error = $state('')
@@ -22,6 +23,12 @@
         <h1 class="font-serif text-2xl text-foreground">Pena</h1>
         <p class="mt-1 text-sm text-muted-foreground">Platform e-learning bimbingan belajar</p>
       </div>
+
+      {#if page.url.searchParams.get('password') === 'diganti' && !error}
+        <div class="mb-6 rounded-lg bg-emerald-100 p-4" role="status">
+          <p class="text-sm text-emerald-800">✓ Password berhasil diganti. Silakan masuk dengan password baru.</p>
+        </div>
+      {/if}
 
       {#if error}
         <div class="mb-6 rounded-lg bg-red-100 p-4">
@@ -96,7 +103,13 @@
           </div>
         </div>
 
-        <Button type="submit" disabled={loading} class="mt-6 w-full">
+        <div class="text-right">
+          <a href="/auth/lupa-password" class="inline-flex min-h-11 items-center text-sm text-primary hover:underline">
+            Lupa password?
+          </a>
+        </div>
+
+        <Button type="submit" disabled={loading} class="w-full">
           {loading ? 'Masuk...' : 'Masuk'}
         </Button>
       </form>
