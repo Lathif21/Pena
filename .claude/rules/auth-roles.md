@@ -90,6 +90,8 @@ create table profiles (
 
 Minimum 8 characters. No complexity requirements — this is a bimbel, not a bank. `kepala_guru` can reset any user's password.
 
+Lupa password: siapa pun bisa minta kode 6 angka lewat email di `/auth/lupa-password` (berlaku 1 jam, 5 tebakan per kode, 5 kode per 24 jam — `features/auth/data/aturan-reset.js`, dicek `scripts/cek-reset-password.mjs`). Email tak terdaftar sengaja diberi tahu, keputusan pemilik produk. Akun dengan email karangan tetap lewat kepala guru.
+
 ## Session
 
 Supabase handles session with JWT. Token refresh is automatic via the Supabase client. No custom session logic.

@@ -23,7 +23,7 @@ The app uses **feature-first folder structure**. See `.claude/rules/structure-we
 - **Database:** PostgreSQL mandiri di VPS, lewat PostgREST di loopback
 - **Auth:** sendiri — `app_users` + `sessions`, scrypt bawaan Node
 - **Berkas:** disk VPS di balik signed URL ber-HMAC
-- **Email:** SMTP (relief person notifications only)
+- **Email:** SMTP Gmail — notifikasi relief dan kode lupa password
 
 Supabase tidak dipakai lagi sama sekali.
 
