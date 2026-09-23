@@ -6,6 +6,7 @@ import {
   isKepalaGuru,
   createAccount,
   updateAccountEmail,
+  resetAccountPassword,
   requiredFields
 } from '$features/account/data/account.server'
 
@@ -71,6 +72,20 @@ export const actions = {
       .eq('role', 'tentor')
 
     if (error) return fail(400, { error: pesanRamah(error, 'Gagal menyimpan. Coba lagi sebentar.') })
+
+    return { success: true }
+  },
+
+  resetPassword: async ({ request, cookies }) => {
+    if (!(await isKepalaGuru(cookies))) return fail(403, { error: 'Tidak diizinkan' })
+
+    const form = await request.formData()
+
+    try {
+      await resetAccountPassword(String(form.get('profile_id') ?? ''), 'tentor', String(form.get('password') ?? ''))
+    } catch (err) {
+      return fail(400, { error: pesanRamah(err, 'Gagal mengganti password tentor') })
+    }
 
     return { success: true }
   }

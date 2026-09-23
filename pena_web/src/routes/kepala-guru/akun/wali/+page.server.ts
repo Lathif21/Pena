@@ -7,6 +7,7 @@ import {
   createAccount,
   rollbackAccount,
   updateAccountEmail,
+  resetAccountPassword,
   requiredFields
 } from '$features/account/data/account.server'
 
@@ -114,6 +115,20 @@ export const actions = {
       await setWaliSiswa(waliId, parseSiswaIds(form.get('siswa_ids')))
     } catch (err) {
       return fail(400, { error: pesanRamah(err, 'Gagal menautkan siswa') })
+    }
+
+    return { success: true }
+  },
+
+  resetPassword: async ({ request, cookies }) => {
+    if (!(await isKepalaGuru(cookies))) return fail(403, { error: 'Tidak diizinkan' })
+
+    const form = await request.formData()
+
+    try {
+      await resetAccountPassword(String(form.get('profile_id') ?? ''), 'wali_murid', String(form.get('password') ?? ''))
+    } catch (err) {
+      return fail(400, { error: pesanRamah(err, 'Gagal mengganti password wali murid') })
     }
 
     return { success: true }

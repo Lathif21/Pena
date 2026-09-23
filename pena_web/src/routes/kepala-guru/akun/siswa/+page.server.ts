@@ -8,6 +8,7 @@ import {
   createAccount,
   rollbackAccount,
   updateAccountEmail,
+  resetAccountPassword,
   requiredFields
 } from '$features/account/data/account.server'
 
@@ -332,6 +333,20 @@ export const actions = {
 
       const message = await setTentorMapel(detail.id, profile.tahun_ajaran_id, wanted)
       if (message) return fail(400, { error: message })
+    }
+
+    return { success: true }
+  },
+
+  resetPassword: async ({ request, cookies }) => {
+    if (!(await isKepalaGuru(cookies))) return fail(403, { error: 'Tidak diizinkan' })
+
+    const form = await request.formData()
+
+    try {
+      await resetAccountPassword(String(form.get('profile_id') ?? ''), 'siswa', String(form.get('password') ?? ''))
+    } catch (err) {
+      return fail(400, { error: pesanRamah(err, 'Gagal mengganti password siswa') })
     }
 
     return { success: true }
