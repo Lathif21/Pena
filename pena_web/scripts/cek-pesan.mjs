@@ -19,7 +19,12 @@ for (const p of [
   'Tanggal tidak boleh di masa lalu',
   'Task delegasi wajib diisi',
   'Isi file harus PDF',
-  'Sudah ada relief aktif untuk kelas, mapel, dan tanggal ini'
+  'Sudah ada relief aktif untuk kelas, mapel, dan tanggal ini',
+  'Password minimal 8 karakter',
+  'Akun tidak dikenali. Muat ulang halaman lalu coba lagi.',
+  'Akun tidak ditemukan. Muat ulang halaman lalu coba lagi.',
+  'Akun ini tidak punya data login. Hubungi pengelola aplikasi.',
+  'Password sudah diganti, tapi akun ini belum dikeluarkan dari perangkat lain. Coba simpan sekali lagi.'
 ]) {
   tidakTeknis(p)
   assert.equal(pesanRamah(new Error(p)), p, `harus diteruskan utuh: ${p}`)
