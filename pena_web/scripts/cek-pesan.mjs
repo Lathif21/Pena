@@ -24,7 +24,19 @@ for (const p of [
   'Akun tidak dikenali. Muat ulang halaman lalu coba lagi.',
   'Akun tidak ditemukan. Muat ulang halaman lalu coba lagi.',
   'Akun ini tidak punya data login. Hubungi pengelola aplikasi.',
-  'Password sudah diganti, tapi akun ini belum dikeluarkan dari perangkat lain. Coba simpan sekali lagi.'
+  'Password sudah diganti, tapi akun ini belum dikeluarkan dari perangkat lain. Coba simpan sekali lagi.',
+  'Email ini tidak terdaftar di Pena. Periksa ejaannya, atau hubungi kepala guru.',
+  'Email gagal dikirim. Coba lagi sebentar, atau hubungi kepala guru.',
+  'Kode harus 6 angka.',
+  'Kode salah. Sisa percobaan: 3.',
+  'Kode salah dan batas percobaan habis. Minta kode baru.',
+  'Kode tidak berlaku atau sudah kedaluwarsa. Minta kode baru.',
+  'Terlalu banyak percobaan salah. Minta kode baru.',
+  'Kode baru saja dikirim. Tunggu 1 menit sebelum minta kode baru.',
+  'Sudah 5 kali minta kode dalam 24 jam. Coba lagi besok, atau minta kepala guru mengganti password Anda.',
+  'Kode sedang diperiksa dari tempat lain. Coba lagi.',
+  'Kode ini sudah dipakai. Minta kode baru kalau perlu.',
+  'Password gagal disimpan. Minta kode baru lalu coba lagi.'
 ]) {
   tidakTeknis(p)
   assert.equal(pesanRamah(new Error(p)), p, `harus diteruskan utuh: ${p}`)
