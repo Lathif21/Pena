@@ -20,8 +20,12 @@
   <div class="w-full max-w-md">
     <div class="rounded-xl border border-border bg-card p-8">
       <div class="mb-8">
-        <h1 class="font-serif text-2xl text-foreground">Pena</h1>
-        <p class="mt-1 text-sm text-muted-foreground">Platform e-learning bimbingan belajar</p>
+        <!-- Logo sudah bertuliskan LBB PENA, jadi ia sendiri yang menjadi judul
+             halaman; alt-nya yang dibaca screen reader. -->
+        <h1>
+          <img src="/logo%20pena.png" alt="LBB PENA" width="112" height="112" class="mx-auto h-28 w-28" />
+        </h1>
+        <p class="mt-3 text-center text-base text-muted-foreground">Platform e-learning bimbingan belajar</p>
       </div>
 
       {#if page.url.searchParams.get('password') === 'diganti' && !error}
