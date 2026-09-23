@@ -1,7 +1,7 @@
 import { transporter, FROM } from './client'
 
 /**
- * Notifikasi relief — satu-satunya email yang dikirim Pena.
+ * Notifikasi relief. Email lain yang dikirim Pena: kode lupa password (reset-password.ts).
  *
  * Modul ini tidak tahu apa-apa soal skema: pemanggil yang menyiapkan nama,
  * alamat, dan tautan. Isinya murni perakitan dan pengiriman, supaya perubahan
