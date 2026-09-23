@@ -3,6 +3,7 @@
   import { pesanRamah } from '$lib/utils/pesan'
   import { deleteSiswa, type Siswa } from '../data/siswa'
   import SiswaForm from './SiswaForm.svelte'
+  import GantiPasswordForm from './GantiPasswordForm.svelte'
   import Button from '$lib/components/Button.svelte'
   import Card from '$lib/components/Card.svelte'
   import Table from '$lib/components/Table.svelte'
@@ -18,6 +19,12 @@
   let editingSiswa: Siswa | null = $state(null)
   let error = $state('')
   let sukses = $state('')
+  let gantiPasswordAkun: Siswa | null = $state(null)
+
+  function handleGantiPasswordClose(tersimpan = false) {
+    if (tersimpan) sukses = `Password ${gantiPasswordAkun?.nama_lengkap} berhasil diganti.`
+    gantiPasswordAkun = null
+  }
 
   async function loadSiswa() {
     await invalidateAll()
@@ -72,6 +79,12 @@
     <SiswaForm {editingSiswa} onclose={handleCloseForm} />
   {/if}
 
+  {#if gantiPasswordAkun}
+    {#key gantiPasswordAkun.id}
+      <GantiPasswordForm akun={gantiPasswordAkun} onclose={handleGantiPasswordClose} />
+    {/key}
+  {/if}
+
   <!-- Enam kolom bermakna — di bawah md jadi tumpukan card. -->
   <div class="space-y-3 md:hidden">
     {#each siswa as item (item.id)}
@@ -96,6 +109,9 @@
         <div class="mt-3 flex gap-2">
           <Button variant="secondary" class="flex-1" onclick={() => handleEditClick(item)}>
             Edit
+          </Button>
+          <Button variant="secondary" class="flex-1" onclick={() => (gantiPasswordAkun = item)}>
+            Password
           </Button>
           <Button variant="destructive" class="flex-1" onclick={() => handleDelete(item.id)}>
             Hapus
@@ -138,6 +154,12 @@
             <Td class="space-x-3">
               <button onclick={() => handleEditClick(item)} class="text-primary hover:underline">
                 Edit
+              </button>
+              <button
+                onclick={() => (gantiPasswordAkun = item)}
+                class="text-primary hover:underline"
+              >
+                Ganti Password
               </button>
               <button
                 onclick={() => handleDelete(item.id)}

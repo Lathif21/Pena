@@ -3,6 +3,7 @@
   import { pesanRamah } from '$lib/utils/pesan'
   import { deleteWali, type Wali } from '../data/wali'
   import WaliForm from './WaliForm.svelte'
+  import GantiPasswordForm from './GantiPasswordForm.svelte'
 
   interface Props {
     wali: Wali[]
@@ -13,6 +14,12 @@
   let editingWali: Wali | null = $state(null)
   let error = $state('')
   let sukses = $state('')
+  let gantiPasswordAkun: Wali | null = $state(null)
+
+  function handleGantiPasswordClose(tersimpan = false) {
+    if (tersimpan) sukses = `Password ${gantiPasswordAkun?.nama_lengkap} berhasil diganti.`
+    gantiPasswordAkun = null
+  }
 
   async function loadWali() {
     await invalidateAll()
@@ -67,6 +74,12 @@
     <WaliForm editingWali={editingWali} onclose={handleCloseForm} />
   {/if}
 
+  {#if gantiPasswordAkun}
+    {#key gantiPasswordAkun.id}
+      <GantiPasswordForm akun={gantiPasswordAkun} onclose={handleGantiPasswordClose} />
+    {/key}
+  {/if}
+
   <div class="overflow-x-auto rounded-lg border border-border">
       <table class="w-full divide-y divide-border">
         <thead class="bg-muted/30">
@@ -87,6 +100,12 @@
                   class="text-primary hover:underline"
                 >
                   Edit
+                </button>
+                <button
+                  onclick={() => (gantiPasswordAkun = item)}
+                  class="text-primary hover:underline"
+                >
+                  Ganti Password
                 </button>
                 <button
                   onclick={() => handleDelete(item.id)}
