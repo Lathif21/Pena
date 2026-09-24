@@ -76,7 +76,7 @@
     >
       <Menu class="h-5 w-5" />
     </button>
-    <span class="font-serif text-lg text-foreground">Pena</span>
+    <img src="/logo%20pena.png" alt="LBB PENA" width="44" height="44" class="h-11 w-11" />
   </header>
 
   {#if drawerBuka}
@@ -93,7 +93,11 @@
       : '-translate-x-full'}"
   >
     <div class="flex items-center justify-between border-b border-sidebar-border px-4 py-4">
-      <span class="font-serif text-xl">Pena</span>
+      <!-- Logonya navy di atas latar transparan — tanpa alas putih ia tenggelam
+           di sidebar yang juga navy. -->
+      <div class="rounded-lg bg-card p-1.5">
+        <img src="/logo%20pena.png" alt="LBB PENA" width="80" height="80" class="h-20 w-20" />
+      </div>
       <button
         onclick={() => (drawerBuka = false)}
         aria-label="Tutup menu"
