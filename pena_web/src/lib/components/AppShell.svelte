@@ -95,8 +95,11 @@
     <div class="flex items-center justify-between border-b border-sidebar-border px-4 py-4">
       <!-- Logonya navy di atas latar transparan — tanpa alas putih ia tenggelam
            di sidebar yang juga navy. -->
-      <div class="rounded-lg bg-card p-1.5">
-        <img src="/logo%20pena.png" alt="LBB PENA" width="80" height="80" class="h-20 w-20" />
+      <!-- Versi horizontal: ikon dipotong dari logo, tulisannya teks biasa. Logo
+           utuh bertumpuk vertikal dan terlalu tinggi untuk kepala sidebar. -->
+      <div class="flex items-center gap-2 rounded-lg bg-card px-3 py-2">
+        <img src="/logo-ikon.png" alt="" width="48" height="32" class="h-8 w-12" />
+        <span class="text-base font-extrabold tracking-wide text-primary">LBB PENA</span>
       </div>
       <button
         onclick={() => (drawerBuka = false)}
